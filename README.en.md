@@ -9,12 +9,13 @@ My way of getting the ROG Zephyrus G16 GA605WV (2024) to work properly under Fed
 Here are the first installation and setup steps I performed. Click on a step to see the details.
 
 <details>
-<summary><strong>Step 1:</strong> Install Brave browser</summary>
+<summary><strong>Step 1:</strong> Install Brave browser (Flathub)</summary>
 
-I installed and configured Brave the way I like it:
+I installed Brave via Flathub. The official `.sh` script version from Brave's website crashed regularly and sometimes refused to open. The Flatpak version works stable.
 
+Installation via Flathub (Software Center) or command line:
 ```bash
-curl -fsS https://dl.brave.com/install.sh | sh
+flatpak install flathub com.brave.Browser
 ```
 
 Then I adjusted the settings to my preference.
@@ -95,4 +96,19 @@ This ensures that my commits are automatically signed with my GPG key.
 I eventually installed the Tidal Hifi Electron app from: https://github.com/Mastermindzh/tidal-hifi/releases/tag/6.1.0
 
 I use this app for my music; there is no official Linux client, so the community Electron version works great for hi-res playback.
+</details>
+
+<details>
+<summary><strong>Step 10:</strong> Install NVIDIA GPU drivers</summary>
+
+The RTX 4060 requires proprietary NVIDIA drivers for good performance. Nouveau (open-source) performs poorly on modern GPUs.
+
+Full installation guide: [NVIDIA Driver Installation Guide](NVIDIA_DRIVER_INSTALLATION.md)
+
+**Summary:**
+- Install NVIDIA driver 580.119.02 via RPM Fusion
+- MOK enrollment for Secure Boot
+- Kernel parameter for AMD GPU crash fix (external monitors)
+
+After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
 </details>
