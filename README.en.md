@@ -112,3 +112,16 @@ Full installation guide: [NVIDIA Driver Installation Guide](NVIDIA_DRIVER_INSTAL
 
 After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
 </details>
+
+<details>
+<summary><strong>Step 11:</strong> Install Bottles (Flathub)</summary>
+
+I installed Bottles via Flathub. Bottles is a Windows compatibility layer based on Wine that allows you to run Windows applications on Linux. This is useful for Microsoft 365 apps and other Windows-only software.
+
+Installation via Flathub (Software Center) or command line:
+```bash
+flatpak install flathub com.usebottles.bottles
+```
+
+Bottles makes it easy to create isolated Windows environments (bottles) for different applications, with support for both gaming and productivity software.
+</details>

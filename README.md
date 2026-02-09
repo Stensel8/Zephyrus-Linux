@@ -2,7 +2,7 @@
 
 🇳🇱 Nederlands | [🇺🇸 English](README.en.md)
 
-My way of getting the ROG Zephyrus G16 GA605WV (2024) to work properly under Fedora after ditching Windows. Complete repo for running Linux on this gaming laptop the way I want it.
+Mijn manier om de ROG Zephyrus G16 GA605WV (2024) goed werkend te krijgen onder Fedora na het verlaten van Microslop Windows. Complete repo voor het draaien van Linux op deze gaming laptop op de manier zoals ik het wil.
 
 ## Eerste dingen
 
@@ -111,4 +111,18 @@ Volledige installatie handleiding: [NVIDIA Driver Installation Guide](NVIDIA_DRI
 - Kernel parameter voor AMD GPU crash fix (externe monitors)
 
 Na installatie werkt de GPU correct met Wayland en CUDA 13.0 support.
+</details>
+
+<details>
+<summary><strong>Stap 11:</strong> Bottles installeren (Flathub)</summary>
+
+Ik heb Bottles geïnstalleerd via Flathub. Bottles is een Windows compatibility layer gebaseerd op Wine waarmee je Windows-applicaties kunt draaien op Linux. Dit is vooral handig voor veelgebruikte Windows-apps zoals Microsoft 365 (Word, Excel, PowerPoint) en andere Windows-only software die je op Linux wilt blijven gebruiken.
+
+Installatie via Flathub (Software Center) of command line:
+```bash
+flatpak install flathub com.usebottles.bottles
+```
+
+Bottles maakt het eenvoudig om geïsoleerde Windows-omgevingen (bottles) te creëren voor verschillende applicaties, met ondersteuning voor zowel gaming als productivity software.
+![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](image.png)
 </details>
