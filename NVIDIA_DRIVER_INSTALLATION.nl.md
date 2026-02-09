@@ -248,6 +248,35 @@ sudo reboot
 De NVIDIA driver laadt nu correct. GNOME Software toont de driver als geïnstalleerd (niet pending).
 </details>
 
+<details>
+<summary><strong>Stap 12:</strong> NVIDIA power management services activeren</summary>
+
+Activeer NVIDIA power services voor beter suspend/resume gedrag en energiebeheer:
+
+```bash
+sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
+```
+
+Verwachte output:
+```
+Created symlink /etc/systemd/system/systemd-hibernate.service.requires/nvidia-hibernate.service → /usr/lib/systemd/system/nvidia-hibernate.service.
+Created symlink /etc/systemd/system/systemd-suspend.service.requires/nvidia-suspend.service → /usr/lib/systemd/system/nvidia-suspend.service.
+Created symlink /etc/systemd/system/systemd-resume.service.requires/nvidia-resume.service → /usr/lib/systemd/system/nvidia-resume.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/nvidia-powerd.service → /usr/lib/systemd/system/nvidia-powerd.service.
+```
+
+**Wat deze services doen:**
+- `nvidia-hibernate.service` - Slaat GPU state correct op voor hibernation
+- `nvidia-suspend.service` - Beheert GPU state tijdens system suspend
+- `nvidia-resume.service` - Herstelt GPU state na resume
+- `nvidia-powerd.service` - NVIDIA dynamisch energiebeheer daemon
+
+Deze services voorkomen GPU state problemen na suspend/resume cycli.
+
+**Referentie:**
+- [NVIDIA Power Management Documentatie](https://download.nvidia.com/XFree86/Linux-x86_64/470.74/README/powermanagement.html)
+</details>
+
 ## Verificatie Na Installatie
 
 <details>
@@ -319,6 +348,61 @@ Open GNOME Software (witte tas icoon):
 - "Uninstall" knop is zichtbaar
 
 Dit bevestigt dat het systeem de driver erkent als correct geïnstalleerd.
+</details>
+
+
+## Performance Optimalisaties
+
+<details>
+<summary>Kernel parameters voor verbeterde performance en stabiliteit</summary>
+
+Het toevoegen van bepaalde kernel parameters kan de NVIDIA driver performance verbeteren, vooral voor Wayland sessies en dual-GPU setups.
+
+**Stap 1: Voeg aanbevolen kernel parameters toe**
+
+```bash
+sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
+```
+
+**Stap 2: Verifieer dat parameters toegevoegd zijn**
+
+```bash
+sudo grubby --info=ALL | grep args
+```
+
+Verwachte output moet bevatten:
+```
+args="... rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 ..."
+```
+
+**Stap 3: Reboot om wijzigingen toe te passen**
+
+```bash
+sudo reboot
+```
+
+**Wat deze parameters doen:**
+
+- `rd.driver.blacklist=nouveau` - Voorkomt dat de open-source Nouveau driver laadt tijdens early boot (initramfs)
+- `modprobe.blacklist=nouveau` - Voorkomt dat Nouveau laadt na boot
+- `nvidia-drm.modeset=1` - Schakelt NVIDIA kernel mode setting in voor betere Wayland ondersteuning en performance
+
+**Waarom Nouveau blacklisten:**
+- De proprietary NVIDIA driver en Nouveau kunnen niet samen bestaan
+- Blacklisting voorkomt conflicten en zorgt ervoor dat de proprietary driver altijd gebruikt wordt
+- Als de NVIDIA driver faalt, kun je deze parameters verwijderen uit GRUB om terug te vallen op Nouveau
+
+**Voordelen:**
+- Betere Wayland performance en stabiliteit
+- Voorkomt driver conflicten tijdens boot
+- Verbeterde externe monitor ondersteuning
+- Soepelere graphics performance in het algemeen
+
+**Opmerking:** Deze parameters zijn optioneel maar aanbevolen voor optimale performance.
+
+**Referenties:**
+- [NVIDIA Driver Modesetting - Arch Wiki](https://wiki.archlinux.org/title/NVIDIA)
+- [Understanding nvidia-drm.modeset=1 - NVIDIA Developer Forums](https://forums.developer.nvidia.com/t/understanding-nvidia-drm-modeset-1-nvidia-linux-driver-modesetting/204068)
 </details>
 
 
@@ -500,7 +584,15 @@ sudo akmods --force --rebuild
 # Definitieve reboot
 sudo reboot
 
-# Verificatie na reboot
+# Activeer NVIDIA power management services
+sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
+
+# Optioneel: Voeg performance optimalisatie kernel parameters toe
+sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
+sudo grubby --info=ALL | grep args
+sudo reboot
+
+# Verificatie na installatie
 nvidia-smi
 echo $XDG_SESSION_TYPE
 lsmod | grep nvidia

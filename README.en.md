@@ -124,4 +124,5 @@ flatpak install flathub com.usebottles.bottles
 ```
 
 Bottles makes it easy to create isolated Windows environments (bottles) for different applications, with support for both gaming and productivity software.
+![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](image.png)
 </details>
