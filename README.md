@@ -135,13 +135,18 @@ Bottles maakt het eenvoudig om geïsoleerde Windows-omgevingen (bottles) te cre�
 
 Ik heb Archi geïnstalleerd, een open-source ArchiMate modelleertool die ik nodig heb voor mijn studie. Dit is handig voor iedereen die werkt met enterprise architecture.
 
-**Download:**
-Download de nieuwste versie van: https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz
-
-**Installatie stappen:**
+**Installatie:**
 ```bash
-# Extract naar /opt
-sudo tar -xzf ~/Downloads/Archi-Linux64-5.7.0.tgz -C /opt/
+# Download en extract in één flow
+cd /tmp
+curl -L https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz | tar -xz
+
+# Move naar /opt
+sudo mv Archi-Linux64-5.7.0/Archi /opt/
+
+# Cleanup
+rm -rf Archi-Linux64-5.7.0
+cd ~
 
 # Symlink naar PATH
 sudo ln -s /opt/Archi/Archi /usr/local/bin/archi
@@ -171,10 +176,10 @@ StartupWMClass=Archi
 - Start via terminal: `archi`
 
 **Notes:**
-- App staat in `/opt/Archi/`
-- Voor updates: download nieuwe versie, extract naar `/opt/`, symlink blijft werken
+- App staat in `/opt/Archi/` en draait volledig standalone
+- Voor updates: download nieuwe versie, herhaal de installatiestappen
 - Icon path moet aangepast worden bij versie-updates in de desktop entry
-- Na installatie kun je het `.tgz` bestand uit de Downloads folder verwijderen, de software draait vanaf `/opt`
+- Het `.tgz` bestand kun je uit Downloads verwijderen zodra de installatie compleet is
 </details>
 
 <details>
@@ -213,6 +218,11 @@ sudo dnf install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfre
 ```bash
 sudo dnf install steam
 ```
+
+> **⚠️ BELANGRIJK:** Herstart je systeem na installatie, anders krijg je crashes bij de eerste Steam start.
+> ```bash
+> sudo reboot
+> ```
 
 **Steam starten:**
 - Via terminal: `steam`

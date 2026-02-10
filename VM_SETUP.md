@@ -24,25 +24,86 @@ microsoft.com/en-us/evalcenter/download-windows-11-iot-enterprise-ltsc-eval
 
 **1. Install packages:**
 ```bash
-sudo dnf install @virtualization swtpm swtpm-tools edk2-ovmf virtio-win
+sudo dnf install @virtualization swtpm swtpm-tools edk2-ovmf
+```
+
+**Note:** The `virtio-win` package is not available in Fedora's default repositories. We'll download the ISO directly in the next step.
+
+**2. Add user to libvirt group:**
+```bash
 sudo usermod --append --groups libvirt $(whoami)
-# Log out and back in
+```
+
+> **⚠️ IMPORTANT:** You MUST log out and log back in (or reboot) for the group membership to take effect. Virt-manager will not work until you do this!
+
+**3. Start and enable libvirtd:**
+```bash
+# Start the libvirt daemon
+sudo systemctl enable --now libvirtd
+sudo systemctl start libvirtd
+
+# Verify it's running
+sudo systemctl status libvirtd
+```
+
+**4. Configure default network:**
+```bash
 sudo virsh net-start default
 sudo virsh net-autostart default
 ```
 
-**2. Prepare ISO:**
+**Note:** If you see "network is already active", that's fine - it means the network is already running.
+
+**5. Download VirtIO drivers ISO:**
 ```bash
-sudo cp /path/to/win11-iot-ltsc-eval.iso /var/lib/libvirt/images/
+# Download the official stable VirtIO drivers ISO (~753 MB)
+sudo curl -L -o /var/lib/libvirt/images/virtio-win.iso \
+  https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
+
+# Verify the download (should be ~753 MB)
+ls -lh /var/lib/libvirt/images/virtio-win.iso
 ```
 
-**3. Create VM in virt-manager:**
+> **⚠️ IMPORTANT:** The download is large (~753 MB). Do not cancel it (Ctrl+C) - let it complete fully!
+>
+> **💡 TIP:** `/var/lib/libvirt/images/` is the default location for ISOs and VM disk images. Virt-manager shows this directory automatically.
+
+**6. Verify your setup:**
+```bash
+# Check if you're in the libvirt group (after logging back in)
+groups
+
+# You should see "libvirt" in the output
+# If not, log out and back in again
+
+# Test if libvirt works
+sudo virsh list --all
+```
+
+**7. Log out and log back in**
+
+After completing all steps above, **log out and log back in** (or reboot) before opening virt-manager.
+
+**8. Prepare Windows ISO:**
+
+Download or copy your Windows 11 IoT LTSC ISO to `/var/lib/libvirt/images/`:
+```bash
+# If you already downloaded the ISO:
+sudo cp ~/Downloads/win11-iot-ltsc-eval.iso /var/lib/libvirt/images/
+
+# Or download directly to the correct location:
+sudo curl -L -o /var/lib/libvirt/images/win11-iot-ltsc-eval.iso [ISO_URL]
+```
+
+Virt-manager can now directly select both ISOs from this directory.
+
+**9. Create VM in virt-manager:**
 - File → New Virtual Machine → Local install media
 - Select Windows 11 IoT LTSC ISO
-- Memory: 6144 MB, CPUs: 4-6, Storage: 100 GB (qcow2)
+- Memory: **8192 MB** (8 GB), CPUs: **6**, Storage: 100 GB (qcow2)
 - **Check "Customize configuration before install"**
 
-**4. Configure hardware:**
+**10. Configure hardware:**
 
 | Setting | Value |
 |---------|-------|
@@ -54,9 +115,10 @@ sudo cp /path/to/win11-iot-ltsc-eval.iso /var/lib/libvirt/images/
 | Display | SPICE |
 | Video | QXL |
 
-**5. Add VirtIO ISO:**
+**11. Add VirtIO ISO:**
 - Add Hardware → Storage → CDROM
-- `/usr/share/virtio-win/virtio-win.iso`, Bus: SATA
+- Select `/var/lib/libvirt/images/virtio-win.iso`
+- Bus: SATA
 
 Click **Begin Installation**.
 
@@ -108,6 +170,43 @@ qemu-img snapshot -a snapshot-name /var/lib/libvirt/images/win11.qcow2
 
 
 ## Troubleshooting
+
+**"Could not detect a default hypervisor" error in virt-manager:**
+
+```bash
+# 1. Start libvirtd
+sudo systemctl start libvirtd
+
+# 2. Check group membership
+groups  # Must contain "libvirt"
+
+# If "libvirt" is missing:
+sudo usermod --append --groups libvirt $(whoami)
+# Then log out and log back in
+```
+
+**Manually add connection in virt-manager:**
+1. Open virt-manager
+2. File → Add Connection
+3. Hypervisor: **QEMU/KVM**
+4. ✓ Connect to local hypervisor
+5. Leave all other fields empty
+6. Click **Connect**
+
+**VirtIO ISO download is incomplete:**
+
+The ISO must be exactly ~753 MB. If smaller:
+```bash
+# Remove incomplete download
+sudo rm /var/lib/libvirt/images/virtio-win.iso
+
+# Download again (don't cancel with Ctrl+C!)
+sudo curl -L -o /var/lib/libvirt/images/virtio-win.iso \
+  https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
+
+# Verify size
+ls -lh /var/lib/libvirt/images/virtio-win.iso
+```
 
 **Permission denied when starting VM:**
 ```bash
