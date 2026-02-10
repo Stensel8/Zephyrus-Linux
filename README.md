@@ -28,31 +28,44 @@ Ik heb de hostnaam in de systeeminstellingen gezet naar de gewenste naam.
 </details>
 
 <details>
-<summary><strong>Stap 3:</strong> Bitwarden desktop (Flathub)</summary>
+<summary><strong>Stap 3:</strong> GNOME vensterknoppen configureren</summary>
+
+Ik heb de venster-knoppen in GNOME 49 aangepast om minimize, maximize en close knoppen te tonen. Standaard toont GNOME alleen de close knop.
+
+**Configuratie:**
+```bash
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+```
+
+Dit zorgt ervoor dat alle drie de vensterknoppen (minimize, maximize/zoom, en close) zichtbaar zijn in de titelbalk van applicaties, vergelijkbaar met andere desktop-omgevingen.
+</details>
+
+<details>
+<summary><strong>Stap 4:</strong> Bitwarden desktop (Flathub)</summary>
 
 Ik heb de Bitwarden desktop-app geïnstalleerd via Flathub.
 </details>
 
 <details>
-<summary><strong>Stap 4:</strong> Signal Messenger (Flathub)</summary>
+<summary><strong>Stap 5:</strong> Signal Messenger (Flathub)</summary>
 
 Signal Messenger geïnstalleerd via Flathub — mijn voorkeurs-app voor messaging.
 </details>
 
 <details>
-<summary><strong>Stap 5:</strong> Git installeren</summary>
+<summary><strong>Stap 6:</strong> Git installeren</summary>
 
 Git geïnstalleerd zodat ik met repositories kan werken en commits kan doen (anders had ik deze repo niet kunnen aanmaken).
 </details>
 
 <details>
-<summary><strong>Stap 6:</strong> Proton Mail (Flathub wrapper)</summary>
+<summary><strong>Stap 7:</strong> Proton Mail (Flathub wrapper)</summary>
 
 Proton Mail geïnstalleerd via Flathub. Dit is een wrapper – sommige apps zijn wrappers en geen officiële native apps, maar voor webgebaseerde mail-apps vind ik dat acceptabel.
 </details>
 
 <details>
-<summary><strong>Stap 7:</strong> Visual Studio Code installeren</summary>
+<summary><strong>Stap 8:</strong> Visual Studio Code installeren</summary>
 
 Ik heb Visual Studio Code geïnstalleerd volgens de officiële instructies: https://code.visualstudio.com/docs/setup/linux
 
@@ -73,7 +86,7 @@ sudo dnf install code
 </details>
 
 <details>
-<summary><strong>Stap 8:</strong> Kleopatra & git commit signing</summary>
+<summary><strong>Stap 9:</strong> Kleopatra & git commit signing</summary>
 
 Na het installeren van VS Code en Git heb ik `kleopatra` geïnstalleerd en via de GUI mijn GPG-keys aangemaakt. Daarna heb ik Git geconfigureerd om commits en tags te ondertekenen.
 
@@ -91,7 +104,7 @@ Dit zorgt ervoor dat mijn commits automatisch met mijn GPG-key gesigneerd worden
 </details>
 
 <details>
-<summary><strong>Stap 9:</strong> Tidal Hifi (Electron)</summary>
+<summary><strong>Stap 10:</strong> Tidal Hifi (Electron)</summary>
 
 Ik heb uiteindelijk de Tidal Hifi Electron-app geïnstalleerd van: https://github.com/Mastermindzh/tidal-hifi/releases/tag/6.1.0
 
@@ -99,7 +112,7 @@ Ik gebruik deze app voor mijn muziek; er is geen officiële Linux-client, dus de
 </details>
 
 <details>
-<summary><strong>Stap 10:</strong> NVIDIA GPU drivers installeren</summary>
+<summary><strong>Stap 11:</strong> NVIDIA GPU drivers installeren</summary>
 
 De RTX 4060 heeft proprietary NVIDIA drivers nodig voor goede prestaties. Nouveau (open-source) werkt slecht voor moderne GPU's.
 
@@ -114,7 +127,7 @@ Na installatie werkt de GPU correct met Wayland en CUDA 13.0 support.
 </details>
 
 <details>
-<summary><strong>Stap 11:</strong> Bottles installeren (Flathub)</summary>
+<summary><strong>Stap 12:</strong> Bottles installeren (Flathub)</summary>
 
 Ik heb Bottles geïnstalleerd via Flathub. Bottles is een Windows compatibility layer gebaseerd op Wine waarmee je Windows-applicaties en games kunt draaien op Linux.
 
@@ -131,7 +144,7 @@ Bottles maakt het eenvoudig om geïsoleerde Windows-omgevingen (bottles) te cre�
 </details>
 
 <details>
-<summary><strong>Stap 12:</strong> Archi installeren (ArchiMate modelleertool)</summary>
+<summary><strong>Stap 13:</strong> Archi installeren (ArchiMate modelleertool)</summary>
 
 Ik heb Archi geïnstalleerd, een open-source ArchiMate modelleertool die ik nodig heb voor mijn studie. Dit is handig voor iedereen die werkt met enterprise architecture.
 
@@ -183,7 +196,7 @@ StartupWMClass=Archi
 </details>
 
 <details>
-<summary><strong>Stap 13:</strong> Windows 11 VM opzetten met virt-manager (KVM/QEMU)</summary>
+<summary><strong>Stap 14:</strong> Windows 11 VM opzetten met virt-manager (KVM/QEMU)</summary>
 
 Voor schoolprogramma's die niet onder Wine/Bottles draaien (zoals Microsoft 365), kun je een high-performance Windows 11 virtuele machine opzetten. Met de juiste configuratie krijg je near-native performance.
 
@@ -200,7 +213,7 @@ Deze setup is ideaal voor wie Linux als dagelijks systeem wil gebruiken, maar so
 </details>
 
 <details>
-<summary><strong>Stap 14:</strong> Steam installeren voor gaming</summary>
+<summary><strong>Stap 15:</strong> Steam installeren voor gaming</summary>
 
 Steam is het grootste gaming platform voor Linux en essentieel voor het draaien van zowel native Linux games als Windows games via Proton.
 
@@ -232,4 +245,27 @@ De eerste keer opstarten zal Steam zichzelf updaten en vragen om in te loggen of
 
 **Windows games draaien met Proton:**
 Ga naar Steam > Settings > Steam Play en schakel Proton in om Windows games te kunnen spelen op Linux. Dit maakt een groot deel van de Steam-catalogus beschikbaar, zelfs games zonder native Linux-support.
+</details>
+
+<details>
+<summary><strong>Stap 16:</strong> Solaar installeren voor Logitech apparaten</summary>
+
+Ik heb Solaar geïnstalleerd om mijn Logitech-apparaten te beheren. Met Solaar kun je Logitech-apparaten die gebruikmaken van de Unifying USB-ontvanger of Bluetooth configureren en monitoren. Zo kun je o.a. het batterijniveau van je Logitech-apparaten zien.
+
+**Installatie via DNF:**
+```bash
+sudo dnf install solaar
+```
+
+**Gebruik:**
+- Start via Applications menu: zoek "Solaar"
+- Via terminal: `solaar`
+
+**Functies:**
+- Batterijniveau monitoren van Logitech-apparaten
+- Configureren van DPI, polling rate, en knoppen
+- Beheer van meerdere apparaten op één Unifying-ontvanger
+- Ondersteuning voor zowel Unifying als Bluetooth-apparaten
+
+Solaar draait als een systray-applicatie en toont notificaties wanneer de batterij van een apparaat bijna leeg is.
 </details>

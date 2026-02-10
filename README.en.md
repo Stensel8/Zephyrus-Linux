@@ -28,31 +28,44 @@ I set the hostname in the system settings to the desired name.
 </details>
 
 <details>
-<summary><strong>Step 3:</strong> Bitwarden desktop (Flathub)</summary>
+<summary><strong>Step 3:</strong> Configure GNOME window buttons</summary>
+
+I configured the window buttons in GNOME 49 to show minimize, maximize, and close buttons. By default, GNOME only shows the close button.
+
+**Configuration:**
+```bash
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+```
+
+This ensures that all three window buttons (minimize, maximize/zoom, and close) are visible in the title bar of applications, similar to other desktop environments.
+</details>
+
+<details>
+<summary><strong>Step 4:</strong> Bitwarden desktop (Flathub)</summary>
 
 I installed the Bitwarden desktop app via Flathub.
 </details>
 
 <details>
-<summary><strong>Step 4:</strong> Signal Messenger (Flathub)</summary>
+<summary><strong>Step 5:</strong> Signal Messenger (Flathub)</summary>
 
 Signal Messenger installed via Flathub — my preferred messaging app.
 </details>
 
 <details>
-<summary><strong>Step 5:</strong> Install Git</summary>
+<summary><strong>Step 6:</strong> Install Git</summary>
 
 Git installed so I can work with repositories and make commits (otherwise I couldn't have created this repo).
 </details>
 
 <details>
-<summary><strong>Step 6:</strong> Proton Mail (Flathub wrapper)</summary>
+<summary><strong>Step 7:</strong> Proton Mail (Flathub wrapper)</summary>
 
 Proton Mail installed via Flathub. This is a wrapper – some apps are wrappers and not official native apps, but for web-based mail apps I find that acceptable.
 </details>
 
 <details>
-<summary><strong>Step 7:</strong> Install Visual Studio Code</summary>
+<summary><strong>Step 8:</strong> Install Visual Studio Code</summary>
 
 I installed Visual Studio Code according to the official instructions: https://code.visualstudio.com/docs/setup/linux
 
@@ -73,7 +86,7 @@ sudo dnf install code
 </details>
 
 <details>
-<summary><strong>Step 8:</strong> Kleopatra & git commit signing</summary>
+<summary><strong>Step 9:</strong> Kleopatra & git commit signing</summary>
 
 After installing VS Code and Git, I installed `kleopatra` and created my GPG keys via the GUI. Then I configured Git to sign commits and tags.
 
@@ -91,7 +104,7 @@ This ensures that my commits are automatically signed with my GPG key.
 </details>
 
 <details>
-<summary><strong>Step 9:</strong> Tidal Hifi (Electron)</summary>
+<summary><strong>Step 10:</strong> Tidal Hifi (Electron)</summary>
 
 I eventually installed the Tidal Hifi Electron app from: https://github.com/Mastermindzh/tidal-hifi/releases/tag/6.1.0
 
@@ -99,7 +112,7 @@ I use this app for my music; there is no official Linux client, so the community
 </details>
 
 <details>
-<summary><strong>Step 10:</strong> Install NVIDIA GPU drivers</summary>
+<summary><strong>Step 11:</strong> Install NVIDIA GPU drivers</summary>
 
 The RTX 4060 requires proprietary NVIDIA drivers for good performance. Nouveau (open-source) performs poorly on modern GPUs.
 
@@ -114,7 +127,7 @@ After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
 </details>
 
 <details>
-<summary><strong>Step 11:</strong> Install Bottles (Flathub)</summary>
+<summary><strong>Step 12:</strong> Install Bottles (Flathub)</summary>
 
 I installed Bottles via Flathub. Bottles is a Windows compatibility layer based on Wine that allows you to run Windows applications and games on Linux.
 
@@ -131,7 +144,7 @@ Bottles makes it easy to create isolated Windows environments (bottles) for diff
 </details>
 
 <details>
-<summary><strong>Step 12:</strong> Install Archi (ArchiMate modeling tool)</summary>
+<summary><strong>Step 13:</strong> Install Archi (ArchiMate modeling tool)</summary>
 
 I installed Archi, an open-source ArchiMate modeling tool that I need for my studies. This is useful for anyone working with enterprise architecture.
 
@@ -183,7 +196,7 @@ StartupWMClass=Archi
 </details>
 
 <details>
-<summary><strong>Step 13:</strong> Set up Windows 11 VM with virt-manager (KVM/QEMU)</summary>
+<summary><strong>Step 14:</strong> Set up Windows 11 VM with virt-manager (KVM/QEMU)</summary>
 
 For school programs that don't run under Wine/Bottles (like Microsoft 365), you can set up a high-performance Windows 11 virtual machine. With the right configuration, you get near-native performance.
 
@@ -200,7 +213,7 @@ This setup is ideal for those who want to use Linux as their daily system but oc
 </details>
 
 <details>
-<summary><strong>Step 14:</strong> Install Steam for gaming</summary>
+<summary><strong>Step 15:</strong> Install Steam for gaming</summary>
 
 Steam is the largest gaming platform for Linux and essential for running both native Linux games and Windows games via Proton.
 
@@ -232,4 +245,27 @@ The first launch will update Steam and prompt you to login or create an account.
 
 **Enable Proton for Windows games:**
 Go to Steam > Settings > Steam Play and enable Proton to run Windows games on Linux. This makes a large portion of the Steam catalog available, even games without native Linux support.
+</details>
+
+<details>
+<summary><strong>Step 16:</strong> Install Solaar for Logitech devices</summary>
+
+I installed Solaar to manage my Logitech devices. With Solaar, you can configure and monitor Logitech devices that use the Unifying USB receiver or Bluetooth. For example, you can check the battery level of your Logitech devices.
+
+**Installation via DNF:**
+```bash
+sudo dnf install solaar
+```
+
+**Usage:**
+- Start via Applications menu: search "Solaar"
+- Via terminal: `solaar`
+
+**Features:**
+- Monitor battery levels of Logitech devices
+- Configure DPI, polling rate, and buttons
+- Manage multiple devices on one Unifying receiver
+- Support for both Unifying and Bluetooth devices
+
+Solaar runs as a system tray application and shows notifications when a device's battery is running low.
 </details>
