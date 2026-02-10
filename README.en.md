@@ -193,3 +193,33 @@ Full setup guide: [VM Setup Guide](VM_SETUP.md)
 
 This setup is ideal for those who want to use Linux as their daily system but occasionally need Windows applications for school or work.
 </details>
+
+<details>
+<summary><strong>Step 14:</strong> Install Steam for gaming</summary>
+
+Steam is the largest gaming platform for Linux and essential for running both native Linux games and Windows games via Proton.
+
+**RPM Fusion Method (Recommended):**
+
+The most straightforward way to install Steam on Fedora is via RPM Fusion, which hosts the Steam package due to licensing restrictions in Fedora's default repositories.
+
+**Enable RPM Fusion repositories:**
+```bash
+sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+```
+
+**Install Steam:**
+```bash
+sudo dnf install steam
+```
+
+**Launch Steam:**
+- Via terminal: `steam`
+- Via Applications menu: search "Steam"
+
+The first launch will update Steam and prompt you to login or create an account.
+
+**Enable Proton for Windows games:**
+Go to Steam > Settings > Steam Play and enable Proton to run Windows games on Linux. This makes a large portion of the Steam catalog available, even games without native Linux support.
+</details>
