@@ -116,13 +116,80 @@ Na installatie werkt de GPU correct met Wayland en CUDA 13.0 support.
 <details>
 <summary><strong>Stap 11:</strong> Bottles installeren (Flathub)</summary>
 
-Ik heb Bottles geïnstalleerd via Flathub. Bottles is een Windows compatibility layer gebaseerd op Wine waarmee je Windows-applicaties kunt draaien op Linux. Dit is vooral handig voor veelgebruikte Windows-apps zoals Microsoft 365 (Word, Excel, PowerPoint) en andere Windows-only software die je op Linux wilt blijven gebruiken.
+Ik heb Bottles geïnstalleerd via Flathub. Bottles is een Windows compatibility layer gebaseerd op Wine waarmee je Windows-applicaties en games kunt draaien op Linux.
 
 Installatie via Flathub (Software Center) of command line:
 ```bash
 flatpak install flathub com.usebottles.bottles
 ```
 
-Bottles maakt het eenvoudig om geïsoleerde Windows-omgevingen (bottles) te creëren voor verschillende applicaties, met ondersteuning voor zowel gaming als productivity software.
+Bottles maakt het eenvoudig om geïsoleerde Windows-omgevingen (bottles) te creëren voor verschillende applicaties. Dit werkt goed voor games zoals Fortnite of World of Tanks.
+
+**Let op:** Microsoft 365 apps (Word, Excel, PowerPoint) kunnen helaas niet goed draaien onder Bottles/Wine. Hiervoor zal je een volledige Windows VM moeten opzetten met virt-manager.
+
 ![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](image.png)
+</details>
+
+<details>
+<summary><strong>Stap 12:</strong> Archi installeren (ArchiMate modelleertool)</summary>
+
+Ik heb Archi geïnstalleerd, een open-source ArchiMate modelleertool die ik nodig heb voor mijn studie. Dit is handig voor iedereen die werkt met enterprise architecture.
+
+**Download:**
+Download de nieuwste versie van: https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz
+
+**Installatie stappen:**
+```bash
+# Extract naar /opt
+sudo tar -xzf ~/Downloads/Archi-Linux64-5.7.0.tgz -C /opt/
+
+# Symlink naar PATH
+sudo ln -s /opt/Archi/Archi /usr/local/bin/archi
+```
+
+**Desktop entry aanmaken:**
+```bash
+sudo nano /usr/share/applications/archi.desktop
+```
+
+**Desktop entry content:**
+```ini
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Archi
+Comment=ArchiMate Modelling Tool
+Exec=/opt/Archi/Archi
+Icon=/opt/Archi/plugins/com.archimatetool.editor_5.7.0.202509230807/img/app-128.png
+Terminal=false
+Categories=Development;IDE;
+StartupWMClass=Archi
+```
+
+**Gebruik:**
+- Start via app menu: zoek "Archi" (kan een paar minuten duren voordat het verschijnt, of reboot even)
+- Start via terminal: `archi`
+
+**Notes:**
+- App staat in `/opt/Archi/`
+- Voor updates: download nieuwe versie, extract naar `/opt/`, symlink blijft werken
+- Icon path moet aangepast worden bij versie-updates in de desktop entry
+- Na installatie kun je het `.tgz` bestand uit de Downloads folder verwijderen, de software draait vanaf `/opt`
+</details>
+
+<details>
+<summary><strong>Stap 13:</strong> Windows 11 VM opzetten met virt-manager (KVM/QEMU)</summary>
+
+Voor schoolprogramma's die niet onder Wine/Bottles draaien (zoals Microsoft 365), kun je een high-performance Windows 11 virtuele machine opzetten. Met de juiste configuratie krijg je near-native performance.
+
+Volledige setup guide: [VM Setup Guide](VM_SETUP.nl.md)
+
+**Samenvatting:**
+- Windows 11 IoT Enterprise LTSC (geen bloatware, geen verplichte TPM/Secure Boot)
+- virt-manager met KVM/QEMU virtualisatie
+- VirtIO drivers voor optimale disk, netwerk en GPU performance
+- CPU pinning en hugepages voor near-native performance
+- SPICE voor naadloos klembord en bestandsdeling
+
+Deze setup is ideaal voor wie Linux als dagelijks systeem wil gebruiken, maar soms Windows-applicaties nodig heeft voor school of werk.
 </details>

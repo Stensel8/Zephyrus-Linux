@@ -460,6 +460,28 @@ Als er geen `amdgpu: [drm] *ERROR*` berichten verschijnen, werkt de fix.
 - [Fedora Discussion: Zephyrus G16 External Monitor Crashes](https://discussion.fedoraproject.org/t/asus-zephyrus-g16-with-nvidia-and-external-monitor-crashes-every-few-minutes/147175)
 </details>
 
+<details>
+<summary>VS Code crasht systeem (AMD GPU page fault - Kernel 6.18.x bug)</summary>
+
+**Wat speelt er:**
+Systeem bevriest volledig tijdens VS Code gebruik. Kernel 6.18.x/6.19.x hebben kritieke amdgpu driver bugs. VS Code hardware acceleratie triggert AMD Radeon 890M page fault → volledige freeze.
+
+**Fix:**
+Voeg toe aan `~/.config/Code/User/settings.json`:
+```json
+{
+    "disable-hardware-acceleration": true
+}
+```
+
+**Vervolg:**
+Herstart VS Code. Systeem blijft nu stabiel, VS Code iets langzamer maar prima bruikbaar.
+
+**Bronnen:**
+- [VS Code Issue #238088](https://github.com/microsoft/vscode/issues/238088)
+- [Framework: Critical amdgpu bugs kernel 6.18.x](https://community.frame.work/t/attn-critical-bugs-in-amdgpu-driver-included-with-kernel-6-18-x-6-19-x/79221)
+</details>
+
 
 ## Probleemoplossing
 

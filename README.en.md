@@ -116,13 +116,80 @@ After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
 <details>
 <summary><strong>Step 11:</strong> Install Bottles (Flathub)</summary>
 
-I installed Bottles via Flathub. Bottles is a Windows compatibility layer based on Wine that allows you to run Windows applications on Linux. This is useful for Microsoft 365 apps and other Windows-only software.
+I installed Bottles via Flathub. Bottles is a Windows compatibility layer based on Wine that allows you to run Windows applications and games on Linux.
 
 Installation via Flathub (Software Center) or command line:
 ```bash
 flatpak install flathub com.usebottles.bottles
 ```
 
-Bottles makes it easy to create isolated Windows environments (bottles) for different applications, with support for both gaming and productivity software.
+Bottles makes it easy to create isolated Windows environments (bottles) for different applications. This works well for games like Fortnite or World of Tanks.
+
+**Note:** Microsoft 365 apps (Word, Excel, PowerPoint) unfortunately don't run well under Bottles/Wine. For these, you'll need to set up a full Windows VM with virt-manager.
+
 ![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](image.png)
+</details>
+
+<details>
+<summary><strong>Step 12:</strong> Install Archi (ArchiMate modeling tool)</summary>
+
+I installed Archi, an open-source ArchiMate modeling tool that I need for my studies. This is useful for anyone working with enterprise architecture.
+
+**Download:**
+Download the latest version from: https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz
+
+**Installation steps:**
+```bash
+# Extract to /opt
+sudo tar -xzf ~/Downloads/Archi-Linux64-5.7.0.tgz -C /opt/
+
+# Create symlink to PATH
+sudo ln -s /opt/Archi/Archi /usr/local/bin/archi
+```
+
+**Create desktop entry:**
+```bash
+sudo nano /usr/share/applications/archi.desktop
+```
+
+**Desktop entry content:**
+```ini
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Archi
+Comment=ArchiMate Modelling Tool
+Exec=/opt/Archi/Archi
+Icon=/opt/Archi/plugins/com.archimatetool.editor_5.7.0.202509230807/img/app-128.png
+Terminal=false
+Categories=Development;IDE;
+StartupWMClass=Archi
+```
+
+**Usage:**
+- Start via app menu: search "Archi" (may take a few minutes to appear, or just reboot)
+- Start via terminal: `archi`
+
+**Notes:**
+- App is installed in `/opt/Archi/`
+- For updates: download new version, extract to `/opt/`, symlink keeps working
+- Icon path needs to be adjusted in the desktop entry when updating versions
+- After installation you can delete the `.tgz` file from the Downloads folder, the software runs from `/opt`
+</details>
+
+<details>
+<summary><strong>Step 13:</strong> Set up Windows 11 VM with virt-manager (KVM/QEMU)</summary>
+
+For school programs that don't run under Wine/Bottles (like Microsoft 365), you can set up a high-performance Windows 11 virtual machine. With the right configuration, you get near-native performance.
+
+Full setup guide: [VM Setup Guide](VM_SETUP.md)
+
+**Summary:**
+- Windows 11 IoT Enterprise LTSC (no bloatware, no mandatory TPM/Secure Boot)
+- virt-manager with KVM/QEMU virtualization
+- VirtIO drivers for optimal disk, network, and GPU performance
+- CPU pinning and hugepages for near-native performance
+- SPICE for seamless clipboard and file sharing
+
+This setup is ideal for those who want to use Linux as their daily system but occasionally need Windows applications for school or work.
 </details>
