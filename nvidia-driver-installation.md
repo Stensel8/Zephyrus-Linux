@@ -197,19 +197,28 @@ The NVIDIA driver will now load correctly. GNOME Software should show the driver
 Enable NVIDIA power services for better suspend/resume behavior and power management:
 
 ```bash
-sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
+sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service
 ```
 
 **What these services do:**
 - `nvidia-hibernate.service` - Properly saves GPU state before hibernation
 - `nvidia-suspend.service` - Manages GPU state during system suspend
 - `nvidia-resume.service` - Restores GPU state after resume
-- `nvidia-powerd.service` - NVIDIA dynamic power management daemon
 
 These services prevent GPU state issues after suspend/resume cycles.
 
+**Important: Do NOT enable `nvidia-powerd`**
+
+The `nvidia-powerd.service` (NVIDIA dynamic power management daemon) can conflict with AMD ATPX power management on the Zephyrus G16 and cause soft lockups.
+
+If you accidentally enabled `nvidia-powerd`:
+```bash
+sudo systemctl disable nvidia-powerd.service
+sudo systemctl stop nvidia-powerd.service
+```
+
 **Reference:**
-- [NVIDIA Power Management Documentation](https://download.nvidia.com/XFree86/Linux-x86_64/470.74/README/powermanagement.html)
+- [NVIDIA Power Management Documentation](https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/powermanagement.html)
 </details>
 
 
@@ -271,7 +280,7 @@ Adding certain kernel parameters can improve NVIDIA driver performance, especial
 **Step 1: Add recommended kernel parameters**
 
 ```bash
-sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
+sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 nvidia-drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1"
 ```
 
 **Step 2: Verify parameters were added**
@@ -293,6 +302,8 @@ sudo reboot
 - `rd.driver.blacklist=nouveau` - Prevents the open-source Nouveau driver from loading during early boot (initramfs)
 - `modprobe.blacklist=nouveau` - Prevents Nouveau from loading after boot
 - `nvidia-drm.modeset=1` - Enables NVIDIA kernel mode setting for better Wayland support and performance
+- `nvidia-drm.fbdev=1` - Makes NVIDIA use its framebuffer via the kernel DRM framework instead of a generic framebuffer. Improves handoff between console and Wayland/GNOME and prevents race conditions during suspend/resume on hybrid GPU laptops
+- `nvidia.NVreg_PreserveVideoMemoryAllocations=1` - Preserves VRAM allocations during suspend/resume instead of releasing and rebuilding them. Prevents corrupted VRAM after resume, which can cause soft lockups
 
 **Why blacklist Nouveau:**
 - The proprietary NVIDIA driver and Nouveau cannot coexist
@@ -303,6 +314,7 @@ sudo reboot
 - Better Wayland performance and stability
 - Prevents driver conflicts during boot
 - Improved external monitor support
+- More stable suspend/resume cycles on hybrid GPU setups
 - Smoother graphics performance in general
 
 **Note:** These parameters are optional but recommended for optimal performance.
@@ -310,6 +322,71 @@ sudo reboot
 **References:**
 - [NVIDIA Driver Modesetting - Arch Wiki](https://wiki.archlinux.org/title/NVIDIA)
 - [Understanding nvidia-drm.modeset=1 - NVIDIA Developer Forums](https://forums.developer.nvidia.com/t/understanding-nvidia-drm-modeset-1-nvidia-linux-driver-modesetting/204068)
+- [NVIDIA Power Management Documentation](https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/powermanagement.html)
+</details>
+
+
+## ICC Color Profiles
+
+<details>
+<summary>Install ASUS GameVisual color profiles for Sharp LQ160R1JW02 panel</summary>
+
+The GA605WV ships with a Sharp LQ160R1JW02 16" 2560x1600 240Hz display. ASUS factory-calibrates each panel and provides color profiles via their ASUS System Control Interface. On Windows, these are automatically applied by Armoury Crate/GameVisual. On Linux, we must install them manually.
+
+These color profiles were extracted from ASUS Windows driver packages and optimized for GNOME Color Management.
+
+**Install the color profiles:**
+
+The ICC color profiles are located in the `assets/icc-profiles/` directory of this repository. Clone the repository or manually download the profiles and copy them to `~/.local/share/icc`:
+
+```bash
+mkdir -p ~/.local/share/icc
+
+# If you've already cloned the repository:
+cp assets/icc-profiles/*.icm ~/.local/share/icc/
+
+# Or download the specific profiles you need from the repository
+```
+
+**Activate Native profile in GNOME:**
+
+1. Open **Settings** → **Color Management**
+2. Select **Built-In Screen**
+3. Click **Add Profile**
+4. Select **Native**
+5. Click **Add**
+
+**Note:** If GNOME Settings shows old technical names (e.g., "ASUS GA605WV 1002 104D158E CMDEF" instead of "Native"), close Settings and reopen, or log out/in to refresh the color cache.
+
+**Available color profiles:**
+
+| GNOME Name | File | Description |
+|---|---|---|
+| **Native** | `GA605WV_1002_104D158E_CMDEF.icm` | **Recommended** - Factory-calibrated for Sharp LQ160R1JW02 panel, best color accuracy |
+| DCI-P3 | `ASUS_DCIP3.icm` | Saturated DCI-P3 colors for gaming/media (Vivid mode) |
+| Display P3 | `ASUS_DisplayP3.icm` | Display P3 colorspace for Apple-compatible workflows |
+| sRGB | `ASUS_sRGB.icm` | sRGB standard for web/photo work |
+
+**Recommendation:**
+
+Use **Native** for best color accuracy. This profile contains factory calibration specific to the Sharp LQ160R1JW02 panel in this laptop. The other profiles (DCI-P3, Display P3, sRGB) are generic colorspaces without panel-specific corrections.
+
+**Note:** The `_1002_` in the filename refers to the AMD iGPU (Vendor ID 0x1002), which drives the internal eDP display on this hybrid GPU laptop.
+
+**Background:**
+
+The profiles were found through analysis of ASUS Windows driver packages. The ASUS CDN URL structure:
+```
+https://dlcdn-rogboxbu1.asus.com/pub/ASUS/APService/Gaming/SYS/ROGS/{id}-{code}-{hash}.zip
+```
+
+For the GA605WV, this is: `20016-BWVQPK-01624c1cdd5a3c05252bad472fab1240.zip`
+
+The profiles contain factory color corrections specific to the Sharp LQ160R1JW02 panel (Panel ID: 104D158E) used in this laptop model.
+
+**Technical Details:**
+
+The profiles in this repository are pre-processed with custom ICC metadata 'desc' tags so they appear with readable names directly in GNOME Color Management. For users interested in how these modifications work, see [`rename-icc-profiles.py`](rename-icc-profiles.py) in this repository. This script shows the technical implementation of ICC 'desc' tag manipulation using Python's PIL/ImageCms.
 </details>
 
 
@@ -387,6 +464,85 @@ Restart VS Code. System stays stable, VS Code slightly slower but perfectly usab
 **Sources:**
 - [VS Code Issue #238088](https://github.com/microsoft/vscode/issues/238088)
 - [Framework: Critical amdgpu bugs kernel 6.18.x](https://community.frame.work/t/attn-critical-bugs-in-amdgpu-driver-included-with-kernel-6-18-x-6-19-x/79221)
+</details>
+
+<details>
+<summary>Brave Browser crashes system (AMD GPU page fault - Kernel 6.18.x bug)</summary>
+
+**What's happening:**
+System freezes or crashes during Brave Browser use, even with minimal workload (a few tabs). This is the same underlying issue as the VS Code crash: Chromium-based applications with hardware acceleration trigger AMD Radeon 890M page faults on kernel 6.18.x/6.19.x.
+
+Typical crash sequence in logs:
+```
+amdgpu: [gfxhub] page fault (src_id:0 ring:24 vmid:2)
+amdgpu: Faulty UTCL2 client ID: SQC (data)
+amdgpu: ring gfx_0.0.0 timeout, signaled seq=302899, emitted seq=302901
+amdgpu: GPU reset begin!
+```
+
+After GPU reset, gnome-shell crashes (Signal 6 ABRT) because it detects a context reset.
+
+**Fix:**
+Open Brave Browser and go to `brave://settings/system`. Turn off **"Use hardware acceleration when available"**.
+
+Alternatively via terminal:
+```bash
+sed -i 's/"hardware_acceleration_mode_previous":true/"hardware_acceleration_mode_previous":false/' ~/.config/BraveSoftware/Brave-Browser/Local\ State
+```
+
+Or start Brave with the `--disable-gpu` flag:
+```bash
+brave-browser-stable --disable-gpu
+```
+
+**Next steps:**
+Restart Brave. Verify via `brave://gpu` that GPU acceleration is disabled. System stays stable, Brave is slightly slower on heavy pages but perfectly usable.
+
+**Background:**
+Brave, VS Code, and other Chromium-based applications (Chrome, Edge, Electron apps) use GPU shader compilation via Mesa. On kernel 6.18.x, the amdgpu driver has a bug in the Shader Queue Controller (SQC) memory access, causing page faults that trigger a full GPU reset. The fix is to disable hardware acceleration per application until a kernel/Mesa update resolves the issue.
+
+**Sources:**
+- [Framework: Critical amdgpu bugs kernel 6.18.x](https://community.frame.work/t/attn-critical-bugs-in-amdgpu-driver-included-with-kernel-6-18-x-6-19-x/79221)
+</details>
+
+<details>
+<summary>NVIDIA soft lockup with minimal GPU load (hybrid GPU power management)</summary>
+
+**What's happening:**
+System freezes with an NVIDIA soft lockup, even without active GPU use. Kernel logs show:
+```
+watchdog: BUG: soft lockup - CPU#23 stuck for 62s!
+NVRM: Xid (PCI:0000:65:00): 79, pid=<...>, GPU has fallen off the bus
+```
+
+This can occur due to a combination of factors on hybrid GPU laptops:
+- `nvidia-powerd` conflicts with AMD ATPX power management
+- NVIDIA dGPU power state transitions fail
+- Corrupted VRAM after suspend/resume cycles
+
+**Fix:**
+
+1. Disable `nvidia-powerd`:
+```bash
+sudo systemctl disable nvidia-powerd.service
+sudo systemctl stop nvidia-powerd.service
+```
+
+2. Add kernel parameters for more stable NVIDIA power management:
+```bash
+sudo grubby --update-kernel=ALL --args="nvidia-drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1"
+```
+
+3. Reboot:
+```bash
+sudo reboot
+```
+
+**Next steps:**
+System is more stable after these changes. The NVIDIA dGPU is still properly managed via ATPX (AMD-driven power switching) without `nvidia-powerd` interfering.
+
+**Background:**
+On laptops with AMD iGPU + NVIDIA dGPU, the ATPX framework (via ACPI) controls which GPU is active. `nvidia-powerd` tries to make power decisions independently, which conflicts with ATPX. The `NVreg_PreserveVideoMemoryAllocations=1` parameter prevents VRAM from being lost during power transitions, and `nvidia-drm.fbdev=1` provides cleaner framebuffer handoff.
 </details>
 
 

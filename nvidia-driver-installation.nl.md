@@ -335,15 +335,15 @@ Deze kleurprofielen zijn geëxtraheerd uit ASUS Windows driver packages en aange
 
 **Installeer de kleurprofielen:**
 
+De ICC kleurprofielen staan in de `assets/icc-profiles/` map van deze repository. Clone de repository of download de profielen handmatig en kopieer ze naar `~/.local/share/icc`:
+
 ```bash
 mkdir -p ~/.local/share/icc
-cd ~/.local/share/icc
 
-# Download pre-configured profiles from this repository
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_1002_104D158E_CMDEF.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_DCIP3.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_DisplayP3.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_sRGB.icm
+# Als je de repository al hebt gecloned:
+cp assets/icc-profiles/*.icm ~/.local/share/icc/
+
+# Of download de specifieke profielen die je nodig hebt uit de repository
 ```
 
 **Activeer Native profiel in GNOME:**
