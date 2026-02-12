@@ -85,7 +85,7 @@ sudo dnf install git
 
 Proton Mail installed via Flathub. This is a wrapper. Some apps are wrappers and not official native apps, but for web-based mail apps I find that acceptable.
 
-![alt text](assets/images/protonmail-flathub.png)
+![Proton Mail app in Flathub](assets/images/protonmail-flathub.png)
 </details>
 
 <details>
