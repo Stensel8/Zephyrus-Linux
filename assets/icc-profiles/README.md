@@ -1,64 +1,46 @@
-# ICC Color Profiles - Sharp LQ160R1JW02 Panel
+# ICC Color Profiles - GA605WV (2024)
 
-Factory-calibrated ICC color profiles for the Sharp LQ160R1JW02 16" 2560x1600 240Hz display used in the ASUS ROG Zephyrus G16 GA605WV (2024).
+Factory-calibrated ICC profiles for the Zephyrus G16 GA605WV display.
 
-## Profiles Included
+## Source
 
-| Profile Name (in GNOME) | Filename | Description |
-|---|---|---|
-| **Native** | `GA605WV_1002_104D158E_CMDEF.icm` | **Recommended** - Factory-calibrated for Sharp LQ160R1JW02 panel |
-| DCI-P3 | `GA605WV_DCIP3.icm` | Vivid mode - Saturated DCI-P3 colors for gaming/media |
-| Display P3 | `GA605WV_DisplayP3.icm` | Apple Display P3 colorspace |
-| sRGB | `GA605WV_sRGB.icm` | Standard sRGB for web/photo work |
+These profiles were extracted from the ASUS Windows driver package:
 
-## Installation
-
-```bash
-mkdir -p ~/.local/share/icc
-curl -L https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_1002_104D158E_CMDEF.icm -o ~/.local/share/icc/GA605WV_1002_104D158E_CMDEF.icm
-curl -L https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_DCIP3.icm -o ~/.local/share/icc/GA605WV_DCIP3.icm
-curl -L https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_DisplayP3.icm -o ~/.local/share/icc/GA605WV_DisplayP3.icm
-curl -L https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_sRGB.icm -o ~/.local/share/icc/GA605WV_sRGB.icm
-```
-
-Then activate in **GNOME Settings** → **Color Management** → **Add Profile** → Select **Native**.
-
-## Profile Source & Technical Details
-
-These profiles originate from ASUS Windows driver packages, distributed via ASUS CDN for GameVisual/Armoury Crate software:
-
-**Original ASUS CDN URL:**
 ```
 https://dlcdn-rogboxbu1.asus.com/pub/ASUS/APService/Gaming/SYS/ROGS/20016-BWVQPK-01624c1cdd5a3c05252bad472fab1240.zip
 ```
 
-URL structure: `https://dlcdn-rogboxbu1.asus.com/pub/ASUS/APService/Gaming/SYS/ROGS/{id}-{code}-{hash}.zip`  
-For GA605WV: ID=`20016`, Code=`BWVQPK`, Hash=`01624c1cdd5a3c05252bad472fab1240`
+## Files
 
-**Modifications made:**
-- ICC profile 'desc' tag metadata modified from technical identifiers (e.g., `ASUS_GA605WV_1002_104D158E_CMDEF`) to user-friendly names (e.g., `Native`)
-- Filenames standardized with `GA605WV_` prefix for clear model identification
-- Compatible with GNOME Color Management (colord) and other Linux color management systems
+| Filename | Description | For GNOME |
+|---|---|---|
+| `GA605WV_1002_104D158E_CMDEF.icm` | **Recommended** - Factory-calibrated native profile for Sharp LQ160R1JW02 + AMD 890M | Import this |
+| `ASUS_sRGB.icm` | sRGB colorspace (web, photo) | Optional |
+| `ASUS_DisplayP3.icm` | Display P3 colorspace (Apple) | Optional |
+| `ASUS_DCIP3.icm` | DCI-P3 colorspace (cinema) | Optional |
 
-For technical implementation details of ICC metadata modification, see [`rename-icc-profiles.py`](../../rename-icc-profiles.py) in the repository root.
+### Filename Reference
 
-Panel ID: `104D158E` (Sharp LQ160R1JW02)  
-GPU ID: `1002` (AMD Radeon 890M iGPU - drives internal eDP display)
+`GA605WV_1002_104D158E_CMDEF`:
+- `GA605WV` = ASUS ROG Zephyrus G16 model
+- `1002` = AMD GPU ID (Radeon 890M iGPU)
+- `104D158E` = Sharp LQ160R1JW02 panel ID
+- `CMDEF` = Factory-calibrated profile
 
-## Compatibility
+## Install
 
-**Compatible with:**
-- ASUS ROG Zephyrus G16 GA605WV (2024) with Sharp LQ160R1JW02 panel
-- Any system using the same Sharp LQ160R1JW02 16" 2560x1600 240Hz panel
+Copy your GPU/panel profile and optional color spaces to GNOME:
 
-**Not compatible with:**
-- GA605WV units with BOE panel (Panel ID: E5090C19)
-- GA605WV units with Samsung panel (Panel ID: 834C41AE)
-
-To check your panel:
 ```bash
-sudo dnf install v4l-utils -y
-edid-decode /sys/class/drm/card*-eDP-*/edid 2>/dev/null | grep "Manufacturer\|Product"
+mkdir -p ~/.local/share/icc
+
+# Your GPU/panel combination
+cp GA605WV_1002_104D158E_CMDEF.icm ~/.local/share/icc/
+
+# Optional: Universal color spaces
+cp ASUS_sRGB.icm ~/.local/share/icc/
+cp ASUS_DisplayP3.icm ~/.local/share/icc/
+cp ASUS_DCIP3.icm ~/.local/share/icc/
 ```
 
-If you see "LQ160R1JW02" or Sharp manufacturer, these profiles are correct for your system.
+Then activate in **GNOME Settings** → **Color Management** → **Add Profile** → Select `GA605WV_1002_104D158E_CMDEF`.

@@ -1,6 +1,6 @@
 # Windows 11 VM Setup - KVM/QEMU op Fedora 43
 
-[English](VM_SETUP.md) | Nederlands
+[English](vm-setup.md) | Nederlands
 
 Windows 11 VM voor apps die niet draaien onder Wine.
 
@@ -33,17 +33,11 @@ sudo dnf install @virtualization swtpm swtpm-tools edk2-ovmf
 ```bash
 sudo usermod --append --groups libvirt $(whoami)
 ```
-
-> **⚠️ BELANGRIJK:** Je MOET uitloggen en opnieuw inloggen (of herstarten) voordat de groepslidmaatschap actief wordt. Virt-manager werkt niet totdat je dit doet!
+Log uit en weer in (of herstart) voordat je virt-manager opent.
 
 **3. Libvirtd starten en enablen:**
 ```bash
-# Start de libvirt daemon
 sudo systemctl enable --now libvirtd
-sudo systemctl start libvirtd
-
-# Controleer of het draait
-sudo systemctl status libvirtd
 ```
 
 **4. Standaard netwerk configureren:**
@@ -52,7 +46,7 @@ sudo virsh net-start default
 sudo virsh net-autostart default
 ```
 
-**Let op:** Als je "network is already active" ziet, is dat prima - het betekent dat het netwerk al draait.
+Let op: Als je "network is already active" ziet, draait het netwerk al.
 
 **5. VirtIO drivers ISO downloaden:**
 ```bash
@@ -63,10 +57,7 @@ sudo curl -L -o /var/lib/libvirt/images/virtio-win.iso \
 # Controleer de download (moet ~753 MB zijn)
 ls -lh /var/lib/libvirt/images/virtio-win.iso
 ```
-
-> **⚠️ BELANGRIJK:** De download is groot (~753 MB). Annuleer deze niet (Ctrl+C) - laat hem volledig downloaden!
->
-> **💡 TIP:** `/var/lib/libvirt/images/` is de standaard locatie voor ISO's en VM disk images. Virt-manager toont deze directory automatisch.
+Laat de download volledig afronden; het is een groot bestand.
 
 **6. Controleer je setup:**
 ```bash
@@ -79,12 +70,7 @@ groups
 # Test of libvirt werkt
 sudo virsh list --all
 ```
-
-**7. Log uit en weer in**
-
-Na het voltooien van alle bovenstaande stappen, **log uit en weer in** (of herstart) voordat je virt-manager opent.
-
-**8. Windows ISO klaarzetten:**
+**7. Windows ISO klaarzetten:**
 
 Download of kopieer je Windows 11 IoT LTSC ISO naar `/var/lib/libvirt/images/`:
 ```bash
@@ -97,13 +83,13 @@ sudo curl -L -o /var/lib/libvirt/images/win11-iot-ltsc-eval.iso [ISO_URL]
 
 Virt-manager kan nu beide ISO's direct selecteren uit deze directory.
 
-**9. VM aanmaken in virt-manager:**
+**8. VM aanmaken in virt-manager:**
 - File → New Virtual Machine → Local install media
 - Selecteer Windows 11 IoT LTSC ISO
 - Memory: **8192 MB** (8 GB), CPUs: **6**, Storage: 100 GB (qcow2)
 - **Vink "Customize configuration before install" aan**
 
-**10. Hardware configureren:**
+**9. Hardware configureren:**
 
 | Setting | Value |
 |---------|-------|
@@ -115,7 +101,7 @@ Virt-manager kan nu beide ISO's direct selecteren uit deze directory.
 | Display | SPICE |
 | Video | QXL |
 
-**11. VirtIO ISO toevoegen:**
+**10. VirtIO ISO toevoegen:**
 - Add Hardware → Storage → CDROM
 - Selecteer `/var/lib/libvirt/images/virtio-win.iso`
 - Bus: SATA
@@ -151,7 +137,7 @@ Download en installeer voor klembord/bestandsdeling:
 spice-guest-tools-latest.exe (van spice-space.org)
 ```
 
-Klaar - Windows draait nu met goede performance.
+Klaar: Windows draait nu met goede performance.
 
 
 ## Snapshots
@@ -189,7 +175,7 @@ sudo usermod --append --groups libvirt $(whoami)
 1. Open virt-manager
 2. File → Add Connection
 3. Hypervisor: **QEMU/KVM**
-4. ✓ Connect to local hypervisor
+4. Connect to local hypervisor
 5. Laat alle andere velden leeg
 6. Klik **Connect**
 

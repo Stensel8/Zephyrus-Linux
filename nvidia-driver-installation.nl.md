@@ -1,8 +1,8 @@
 # NVIDIA Driver Installatie - ROG Zephyrus G16 GA605WV (2024)
 
-[English](NVIDIA_DRIVER_INSTALLATION.md) | Nederlands
+[English](nvidia-driver-installation.md) | Nederlands
 
-Volledige handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met Secure Boot ingeschakeld.
+Handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met Secure Boot ingeschakeld.
 
 **Systeemconfiguratie:**
 - Model: ASUS ROG Zephyrus G16 GA605WV (2024)
@@ -26,16 +26,12 @@ Volledige handleiding voor het installeren van NVIDIA proprietary drivers op Fed
 <details>
 <summary>Check kernel versie</summary>
 
-Vereist: Kernel 6.10+ voor Ryzen AI 9 HX 370 ondersteuning
+Vereist: Kernel 6.10+ voor Ryzen AI 9 HX 370 ondersteuning.
 
 ```bash
 uname -r
 ```
 
-Verwachte output:
-```
-6.18.8-200.fc43.x86_64
-```
 </details>
 
 <details>
@@ -45,10 +41,6 @@ Verwachte output:
 mokutil --sb-state
 ```
 
-Verwachte output:
-```
-SecureBoot enabled
-```
 </details>
 
 ### Waarom Proprietary Driver
@@ -71,13 +63,6 @@ sudo dnf clean all
 sudo dnf makecache
 ```
 
-Verwachte output:
-```
-Removed X files, Y directories (total of Z MiB)
-Updating and loading repositories:
-[...]
-Metadata cache created.
-```
 </details>
 
 <details>
@@ -89,15 +74,6 @@ RPM Fusion biedt NVIDIA drivers voor Fedora. NVIDIA's officiële CUDA repository
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
 ```
 
-Verwachte output:
-```
-[...]
-Installing:
- rpmfusion-free-release          noarch    43-1
- rpmfusion-nonfree-release       noarch    43-1
-[...]
-Complete!
-```
 </details>
 
 <details>
@@ -119,13 +95,7 @@ Check beschikbare NVIDIA driver versie:
 dnf info akmod-nvidia
 ```
 
-Verwachte output:
-```
-Name           : akmod-nvidia
-Version        : 580.119.02
-Release        : 1.fc43
-Repository     : rpmfusion-nonfree-nvidia-driver
-```
+Controleer dat de versie overeenkomt met de huidige release voor Fedora 43.
 </details>
 
 <details>
@@ -137,21 +107,13 @@ Installeer driver met CUDA ondersteuning:
 sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda -y
 ```
 
-Dit installeert ongeveer 74 packages (~1 GB download):
+Dit installeert de driver, CUDA libraries en build dependencies (ongeveer 1 GB).
 - `akmod-nvidia` - Automatische kernel module builder
 - `xorg-x11-drv-nvidia` - NVIDIA driver (ondersteunt X11 en Wayland)
 - `xorg-x11-drv-nvidia-cuda` - CUDA libraries
 - `nvidia-settings` - NVIDIA configuratiepaneel
 - Build dependencies (gcc, kernel-devel, etc.)
 
-Verwachte output:
-```
-[...]
-Transaction Summary:
- Installing:        74 packages
-[...]
-Complete!
-```
 </details>
 
 <details>
@@ -161,11 +123,6 @@ Forceer akmod om NVIDIA kernel modules te bouwen:
 
 ```bash
 sudo akmods --force
-```
-
-Verwachte output:
-```
-Checking kmods exist for 6.18.8-200.fc43.x86_64 [  OK  ]
 ```
 
 Dit proces kan 5-10 minuten duren.
@@ -180,11 +137,6 @@ Check dat kernel modules gebouwd zijn:
 ls /lib/modules/$(uname -r)/extra/nvidia/
 ```
 
-Verwachte output:
-```
-nvidia-drm.ko  nvidia.ko  nvidia-modeset.ko  nvidia-peermem.ko  nvidia-uvm.ko
-```
-
 Alle vijf kernel modules moeten aanwezig zijn.
 </details>
 
@@ -195,12 +147,7 @@ Alle vijf kernel modules moeten aanwezig zijn.
 sudo reboot
 ```
 
-Na reboot, open GNOME Software (Software Center - witte tas icoon):
-- De NVIDIA driver toont als "Pending"
-- Een MOK enrollment notificatie verschijnt met een enrollment code
-- Schrijf deze enrollment code op
-
-De driver is op dit punt nog niet functioneel.
+Na reboot, open GNOME Software en noteer de MOK enrollment code. De driver is nog niet actief.
 </details>
 
 <details>
@@ -231,11 +178,6 @@ Na MOK enrollment, rebuild de kernel modules. Ze worden nu gesigneerd met de enr
 sudo akmods --force --rebuild
 ```
 
-Verwachte output:
-```
-Checking kmods exist for 6.18.8-200.fc43.x86_64 [  OK  ]
-Building and installing nvidia-kmod [  OK  ]
-```
 </details>
 
 <details>
@@ -257,13 +199,6 @@ Activeer NVIDIA power services voor beter suspend/resume gedrag:
 sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service
 ```
 
-Verwachte output:
-```
-Created symlink /etc/systemd/system/systemd-hibernate.service.requires/nvidia-hibernate.service → /usr/lib/systemd/system/nvidia-hibernate.service.
-Created symlink /etc/systemd/system/systemd-suspend.service.requires/nvidia-suspend.service → /usr/lib/systemd/system/nvidia-suspend.service.
-Created symlink /etc/systemd/system/systemd-resume.service.requires/nvidia-resume.service → /usr/lib/systemd/system/nvidia-resume.service.
-```
-
 **Wat deze services doen:**
 - `nvidia-hibernate.service` - Slaat GPU state correct op voor hibernation
 - `nvidia-suspend.service` - Beheert GPU state tijdens system suspend
@@ -271,15 +206,15 @@ Created symlink /etc/systemd/system/systemd-resume.service.requires/nvidia-resum
 
 Deze services voorkomen GPU state problemen na suspend/resume cycli.
 
-> **⚠️ Belangrijk: `nvidia-powerd` NIET activeren**
->
-> De `nvidia-powerd.service` (NVIDIA dynamisch energiebeheer daemon) wordt in veel guides aanbevolen, maar veroorzaakt problemen op deze laptop. De service conflicteert met het AMD ATPX hybrid GPU power management op de Zephyrus G16, wat kan leiden tot onverwachte GPU state transitions en soft lockups.
->
-> Als je `nvidia-powerd` per ongeluk hebt ingeschakeld:
-> ```bash
-> sudo systemctl disable nvidia-powerd.service
-> sudo systemctl stop nvidia-powerd.service
-> ```
+**Belangrijk: `nvidia-powerd` niet activeren**
+
+De `nvidia-powerd.service` (NVIDIA dynamisch energiebeheer daemon) kan conflicteren met AMD ATPX power management op de Zephyrus G16 en soft lockups veroorzaken.
+
+Als je `nvidia-powerd` per ongeluk hebt ingeschakeld:
+```bash
+sudo systemctl disable nvidia-powerd.service
+sudo systemctl stop nvidia-powerd.service
+```
 
 **Referentie:**
 - [NVIDIA Power Management Documentatie](https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/powermanagement.html)
@@ -296,20 +231,7 @@ Na reboot, check driver status:
 nvidia-smi
 ```
 
-Verwachte output:
-```
-+-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 580.119.02             Driver Version: 580.119.02     CUDA Version: 13.0     |
-+-----------------------------------------+------------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-|                                         |                        |               MIG M. |
-|=========================================+========================+======================|
-|   0  NVIDIA GeForce RTX 4060 ...    Off |   00000000:65:00.0 Off |                  N/A |
-| N/A   44C    P8              2W /   65W |      12MiB /   8188MiB |      0%      Default |
-|                                         |                        |                  N/A |
-+-----------------------------------------+------------------------+----------------------+
-```
+Je ziet de NVIDIA driver- en CUDA-versies in de output.
 </details>
 
 <details>
@@ -321,10 +243,6 @@ Bevestig dat Wayland draait (niet X11):
 echo $XDG_SESSION_TYPE
 ```
 
-Verwachte output:
-```
-wayland
-```
 </details>
 
 <details>
@@ -332,15 +250,6 @@ wayland
 
 ```bash
 lsmod | grep nvidia
-```
-
-Verwachte output (meerdere nvidia modules moeten vermeld staan):
-```
-nvidia_uvm           4206592  0
-nvidia_drm            159744  6
-nvidia_modeset       2265088  4 nvidia_drm
-nvidia_wmi_ec_backlight    12288  0
-nvidia              15896576  62 nvidia_uvm,nvidia_modeset
 ```
 
 De NVIDIA modules zijn geladen en de driver is functioneel.
@@ -378,10 +287,7 @@ sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.bla
 sudo grubby --info=ALL | grep args
 ```
 
-Verwachte output moet bevatten:
-```
-args="... rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 nvidia-drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1 ..."
-```
+Verwachte output moet de toegevoegde kernel parameters bevatten.
 
 **Stap 3: Reboot om wijzigingen toe te passen**
 
@@ -435,9 +341,9 @@ cd ~/.local/share/icc
 
 # Download pre-configured profiles from this repository
 curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_1002_104D158E_CMDEF.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_DCIP3.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_DisplayP3.icm
-curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/GA605WV_sRGB.icm
+curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_DCIP3.icm
+curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_DisplayP3.icm
+curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/assets/icc-profiles/ASUS_sRGB.icm
 ```
 
 **Activeer Native profiel in GNOME:**
@@ -448,16 +354,16 @@ curl -LO https://raw.githubusercontent.com/Stensel8/Zephyrus-Linux/development/a
 4. Selecteer **Native**
 5. Klik **Add**
 
-> **⚠️ Opmerking:** Als GNOME Settings de oude technische namen toont (bijv. "ASUS GA605WV 1002 104D158E CMDEF" in plaats van "Native"), sluit Settings af en heropen, of log uit/in om de color cache te verversen.
+**Opmerking:** Als GNOME Settings de oude technische namen toont (bijv. "ASUS GA605WV 1002 104D158E CMDEF" in plaats van "Native"), sluit Settings af en heropen, of log uit/in om de color cache te verversen.
 
 **Beschikbare kleurprofielen:**
 
 | GNOME Naam | Bestand | Beschrijving |
 |---|---|---|
-| **Native** | `GA605WV_1002_104D158E_CMDEF.icm` | **✓ Aanbevolen** - Factory-gekalibreerd voor Sharp LQ160R1JW02 panel, beste kleurnauwkeurigheid |
-| DCI-P3 | `GA605WV_DCIP3.icm` | Verzadigde DCI-P3 kleuren voor gaming/media (Vivid mode) |
-| Display P3 | `GA605WV_DisplayP3.icm` | Display P3 colorspace voor Apple-compatibele workflows |
-| sRGB | `GA605WV_sRGB.icm` | sRGB standaard voor web/foto werk |
+| **Native** | `GA605WV_1002_104D158E_CMDEF.icm` | **Aanbevolen** - Factory-gekalibreerd voor Sharp LQ160R1JW02 panel, beste kleurnauwkeurigheid |
+| DCI-P3 | `ASUS_DCIP3.icm` | Verzadigde DCI-P3 kleuren voor gaming/media (Vivid mode) |
+| Display P3 | `ASUS_DisplayP3.icm` | Display P3 colorspace voor Apple-compatibele workflows |
+| sRGB | `ASUS_sRGB.icm` | sRGB standaard voor web/foto werk |
 
 **Aanbeveling:**
 
@@ -716,64 +622,6 @@ Forceer rebuild:
 sudo akmods --force
 ```
 </details>
-
-
-## Command Referentie
-
-Volledige command sequence voor installatie:
-
-```bash
-# Systeem verificatie
-uname -r
-mokutil --sb-state
-
-# Fix repository problemen (indien nodig)
-sudo dnf clean all
-sudo dnf makecache
-
-# Voeg RPM Fusion repositories toe
-sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
-
-# Update systeem
-sudo dnf update -y
-
-# Verifieer driver versie
-dnf info akmod-nvidia
-
-# Installeer NVIDIA driver
-sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda -y
-
-# Bouw kernel modules
-sudo akmods --force
-
-# Verifieer modules gebouwd
-ls /lib/modules/$(uname -r)/extra/nvidia/
-
-# Eerste reboot (check GNOME Software voor MOK code)
-sudo reboot
-
-# Tweede reboot (MOK enrollment blue screen)
-sudo reboot
-
-# Na MOK enrollment: rebuild modules met enrolled key
-sudo akmods --force --rebuild
-
-# Definitieve reboot
-sudo reboot
-
-# Activeer NVIDIA power management services (NIET nvidia-powerd)
-sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service
-
-# Optioneel: Voeg performance optimalisatie kernel parameters toe
-sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 nvidia-drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1"
-sudo grubby --info=ALL | grep args
-sudo reboot
-
-# Verificatie na installatie
-nvidia-smi
-echo $XDG_SESSION_TYPE
-lsmod | grep nvidia
-```
 
 
 ## Technische goed om te weten

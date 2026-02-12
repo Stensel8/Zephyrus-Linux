@@ -1,8 +1,8 @@
 # NVIDIA Driver Installation - ROG Zephyrus G16 GA605WV (2024)
 
-English | [Nederlands](NVIDIA_DRIVER_INSTALLATION.nl.md)
+English | [Nederlands](nvidia-driver-installation.nl.md)
 
-Complete guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot enabled.
+Guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot enabled.
 
 **System Configuration:**
 - Model: ASUS ROG Zephyrus G16 GA605WV (2024)
@@ -26,16 +26,12 @@ Complete guide for installing NVIDIA proprietary drivers on Fedora 43 with Secur
 <details>
 <summary>Check kernel version</summary>
 
-Required: Kernel 6.10+ for Ryzen AI 9 HX 370 support
+Required: Kernel 6.10+ for Ryzen AI 9 HX 370 support.
 
 ```bash
 uname -r
 ```
 
-Expected output:
-```
-6.18.8-200.fc43.x86_64
-```
 </details>
 
 <details>
@@ -45,10 +41,6 @@ Expected output:
 mokutil --sb-state
 ```
 
-Expected output:
-```
-SecureBoot enabled
-```
 </details>
 
 ### Why Proprietary Driver
@@ -71,13 +63,6 @@ sudo dnf clean all
 sudo dnf makecache
 ```
 
-Expected output:
-```
-Removed X files, Y directories (total of Z MiB)
-Updating and loading repositories:
-[...]
-Metadata cache created.
-```
 </details>
 
 <details>
@@ -89,15 +74,6 @@ RPM Fusion provides NVIDIA drivers for Fedora. NVIDIA's official CUDA repository
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
 ```
 
-Expected output:
-```
-[...]
-Installing:
- rpmfusion-free-release          noarch    43-1
- rpmfusion-nonfree-release       noarch    43-1
-[...]
-Complete!
-```
 </details>
 
 <details>
@@ -119,13 +95,7 @@ Check available NVIDIA driver version:
 dnf info akmod-nvidia
 ```
 
-Expected output:
-```
-Name           : akmod-nvidia
-Version        : 580.119.02
-Release        : 1.fc43
-Repository     : rpmfusion-nonfree-nvidia-driver
-```
+Confirm the version matches the current release for Fedora 43.
 </details>
 
 <details>
@@ -137,23 +107,14 @@ Install driver with CUDA support:
 sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda -y
 ```
 
-This installs approximately 74 packages (~1 GB download):
+This installs the driver, CUDA libraries, and build dependencies (about 1 GB).
 - `akmod-nvidia` - Automatic kernel module builder
 - `xorg-x11-drv-nvidia` - NVIDIA driver (supports both X11 and Wayland)
 - `xorg-x11-drv-nvidia-cuda` - CUDA libraries
 - `nvidia-settings` - NVIDIA control panel
 - Build dependencies (gcc, kernel-devel, etc.)
 
-Expected output:
-```
-[...]
-Transaction Summary:
- Installing:        74 packages
-[...]
-Complete!
-```
-
-Note: No MOK password prompt may appear during installation. This is normal.
+Note: A MOK password prompt may not appear during installation. This is normal.
 </details>
 
 <details>
@@ -163,11 +124,6 @@ Force akmod to build NVIDIA kernel modules:
 
 ```bash
 sudo akmods --force
-```
-
-Expected output:
-```
-Checking kmods exist for 6.18.8-200.fc43.x86_64 [  OK  ]
 ```
 
 This process may take 5-10 minutes.
@@ -182,11 +138,6 @@ Check that kernel modules were built:
 ls /lib/modules/$(uname -r)/extra/nvidia/
 ```
 
-Expected output:
-```
-nvidia-drm.ko  nvidia.ko  nvidia-modeset.ko  nvidia-peermem.ko  nvidia-uvm.ko
-```
-
 All five kernel modules should be present.
 </details>
 
@@ -197,12 +148,7 @@ All five kernel modules should be present.
 sudo reboot
 ```
 
-After reboot, open GNOME Software (Software Center - white bag icon):
-- The NVIDIA driver will show as "Pending"
-- A MOK enrollment notification will appear with an enrollment code
-- Write down this enrollment code
-
-The driver is not yet functional at this point.
+After reboot, open GNOME Software and note the MOK enrollment code. The driver is not yet active.
 </details>
 
 <details>
@@ -233,11 +179,6 @@ After MOK enrollment, rebuild the kernel modules. They will now be signed with t
 sudo akmods --force --rebuild
 ```
 
-Expected output:
-```
-Checking kmods exist for 6.18.8-200.fc43.x86_64 [  OK  ]
-Building and installing nvidia-kmod [  OK  ]
-```
 </details>
 
 <details>
@@ -257,14 +198,6 @@ Enable NVIDIA power services for better suspend/resume behavior and power manage
 
 ```bash
 sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
-```
-
-Expected output:
-```
-Created symlink /etc/systemd/system/systemd-hibernate.service.requires/nvidia-hibernate.service → /usr/lib/systemd/system/nvidia-hibernate.service.
-Created symlink /etc/systemd/system/systemd-suspend.service.requires/nvidia-suspend.service → /usr/lib/systemd/system/nvidia-suspend.service.
-Created symlink /etc/systemd/system/systemd-resume.service.requires/nvidia-resume.service → /usr/lib/systemd/system/nvidia-resume.service.
-Created symlink /etc/systemd/system/multi-user.target.wants/nvidia-powerd.service → /usr/lib/systemd/system/nvidia-powerd.service.
 ```
 
 **What these services do:**
@@ -291,20 +224,7 @@ After reboot, check driver status:
 nvidia-smi
 ```
 
-Expected output:
-```
-+-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 580.119.02             Driver Version: 580.119.02     CUDA Version: 13.0     |
-+-----------------------------------------+------------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-|                                         |                        |               MIG M. |
-|=========================================+========================+======================|
-|   0  NVIDIA GeForce RTX 4060 ...    Off |   00000000:65:00.0 Off |                  N/A |
-| N/A   44C    P8              2W /   65W |      12MiB /   8188MiB |      0%      Default |
-|                                         |                        |                  N/A |
-+-----------------------------------------+------------------------+----------------------+
-```
+You should see the NVIDIA driver and CUDA versions listed.
 </details>
 
 <details>
@@ -316,10 +236,6 @@ Confirm running Wayland (not X11):
 echo $XDG_SESSION_TYPE
 ```
 
-Expected output:
-```
-wayland
-```
 </details>
 
 <details>
@@ -327,14 +243,6 @@ wayland
 
 ```bash
 lsmod | grep nvidia
-```
-
-Expected output (multiple nvidia modules should be listed):
-```
-nvidia_uvm           4206592  0
-nvidia_drm            159744  6
-nvidia_modeset       2265088  4 nvidia_drm
-nvidia              15896576  62 nvidia_uvm,nvidia_modeset
 ```
 
 The NVIDIA modules are loaded and the driver is functional.
@@ -372,10 +280,7 @@ sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.bla
 sudo grubby --info=ALL | grep args
 ```
 
-Expected output should include:
-```
-args="... rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1 ..."
-```
+Expected output should include the added kernel parameters.
 
 **Step 3: Reboot to apply changes**
 
@@ -565,62 +470,7 @@ sudo akmods --force
 </details>
 
 
-## Command Reference
-
-Complete command sequence for installation:
-
-```bash
-# System verification
-uname -r
-mokutil --sb-state
-
-# Fix repository issues (if needed)
-sudo dnf clean all
-sudo dnf makecache
-
-# Add RPM Fusion repositories
-sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
-
-# Update system
-sudo dnf update -y
-
-# Verify driver version
-dnf info akmod-nvidia
-
-# Install NVIDIA driver
-sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda -y
-
-# Build kernel modules
-sudo akmods --force
-
-# Verify modules built
-ls /lib/modules/$(uname -r)/extra/nvidia/
-
-# First reboot (MOK enrollment will be requested)
-sudo reboot
-
-# After first reboot and MOK enrollment:
-# Rebuild modules with enrolled MOK key
-sudo akmods --force --rebuild
-
-# Final reboot
-sudo reboot
-
-# Enable NVIDIA power management services
-sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-resume.service nvidia-powerd.service
-
-# Optional: Add performance optimization kernel parameters
-sudo grubby --update-kernel=ALL --args="rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1"
-sudo grubby --info=ALL | grep args
-sudo reboot
-
-# Post-installation verification
-nvidia-smi
 echo $XDG_SESSION_TYPE
-lsmod | grep nvidia
-```
-
-
 ## Technical Notes
 
 ### Package Naming
