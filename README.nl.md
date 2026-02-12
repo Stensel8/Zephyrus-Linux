@@ -27,7 +27,7 @@ Ik heb Brave geïnstalleerd via Flathub. De officiële `.sh` script versie van B
 - Open GNOME Software Center
 - Zoek naar "Brave"
 - Klik op Installeren
-![Brave Browser in de Flathub store](/assets/images/brave-flathub.png){width="400px"}
+<img src="/assets/images/brave-flathub.png" alt="Brave Browser in de Flathub store" width="400">
 </details>
 
 <details>
