@@ -386,7 +386,7 @@ The profiles contain factory color corrections specific to the Sharp LQ160R1JW02
 
 **Technical Details:**
 
-The profiles in this repository are pre-processed with custom ICC metadata 'desc' tags so they appear with readable names directly in GNOME Color Management. For users interested in how these modifications work, see [`rename-icc-profiles.py`](rename-icc-profiles.py) in this repository. This script shows the technical implementation of ICC 'desc' tag manipulation using Python's PIL/ImageCms.
+The profiles in this repository are pre-processed with custom ICC metadata 'desc' tags so they appear with readable names directly in GNOME Color Management. For users interested in how such modifications work, you can implement similar ICC 'desc' tag manipulation yourself using Python's PIL/ImageCms.
 </details>
 
 
@@ -626,7 +626,6 @@ sudo akmods --force
 </details>
 
 
-echo $XDG_SESSION_TYPE
 ## Technical Notes
 
 ### Package Naming

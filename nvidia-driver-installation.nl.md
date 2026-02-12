@@ -384,7 +384,7 @@ De profielen bevatten factory color corrections die specifiek zijn voor het Shar
 
 **Technische Details:**
 
-De profielen in deze repository zijn al voorbewerkt met aangepaste ICC metadata 'desc' tags, zodat ze direct met leesbare namen verschijnen in GNOME Color Management.Voor gebruikers die geïnteresseerd zijn in hoe deze modificaties werken, zie [`rename-icc-profiles.py`](rename-icc-profiles.py) in deze repository. Dit script toont de technische implementatie van ICC 'desc' tag manipulation met Python's PIL/ImageCms.
+De profielen in deze repository zijn al voorbewerkt met aangepaste ICC metadata 'desc' tags, zodat ze direct met leesbare namen verschijnen in GNOME Color Management. Voor gebruikers die geïnteresseerd zijn in hoe deze modificaties werken, kun je zelf vergelijkbare ICC 'desc' tag manipulatie implementeren met Python's PIL/ImageCms.
 </details>
 
 

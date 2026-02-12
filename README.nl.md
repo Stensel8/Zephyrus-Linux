@@ -55,14 +55,14 @@ Dit zorgt ervoor dat alle drie de vensterknoppen (minimize, maximize/zoom, en cl
 <summary><strong>4.</strong> Bitwarden desktop (Flathub)</summary>
 
 Ik heb de Bitwarden desktop-app geïnstalleerd via Flathub.
-![alt text](assets/images/bitwarden-flathub.png)
+![Bitwarden desktop app in Flathub](assets/images/bitwarden-flathub.png)
 </details>
 
 <details>
 <summary><strong>5.</strong> Signal Messenger (Flathub)</summary>
 
 Signal Messenger geïnstalleerd via Flathub. Mijn voorkeurs-app voor messaging. Officieel is Signal alleen voor Debian/Ubuntu, maar de Flatpak versie werkt prima op Fedora. Signal is gebouwd op Electron, dus biedt goede prestaties.
-![alt text](assets/images/signal-flathub.png)
+![Signal Messenger app in de Flathub store](assets/images/signal-flathub.png)
 </details>
 
 <details>

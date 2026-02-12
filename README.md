@@ -59,7 +59,7 @@ This ensures that all three window buttons (minimize, maximize/zoom, and close) 
 
 I installed the Bitwarden desktop app via Flathub.
 
-![alt text](assets/images/bitwarden-flathub.png)
+![Bitwarden desktop app in Flathub](assets/images/bitwarden-flathub.png)
 </details>
 
 <details>
@@ -67,7 +67,7 @@ I installed the Bitwarden desktop app via Flathub.
 
 Signal Messenger installed via Flathub. My preferred messaging app. Officially, Signal is only for Debian/Ubuntu, but the Flatpak version works great on Fedora. Signal is built on Electron, so it offers good performance.
 
-![alt text](assets/images/signal-flathub.png)
+![Signal Messenger app in Flathub](assets/images/signal-flathub.png)
 </details>
 
 <details>
