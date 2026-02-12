@@ -111,7 +111,6 @@ Dit installeert de driver, CUDA libraries en build dependencies (ongeveer 1 GB).
 - `akmod-nvidia` - Automatische kernel module builder
 - `xorg-x11-drv-nvidia` - NVIDIA driver (ondersteunt X11 en Wayland)
 - `xorg-x11-drv-nvidia-cuda` - CUDA libraries
-- `nvidia-settings` - NVIDIA configuratiepaneel
 - Build dependencies (gcc, kernel-devel, etc.)
 
 </details>

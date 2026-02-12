@@ -121,7 +121,7 @@ Op "Where do you want to install Windows?":
 **3. Lokaal account:**
 
 Als "I don't have internet" niet beschikbaar:
-- Shift+F10 → `start ms-cxh localonly` → Enter
+- Shift+F10 → `start ms-cxh:localonly` → Enter
 
 **4. VirtIO guest tools installeren:**
 

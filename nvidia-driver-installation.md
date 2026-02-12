@@ -111,7 +111,6 @@ This installs the driver, CUDA libraries, and build dependencies (about 1 GB).
 - `akmod-nvidia` - Automatic kernel module builder
 - `xorg-x11-drv-nvidia` - NVIDIA driver (supports both X11 and Wayland)
 - `xorg-x11-drv-nvidia-cuda` - CUDA libraries
-- `nvidia-settings` - NVIDIA control panel
 - Build dependencies (gcc, kernel-devel, etc.)
 
 Note: A MOK password prompt may not appear during installation. This is normal.

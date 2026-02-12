@@ -27,21 +27,21 @@ Ik heb Brave geïnstalleerd via Flathub. De officiële `.sh` script versie van B
 - Open GNOME Software Center
 - Zoek naar "Brave"
 - Klik op Installeren
-<img src="/assets/images/brave-flathub.png" alt="Brave Browser in de Flathub store" width="400">
+<img src="assets/images/brave-flathub.png" alt="Brave Browser in de Flathub store" width="400">
 </details>
 
 <details>
 <summary><strong>2.</strong> Hostname instellen</summary>
 
 Ik heb de hostnaam in de systeeminstellingen gezet naar de gewenste naam.
-![Hostname instellen](/assets/images/system-info.png)
+![Hostname instellen](assets/images/system-info.png)
 </details>
 
 <details>
 <summary><strong>3.</strong> GNOME vensterknoppen configureren</summary>
 
 Ik heb de venster-knoppen in GNOME 49 aangepast om minimize, maximize en close knoppen te tonen. Standaard toont GNOME alleen de close knop.
-![Een voorbeeld van hoe de nieuwe Gnome vensters eruit zien](/assets/images/window-controls.png)
+![Een voorbeeld van hoe de nieuwe Gnome vensters eruit zien](assets/images/window-controls.png)
 
 **Configuratie:**
 ```bash

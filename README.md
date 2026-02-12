@@ -28,7 +28,7 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 - Search for "Brave"
 - Click Install
 
-<img src="/assets/images/brave-flathub.png" alt="Brave Browser in the Flathub store" width="400">
+<img src="assets/images/brave-flathub.png" alt="Brave Browser in the Flathub store" width="400">
 </details>
 
 <details>
@@ -36,7 +36,7 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 
 I set the hostname in the system settings to the desired name.
 
-![Set hostname](/assets/images/system-info.png)
+![Set hostname](assets/images/system-info.png)
 </details>
 
 <details>
@@ -44,7 +44,7 @@ I set the hostname in the system settings to the desired name.
 
 I configured the window buttons in GNOME 49 to show minimize, maximize, and close buttons. By default, GNOME only shows the close button.
 
-![Example of how the new GNOME windows look](/assets/images/window-controls.png)
+![Example of how the new GNOME windows look](assets/images/window-controls.png)
 
 **Configuration:**
 ```bash
