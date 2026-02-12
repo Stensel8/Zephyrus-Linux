@@ -4,7 +4,7 @@ Factory-calibrated ICC profiles for the Zephyrus G16 GA605WV display.
 
 ## Source
 
-These profiles were extracted from the ASUS Windows driver package:
+These profiles were extracted from the ASUS Windows driver package. I found them by reverse engineering the Windows driver stack and researching how ASUS deploys and applies the profiles. That work revealed the CDN hosting path and clarified what each profile actually represents.
 
 ```
 https://dlcdn-rogboxbu1.asus.com/pub/ASUS/APService/Gaming/SYS/ROGS/20016-BWVQPK-01624c1cdd5a3c05252bad472fab1240.zip
