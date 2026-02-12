@@ -112,15 +112,21 @@ Na het installeren van VS Code en Git heb ik `kleopatra` geïnstalleerd en via d
 
 **EENMALIGE SETUP:**
 ```bash
-git config --global user.name "Sten Tijhuis"
-git config --global user.email "102481635+Stensel8@users.noreply.github.com"
-git config --global user.signingkey 8E3B0360FED269E75261AC73D13D72C854C880F3
+git config --global user.name "JOUW_NAAM"
+git config --global user.email "JOUW_EMAIL"
+git config --global user.signingkey JOUW_GPG_KEY_ID
 git config --global commit.gpgsign true
 git config --global tag.gpgsign true
 git config --global gpg.program gpg
 ```
 
-Dit zorgt ervoor dat mijn commits automatisch met mijn GPG-key gesigneerd worden.
+**Vind je GPG key ID:**
+```bash
+gpg --list-secret-keys --keyid-format=long
+```
+Gebruik de key ID van de `sec` regel (bijv. `rsa4096/JOUW_GPG_KEY_ID`).
+
+Dit zorgt ervoor dat je commits automatisch met je GPG-key gesigneerd worden.
 </details>
 
 <details>

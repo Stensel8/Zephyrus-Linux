@@ -118,15 +118,21 @@ After installing VS Code and Git, I installed `kleopatra` and created my GPG key
 
 **ONE-TIME SETUP:**
 ```bash
-git config --global user.name "Sten Tijhuis"
-git config --global user.email "102481635+Stensel8@users.noreply.github.com"
-git config --global user.signingkey 8E3B0360FED269E75261AC73D13D72C854C880F3
+git config --global user.name "YOUR_NAME"
+git config --global user.email "YOUR_EMAIL"
+git config --global user.signingkey YOUR_GPG_KEY_ID
 git config --global commit.gpgsign true
 git config --global tag.gpgsign true
 git config --global gpg.program gpg
 ```
 
-This ensures that my commits are automatically signed with my GPG key.
+**Find your GPG key ID:**
+```bash
+gpg --list-secret-keys --keyid-format=long
+```
+Use the key ID from the `sec` line (e.g., `rsa4096/YOUR_GPG_KEY_ID`).
+
+This ensures that your commits are automatically signed with your GPG key.
 </details>
 
 <details>
