@@ -28,7 +28,7 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 - Search for "Brave"
 - Click Install
 
-![Brave Browser in the Flathub store](/assets/images/brave-flathub.png){width="400px"}
+<img src="/assets/images/brave-flathub.png" alt="Brave Browser in the Flathub store" width="400">
 </details>
 
 <details>
