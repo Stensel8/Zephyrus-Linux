@@ -4,7 +4,6 @@ Nederlands | [English](README.md)
 
 > **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
 
----
 
 ## tl;dr
 
@@ -12,7 +11,6 @@ In 2026 ben ik naar Fedora 43 gegaan op mijn Zephyrus G16. Het is niet perfect, 
 
 Deze repo bevat de concrete stappen, tweaks en workarounds die ik gebruikt heb. Ik werk hem bij als Fedora en de drivers veranderen.
 
----
 
 ## Installatie & Configuratie
 
@@ -350,4 +348,30 @@ sudo nano /etc/libinput.conf
 ```bash
 sudo rm /etc/libinput.conf
 ```
+</details>
+
+<details>
+<summary><strong>19.</strong> GDM autologin na LUKS</summary>
+
+Sla het GDM inlogscherm over na LUKS ontgrendeling. Na het invoeren van je schijfwachtwoord bij het opstarten laadt het bureaublad direct. De schermvergrendeling bij slaapstand/inactiviteit vraagt nog steeds om je wachtwoord.
+
+Volledige handleiding: [GDM Autologin Handleiding](autologin.nl.md)
+
+**Samenvatting:**
+- Bewerk `/etc/gdm/custom.conf`
+- Stel `AutomaticLoginEnable=True` en `AutomaticLogin=sten` in onder `[daemon]`
+- Herstart
+</details>
+
+<details>
+<summary><strong>20.</strong> YubiKey 5C NFC</summary>
+
+Documenteert mijn pogingen om de YubiKey te gebruiken voor FIDO2 LUKS ontgrendeling bij het opstarten en wat vandaag betrouwbaar werkt.
+
+Volledige handleiding: [YubiKey Handleiding](yubikey.nl.md)
+
+**Samenvatting:**
+- FIDO2 LUKS ontgrendeling is te onbetrouwbaar op Fedora 43
+- Opnieuw proberen op Fedora 44 als systemd 259+ `token-timeout=` in crypttab heeft
+- YubiKey werkt betrouwbaar voor OATH/TOTP, SSH en pam-u2f (sudo/schermvergrendeling)
 </details>

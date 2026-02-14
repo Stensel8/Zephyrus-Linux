@@ -4,7 +4,6 @@ English | [Nederlands](README.nl.md)
 
 > **Disclaimer:** This is an independent personal project documenting my own research and findings while setting up Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). I am not affiliated with, endorsed by, or acting on behalf of Microsoft, Windows, ASUS, ROG, G-Helper, or any other company or project mentioned herein. This repository shares my personal configuration and troubleshooting notes. No stability guarantees are provided. Your mileage may vary.
 
----
 
 ## tl;dr
 
@@ -12,7 +11,6 @@ In 2026 I moved this Zephyrus G16 to Fedora 43. It is not perfect, but stability
 
 This repo documents the steps, tweaks, and workarounds I use and I keep it updated as Fedora and drivers change.
 
----
 
 ## Installation & Configuration
 
@@ -356,4 +354,30 @@ sudo nano /etc/libinput.conf
 ```bash
 sudo rm /etc/libinput.conf
 ```
+</details>
+
+<details>
+<summary><strong>19.</strong> GDM autologin after LUKS</summary>
+
+Skip the GDM login screen after LUKS unlock. After entering your disk password at boot, the desktop loads immediately. The screen lock on suspend/idle still requires your password.
+
+Full setup guide: [GDM Autologin Guide](autologin.md)
+
+**Summary:**
+- Edit `/etc/gdm/custom.conf`
+- Set `AutomaticLoginEnable=True` and `AutomaticLogin=sten` under `[daemon]`
+- Reboot
+</details>
+
+<details>
+<summary><strong>20.</strong> YubiKey 5C NFC</summary>
+
+Documents my attempts to use the YubiKey for FIDO2 LUKS unlock at boot and what works reliably today.
+
+Full guide: [YubiKey Guide](yubikey.md)
+
+**Summary:**
+- FIDO2 LUKS unlock is too unreliable on Fedora 43 (systemd 258 regression — no password fallback, dracut timing issues)
+- Revisit on Fedora 44 when systemd 259+ ships `token-timeout=` in crypttab
+- YubiKey works reliably for OATH/TOTP, SSH, and pam-u2f (sudo/screen unlock)
 </details>

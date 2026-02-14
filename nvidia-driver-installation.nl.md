@@ -7,10 +7,10 @@ Handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met
 **Systeemconfiguratie:**
 - Model: ASUS ROG Zephyrus G16 GA605WV (2024)
 - CPU: AMD Ryzen AI 9 HX 370
-- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q)
+- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q) + AMD Radeon 890M (iGPU)
 - OS: Fedora 43
-- Kernel: 6.18.8-200.fc43.x86_64
-- Display Server: Wayland (GNOME)
+- Kernel: 6.18.9-200.fc43.x86_64
+- Display Server: Wayland (GNOME 49)
 - Secure Boot: Ingeschakeld
 
 **Driver Informatie:**
@@ -205,14 +205,27 @@ sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-res
 
 Deze services voorkomen GPU state problemen na suspend/resume cycli.
 
-**Belangrijk: `nvidia-powerd` niet activeren**
+**Belangrijk: `nvidia-powerd` niet activeren — permanent masken**
 
-De `nvidia-powerd.service` (NVIDIA dynamisch energiebeheer daemon) kan conflicteren met AMD ATPX power management op de Zephyrus G16 en soft lockups veroorzaken.
+De `nvidia-powerd.service` beheert NVIDIA Dynamic Boost, waarmee extra wattage (~5-15W) van de CPU naar de GPU geschoven wordt tijdens zware GPU-belasting. Hoewel nuttig op Intel-gebaseerde laptops, conflicteert het met AMD ATPX power management op de Zephyrus G16 en veroorzaakt soft lockups en "GPU has fallen off the bus" fouten.
 
-Als je `nvidia-powerd` per ongeluk hebt ingeschakeld:
+Op deze laptop wordt GPU-vermogensbeheer geregeld via ATPX (AMD-gestuurd via ACPI). De NVIDIA suspend/hibernate/resume services en `supergfxctl` beheren power states correct zonder `nvidia-powerd`.
+
+**Wat je verliest door het uit te zetten:** Minimaal — een paar FPS minder bij zware GPU workloads. De ~5-15W Dynamic Boost is de instabiliteit niet waard op AMD ATPX hardware.
+
+**Uitschakelen en permanent masken:**
 ```bash
 sudo systemctl disable nvidia-powerd.service
 sudo systemctl stop nvidia-powerd.service
+sudo systemctl mask nvidia-powerd.service
+```
+
+Masken maakt een symlink naar `/dev/null`, waardoor geen enkel proces — ook geen NVIDIA driver updates via `dnf` — de service opnieuw kan activeren.
+
+**Als je het later opnieuw wilt proberen** (bijv. na een kernel- of driver-update die het ATPX-conflict mogelijk verhelpt):
+```bash
+sudo systemctl unmask nvidia-powerd.service
+sudo systemctl enable --now nvidia-powerd.service
 ```
 
 **Referentie:**
@@ -315,6 +328,20 @@ sudo reboot
 - Soepelere graphics performance in het algemeen
 
 **Opmerking:** Deze parameters zijn optioneel maar aanbevolen voor optimale performance.
+
+**Grafische boot splash opnieuw inschakelen:**
+
+Fedora gebruikt `rhgb` (Red Hat Graphical Boot) en `quiet` om een Plymouth splash scherm te tonen tijdens het booten in plaats van scrollende kernel tekst. Als je deze hebt verwijderd tijdens het debuggen van NVIDIA- of boot-problemen, voeg ze opnieuw toe:
+
+```bash
+sudo grubby --update-kernel=ALL --args="rhgb quiet"
+```
+
+Het standaard Plymouth-thema (`bgrt`) toont het ASUS/BIOS fabrikantlogo. Om in de toekomst boot-problemen te debuggen, kun je ze tijdelijk verwijderen:
+
+```bash
+sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
+```
 
 **Referenties:**
 - [NVIDIA Driver Modesetting - Arch Wiki](https://wiki.archlinux.org/title/NVIDIA)
@@ -517,12 +544,45 @@ Dit kan optreden door een combinatie van factoren op hybrid GPU laptops:
 - NVIDIA dGPU power state transitions falen
 - Corrupte VRAM na suspend/resume cycli
 
+**Extra symptoom: Reboot hangt (zwart scherm, backlights blijven aan)**
+
+Het systeem lijkt af te sluiten maar voltooit de hardware reset niet — het scherm wordt zwart maar toetsenbord- en schermverlichting blijven aan. Dit gebeurt wanneer `nvidia-powerd` interfereert met ACPI power state transitions tijdens shutdown/reboot.
+
+**Oorzaak: `supergfxd` start `nvidia-powerd` achter je rug**
+
+Zelfs wanneer `nvidia-powerd` is uitgeschakeld via `systemctl disable`, roept `supergfxd` (de GPU switching daemon van asusctl) direct `systemctl start nvidia-powerd.service` aan tijdens GPU mode switches. Dit omzeilt de disabled status en activeert het conflict met ATPX opnieuw.
+
+**Hoe dit is gediagnosticeerd:**
+
+De logs van de vastgelopen boot tonen dat `supergfxd` nvidia-powerd opstartte:
+```bash
+journalctl -b -1 --no-pager | grep -iE "nvidia.*powerd|supergfxd"
+```
+
+Bewijsmateriaal:
+```
+supergfxd: [DEBUG supergfxctl] Did CommandArgs { inner: ["start", "nvidia-powerd.service"] }
+nvidia-powerd: ERROR! Client (presumably SBIOS) has requested to disable Dynamic Boost DC controller
+```
+
+De SBIOS-fout bevestigt dat de firmware Dynamic Boost weigerde, maar `nvidia-powerd` draaide al en interfereerde met power state management. De shutdown-sequentie controleren:
+
+```bash
+journalctl -b -1 --reverse | head -20
+```
+
+Toont dat de hardware watchdog niet kon stoppen, wat bevestigt dat de ACPI reboot nooit voltooid is:
+```
+watchdog: watchdog0: watchdog did not stop!
+```
+
 **Fix:**
 
-1. Disable `nvidia-powerd`:
+1. Disable en **mask** `nvidia-powerd` (masken is essentieel — `disable` alleen is niet genoeg omdat `supergfxd` het omzeilt):
 ```bash
 sudo systemctl disable nvidia-powerd.service
 sudo systemctl stop nvidia-powerd.service
+sudo systemctl mask nvidia-powerd.service
 ```
 
 2. Voeg kernel parameters toe voor stabielere NVIDIA power management:
@@ -536,7 +596,7 @@ sudo reboot
 ```
 
 **Vervolg:**
-Systeem is stabieler na deze wijzigingen. De NVIDIA dGPU wordt nog steeds correct beheerd via ATPX (AMD-gestuurde power switching) zonder dat `nvidia-powerd` interfereert.
+Systeem is stabieler na deze wijzigingen. De NVIDIA dGPU wordt nog steeds correct beheerd via ATPX (AMD-gestuurde power switching) zonder dat `nvidia-powerd` interfereert. De mask maakt een symlink naar `/dev/null`, waardoor geen enkel proces — inclusief `supergfxd` en NVIDIA driver updates — de service opnieuw kan activeren.
 
 **Achtergrond:**
 Op laptops met AMD iGPU + NVIDIA dGPU regelt het ATPX framework (via ACPI) welke GPU actief is. `nvidia-powerd` probeert zelfstandig power decisions te maken, wat conflicteert met ATPX. De `NVreg_PreserveVideoMemoryAllocations=1` parameter voorkomt dat VRAM verloren gaat tijdens power transitions, en `nvidia-drm.fbdev=1` zorgt voor een schonere framebuffer handoff.
