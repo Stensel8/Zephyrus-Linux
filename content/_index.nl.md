@@ -1,5 +1,6 @@
 ---
 title: "Zephyrus Linux"
+layout: hextra-home
 toc: false
 ---
 
