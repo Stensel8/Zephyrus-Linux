@@ -1,6 +1,7 @@
-# NVIDIA Driver Installatie - ROG Zephyrus G16 GA605WV (2024)
-
-[English](nvidia-driver-installation.md) | Nederlands
+---
+title: "NVIDIA Driver Installatie"
+weight: 11
+---
 
 Handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met Secure Boot ingeschakeld.
 
@@ -361,13 +362,13 @@ Deze kleurprofielen zijn geëxtraheerd uit ASUS Windows driver packages en aange
 
 **Installeer de kleurprofielen:**
 
-De ICC kleurprofielen staan in de `assets/icc-profiles/` map van deze repository. Clone de repository of download de profielen handmatig en kopieer ze naar `~/.local/share/icc`:
+De ICC kleurprofielen staan in de `/icc-profiles/` map van deze repository. Clone de repository of download de profielen handmatig en kopieer ze naar `~/.local/share/icc`:
 
 ```bash
 mkdir -p ~/.local/share/icc
 
 # Als je de repository al hebt gecloned:
-cp assets/icc-profiles/*.icm ~/.local/share/icc/
+cp /icc-profiles/*.icm ~/.local/share/icc/
 
 # Of download de specifieke profielen die je nodig hebt uit de repository
 ```

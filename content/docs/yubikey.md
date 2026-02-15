@@ -1,6 +1,7 @@
-# YubiKey 5C NFC - ROG Zephyrus G16 GA605WV (2024)
-
-English | [Nederlands](yubikey.nl.md)
+---
+title: "YubiKey 5C NFC"
+weight: 20
+---
 
 > **Status:** LUKS unlock with FIDO2 is too unreliable on Fedora 43 (systemd 258). This guide documents what was attempted, what the root cause is, and what to do instead. Revisit when Fedora 44 ships with systemd 259+.
 

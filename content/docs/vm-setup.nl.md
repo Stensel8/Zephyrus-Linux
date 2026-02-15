@@ -1,8 +1,11 @@
-# Windows 11 VM Setup - KVM/QEMU op Fedora 43
-
-[English](vm-setup.md) | Nederlands
+---
+title: "Windows 11 VM Setup"
+weight: 14
+---
 
 Windows 11 VM voor apps die niet draaien onder Wine.
+
+> **GPU passthrough gewenst?** Als je near-native GPU performance wilt in je VM, zie de [Looking Glass Poging]({{< relref "/docs/looking-glass-attempt" >}}). Spoiler: het werkt niet op deze laptop door hardwarebeperkingen, maar de documentatie kan nuttig zijn voor andere hardware.
 
 **Systeemconfiguratie:**
 - Model: ASUS ROG Zephyrus G16 GA605WV (2024)
@@ -117,116 +120,6 @@ Zo houd je grote VM disk images van je root-bestandssysteem af.
 | Display | SPICE |
 | Video | Virtio (3D acceleration enabled) |
 
-<details>
-<summary>Volledige VM XML referentie (klik om uit te vouwen)</summary>
-
-```xml
-<domain type="kvm">
-  <name>win11</name>
-  <uuid>2a2aa4b0-5f6e-4d0e-a422-de3d63b8966f</uuid>
-  <title>win11</title>
-  <metadata>
-    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
-      <libosinfo:os id="http://microsoft.com/win/11"/>
-    </libosinfo:libosinfo>
-  </metadata>
-  <memory unit="KiB">8388608</memory>
-  <currentMemory unit="KiB">8388608</currentMemory>
-  <vcpu placement="static">8</vcpu>
-  <os firmware="efi">
-    <type arch="x86_64" machine="pc-q35-10.1">hvm</type>
-    <firmware>
-      <feature enabled="yes" name="enrolled-keys"/>
-      <feature enabled="yes" name="secure-boot"/>
-    </firmware>
-    <loader readonly="yes" secure="yes" type="pflash" format="qcow2">/usr/share/edk2/ovmf/OVMF_CODE_4M.secboot.qcow2</loader>
-    <nvram template="/usr/share/edk2/ovmf/OVMF_VARS_4M.secboot.qcow2" templateFormat="qcow2" format="qcow2">/var/lib/libvirt/qemu/nvram/win11_VARS.qcow2</nvram>
-  </os>
-  <features>
-    <acpi/>
-    <apic/>
-    <hyperv mode="custom">
-      <relaxed state="on"/>
-      <vapic state="on"/>
-      <spinlocks state="on" retries="8191"/>
-      <vpindex state="on"/>
-      <runtime state="on"/>
-      <synic state="on"/>
-      <stimer state="on"/>
-      <frequencies state="on"/>
-      <tlbflush state="on"/>
-      <ipi state="on"/>
-      <avic state="on"/>
-    </hyperv>
-    <vmport state="off"/>
-    <smm state="on"/>
-  </features>
-  <cpu mode="host-passthrough" check="none" migratable="on">
-    <topology sockets="1" dies="1" clusters="1" cores="8" threads="1"/>
-  </cpu>
-  <clock offset="localtime">
-    <timer name="rtc" tickpolicy="catchup"/>
-    <timer name="pit" tickpolicy="delay"/>
-    <timer name="hpet" present="no"/>
-    <timer name="hypervclock" present="yes"/>
-  </clock>
-  <on_poweroff>destroy</on_poweroff>
-  <on_reboot>restart</on_reboot>
-  <on_crash>destroy</on_crash>
-  <pm>
-    <suspend-to-mem enabled="no"/>
-    <suspend-to-disk enabled="no"/>
-  </pm>
-  <devices>
-    <emulator>/usr/bin/qemu-system-x86_64</emulator>
-    <disk type="file" device="disk">
-      <driver name="qemu" type="qcow2"/>
-      <source file="/mnt/vmstore/win11.qcow2"/>
-      <target dev="vda" bus="virtio"/>
-    </disk>
-    <disk type="file" device="cdrom">
-      <driver name="qemu" type="raw"/>
-      <source file="/var/lib/libvirt/images/Enterprise-25H2.iso"/>
-      <target dev="sdc" bus="sata"/>
-      <readonly/>
-    </disk>
-    <disk type="file" device="cdrom">
-      <driver name="qemu" type="raw"/>
-      <source file="/var/lib/libvirt/images/virtio-win.iso"/>
-      <target dev="sdd" bus="sata"/>
-      <readonly/>
-    </disk>
-    <interface type="network">
-      <source network="default"/>
-      <model type="virtio"/>
-    </interface>
-    <channel type="spicevmc">
-      <target type="virtio" name="com.redhat.spice.0"/>
-    </channel>
-    <input type="tablet" bus="usb"/>
-    <tpm model="tpm-crb">
-      <backend type="emulator" version="2.0"/>
-    </tpm>
-    <graphics type="spice" autoport="yes">
-      <listen type="address"/>
-      <image compression="off"/>
-    </graphics>
-    <sound model="ich9"/>
-    <audio id="1" type="spice"/>
-    <video>
-      <model type="virtio" heads="1" primary="yes">
-        <acceleration accel3d="yes"/>
-      </model>
-    </video>
-    <memballoon model="virtio"/>
-  </devices>
-</domain>
-```
-
-> Dit is een vereenvoudigde versie. Automatisch gegenereerde PCI-adressen en controller-definities zijn weggelaten — libvirt voegt die zelf toe. Je kunt je eigen XML exporteren met `virsh dumpxml win11`.
-
-</details>
-
 **11. VirtIO ISO toevoegen:**
 - Add Hardware → Storage → CDROM
 - Selecteer `/var/lib/libvirt/images/virtio-win.iso`
@@ -267,6 +160,167 @@ spice-guest-tools-latest.exe (van spice-space.org)
 ```
 
 Windows draait nu met goede performance.
+
+
+## Post-install VM optimalisatie
+
+Nadat Windows is geïnstalleerd en de guest tools aanwezig zijn, kun je de VM-configuratie fine-tunen voor betere prestaties. Hieronder staat de geoptimaliseerde XML-configuratie met een uitleg van de belangrijkste instellingen.
+
+### Belangrijkste configuratiekeuzes uitgelegd
+
+| Instelling | Wat het doet |
+|------------|-------------|
+| **Disk: `cache="writeback"` `io="threads"`** | Write-back caching met threaded I/O — significant snellere diskprestaties dan de standaard. Veilig voor niet-kritieke VM's |
+| **Disk: `discard="unmap"`** | Geeft TRIM/discard commando's door aan de host — voorkomt dat het qcow2-bestand onnodig groeit |
+| **Hyper-V enlightenments** | Windows-specifieke paravirtualisatie-features (`vapic`, `synic`, `stimer`, `tlbflush`, `ipi`, `avic`, etc.) die de guest-prestaties aanzienlijk verbeteren |
+| **CPU: `host-passthrough`** | Toont het echte CPU-model aan de guest — beste prestaties, vereist voor sommige applicaties |
+| **CPU topologie: 8 cores, 1 thread** | Presenteert 8 fysieke cores aan Windows. Komt overeen met de werkelijke toewijzing zonder SMT-overhead |
+| **SPICE met GL-acceleratie** | Gebruikt `gl enable="yes"` met `rendernode` naar de AMD iGPU — hardware-versnelde display-output |
+| **VirtIO inputs** | VirtIO toetsenbord en tablet in plaats van PS/2 — lagere input-latentie |
+| **QEMU Guest Agent** | Het `org.qemu.guest_agent.0` kanaal maakt communicatie mogelijk tussen host en guest (graceful shutdown, filesystem freeze voor snapshots) |
+| **USB redirection** | SPICE USB-omleidingsapparaten maken het mogelijk om USB-apparaten on-the-fly van host naar guest door te geven |
+| **Watchdog (iTCO)** | Reset de VM automatisch als de guest vastloopt |
+| **Memory balloon** | Maakt dynamisch geheugenbeheer mogelijk tussen host en guest |
+
+### Volledige VM XML referentie
+
+<details>
+<summary>Klik om de volledige geoptimaliseerde VM XML te zien</summary>
+
+```xml
+<domain type="kvm">
+  <name>win11</name>
+  <uuid>2a2aa4b0-5f6e-4d0e-a422-de3d63b8966f</uuid>
+  <title>win11</title>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://microsoft.com/win/11"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory unit="KiB">8388608</memory>
+  <currentMemory unit="KiB">8388608</currentMemory>
+  <vcpu placement="static">8</vcpu>
+  <os firmware="efi">
+    <type arch="x86_64" machine="pc-q35-10.1">hvm</type>
+    <firmware>
+      <feature enabled="yes" name="enrolled-keys"/>
+      <feature enabled="yes" name="secure-boot"/>
+    </firmware>
+    <loader readonly="yes" secure="yes" type="pflash" format="qcow2">/usr/share/edk2/ovmf/OVMF_CODE_4M.secboot.qcow2</loader>
+    <nvram template="/usr/share/edk2/ovmf/OVMF_VARS_4M.secboot.qcow2" templateFormat="qcow2" format="qcow2">/var/lib/libvirt/qemu/nvram/win11_VARS.qcow2</nvram>
+    <boot dev="hd"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv mode="custom">
+      <relaxed state="on"/>
+      <vapic state="on"/>
+      <spinlocks state="on" retries="8191"/>
+      <vpindex state="on"/>
+      <runtime state="on"/>
+      <synic state="on"/>
+      <stimer state="on"/>
+      <frequencies state="on"/>
+      <tlbflush state="on"/>
+      <ipi state="on"/>
+      <avic state="on"/>
+    </hyperv>
+    <vmport state="off"/>
+    <smm state="on"/>
+  </features>
+  <cpu mode="host-passthrough" check="none" migratable="on">
+    <topology sockets="1" dies="1" clusters="1" cores="8" threads="1"/>
+  </cpu>
+  <clock offset="localtime">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+    <timer name="hypervclock" present="yes"/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2" cache="writeback" io="threads" discard="unmap"/>
+      <source file="/mnt/vmstore/win11.qcow2"/>
+      <target dev="vda" bus="virtio"/>
+    </disk>
+    <controller type="usb" index="0" model="qemu-xhci" ports="15"/>
+    <controller type="pci" index="0" model="pcie-root"/>
+    <controller type="virtio-serial" index="0"/>
+    <interface type="network">
+      <source network="default"/>
+      <model type="virtio"/>
+    </interface>
+    <serial type="pty">
+      <target type="isa-serial" port="0">
+        <model name="isa-serial"/>
+      </target>
+    </serial>
+    <console type="pty">
+      <target type="serial" port="0"/>
+    </console>
+    <channel type="spicevmc">
+      <target type="virtio" name="com.redhat.spice.0"/>
+    </channel>
+    <channel type="unix">
+      <target type="virtio" name="org.qemu.guest_agent.0"/>
+    </channel>
+    <input type="keyboard" bus="virtio"/>
+    <input type="tablet" bus="virtio"/>
+    <input type="mouse" bus="ps2"/>
+    <input type="keyboard" bus="ps2"/>
+    <tpm model="tpm-crb">
+      <backend type="emulator" version="2.0"/>
+    </tpm>
+    <graphics type="spice">
+      <listen type="none"/>
+      <image compression="off"/>
+      <streaming mode="filter"/>
+      <gl enable="yes" rendernode="/dev/dri/by-path/pci-0000:66:00.0-render"/>
+    </graphics>
+    <sound model="ich9"/>
+    <audio id="1" type="spice"/>
+    <video>
+      <model type="virtio" heads="1" primary="yes">
+        <acceleration accel3d="yes"/>
+      </model>
+    </video>
+    <redirdev bus="usb" type="spicevmc"/>
+    <redirdev bus="usb" type="spicevmc"/>
+    <watchdog model="itco" action="reset"/>
+    <memballoon model="virtio"/>
+  </devices>
+</domain>
+```
+
+> Dit is een opgeschoonde versie zonder automatisch gegenereerde PCI-adressen en controller-definities — libvirt voegt die zelf toe. Je kunt je eigen XML exporteren met `virsh dumpxml win11`.
+
+</details>
+
+### Guest tools installatie (in Windows)
+
+Voor de beste VM-prestaties moeten twee sets guest tools worden geïnstalleerd **in de Windows guest**:
+
+**VirtIO Guest Tools** (van de VirtIO ISO):
+- Installeert geparavirtualiseerde drivers voor disk, netwerk, display, memory balloon, serial en input
+- Installeert ook de QEMU Guest Agent voor host-guest communicatie
+- Zonder deze drivers zijn disk- en netwerkprestaties aanzienlijk slechter
+
+**SPICE Guest Tools** (van [spice-space.org](https://www.spice-space.org/download.html)):
+- Maakt klembord-deling mogelijk tussen host en guest
+- Maakt drag-and-drop bestandsoverdracht mogelijk
+- Maakt dynamische schermresolutie mogelijk (guest-resolutie volgt het SPICE-venster)
+- Installeert de SPICE WebDAV-agent voor mapdeling
+
+Beide zijn essentieel voor een soepele VM-ervaring.
 
 
 ## Snapshots
@@ -336,3 +390,5 @@ sudo restorecon -Rv /mnt/vmstore/
 
 **Klembord werkt niet:**
 - SPICE Guest Tools geïnstalleerd?
+
+

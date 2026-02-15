@@ -1,6 +1,7 @@
-# GDM Autologin - ROG Zephyrus G16 GA605WV (2024)
-
-[English](autologin.md) | Nederlands
+---
+title: "GDM Autologin"
+weight: 19
+---
 
 Sla het GDM inlogscherm over na LUKS ontgrendeling bij het opstarten. De schermvergrendeling bij slaapstand/inactiviteit vraagt nog steeds om je wachtwoord.
 

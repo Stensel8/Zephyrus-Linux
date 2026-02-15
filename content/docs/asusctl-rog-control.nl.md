@@ -1,6 +1,7 @@
-# asusctl & ROG Control Center - ROG Zephyrus G16 GA605WV (2024)
-
-[English](asusctl-rog-control.md) | Nederlands
+---
+title: "asusctl & ROG Control Center"
+weight: 22
+---
 
 Handleiding voor het instellen van ASUS ROG hardware controls op Fedora 43: fan curves, performance profielen, GPU switching, Slash LED en batterijbeheer.
 
@@ -268,7 +269,7 @@ supergfxctl --mode Integrated
 
 > **Let op:** Wisselen tussen Hybrid en Integrated vereist uitloggen/inloggen. Overstappen naar AsusMuxDgpu vereist een herstart.
 
-> **Belangrijk:** `nvidia-powerd.service` moet uitgeschakeld en **gemaskt** blijven op deze laptop. Het conflicteert met AMD ATPX power management en veroorzaakt soft lockups en reboot hangs (zwart scherm, backlights blijven aan). Masken is essentieel omdat `supergfxd` direct `systemctl start nvidia-powerd.service` aanroept tijdens GPU mode switches — `disable` alleen voorkomt dit niet. De mask (symlink naar `/dev/null`) blokkeert zowel `supergfxd` als NVIDIA driver updates. GPU-vermogensbeheer loopt via ATPX (via ACPI). Zie de [NVIDIA Driver Installatie Guide](nvidia-driver-installation.nl.md) voor diagnosedetails en commando's.
+> **Belangrijk:** `nvidia-powerd.service` moet uitgeschakeld en **gemaskt** blijven op deze laptop. Het conflicteert met AMD ATPX power management en veroorzaakt soft lockups en reboot hangs (zwart scherm, backlights blijven aan). Masken is essentieel omdat `supergfxd` direct `systemctl start nvidia-powerd.service` aanroept tijdens GPU mode switches — `disable` alleen voorkomt dit niet. De mask (symlink naar `/dev/null`) blokkeert zowel `supergfxd` als NVIDIA driver updates. GPU-vermogensbeheer loopt via ATPX (via ACPI). Zie de [NVIDIA Driver Installatie Guide]({{< relref "/docs/nvidia-driver-installation" >}}) voor diagnosedetails en commando's.
 
 </details>
 
@@ -413,4 +414,4 @@ Als hij laadt, heropen ROG Control Center — de melding zou verdwenen moeten zi
 - [asus-linux.org](https://asus-linux.org/) — Officiële projectsite
 - [asusctl GitLab](https://gitlab.com/asus-linux/asusctl) — Broncode en issue tracker
 - [lukenukem COPR](https://copr.fedorainfracloud.org/coprs/lukenukem/asus-linux/) — Fedora package repository
-- [NVIDIA Driver Installatie Guide](nvidia-driver-installation.nl.md) — NVIDIA driver setup en bekende problemen
+- [NVIDIA Driver Installatie Guide]({{< relref "/docs/nvidia-driver-installation" >}}) — NVIDIA driver setup en bekende problemen

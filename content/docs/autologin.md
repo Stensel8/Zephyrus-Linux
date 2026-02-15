@@ -1,6 +1,7 @@
-# GDM Autologin - ROG Zephyrus G16 GA605WV (2024)
-
-English | [Nederlands](autologin.nl.md)
+---
+title: "GDM Autologin"
+weight: 19
+---
 
 Skip the GDM login screen after LUKS unlock at boot. The screen lock on suspend/idle still requires your password.
 
