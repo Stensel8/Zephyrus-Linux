@@ -11,7 +11,7 @@ In 2026 I moved this Zephyrus G16 to Fedora 43. It is not perfect, but stability
 
 This repo documents the steps, tweaks, and workarounds I use and I keep it updated as Fedora and drivers change.
 
-**Browse the full documentation site: [stensel8.github.io/Zephyrus-Linux](https://zephyrus-linux.stentijhuis.nl/)**
+**Browse the full documentation site: [zephyrus-linux.stentijhuis.nl](https://zephyrus-linux.stentijhuis.nl/)**
 
 
 ## Installation & Configuration
