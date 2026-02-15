@@ -4,7 +4,6 @@ Nederlands | [English](README.md)
 
 > **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
 
----
 
 ## tl;dr
 
@@ -12,7 +11,8 @@ In 2026 ben ik naar Fedora 43 gegaan op mijn Zephyrus G16. Het is niet perfect, 
 
 Deze repo bevat de concrete stappen, tweaks en workarounds die ik gebruikt heb. Ik werk hem bij als Fedora en de drivers veranderen.
 
----
+> **Browse de handleidingen op de [live site](https://zephyrus-linux.stentijhuis.nl/) voor de beste leeservaring met sidebar-navigatie en taalwisseling.**
+
 
 ## Installatie & Configuratie
 
@@ -27,21 +27,21 @@ Ik heb Brave geïnstalleerd via Flathub. De officiële `.sh` script versie van B
 - Open GNOME Software Center
 - Zoek naar "Brave"
 - Klik op Installeren
-<img src="assets/images/brave-flathub.png" alt="Brave Browser in de Flathub store" width="400">
+<img src="static/images/brave-flathub.png" alt="Brave Browser in de Flathub store" width="400">
 </details>
 
 <details>
 <summary><strong>2.</strong> Hostname instellen</summary>
 
 Ik heb de hostnaam in de systeeminstellingen gezet naar de gewenste naam.
-![Hostname instellen](assets/images/system-info.png)
+![Hostname instellen](static/images/system-info.png)
 </details>
 
 <details>
 <summary><strong>3.</strong> GNOME vensterknoppen configureren</summary>
 
 Ik heb de venster-knoppen in GNOME 49 aangepast om minimize, maximize en close knoppen te tonen. Standaard toont GNOME alleen de close knop.
-![Een voorbeeld van hoe de nieuwe Gnome vensters eruit zien](assets/images/window-controls.png)
+![Een voorbeeld van hoe de nieuwe Gnome vensters eruit zien](static/images/window-controls.png)
 
 **Configuratie:**
 ```bash
@@ -55,14 +55,14 @@ Dit zorgt ervoor dat alle drie de vensterknoppen (minimize, maximize/zoom, en cl
 <summary><strong>4.</strong> Bitwarden desktop (Flathub)</summary>
 
 Ik heb de Bitwarden desktop-app geïnstalleerd via Flathub.
-![Bitwarden desktop app in Flathub](assets/images/bitwarden-flathub.png)
+![Bitwarden desktop app in Flathub](static/images/bitwarden-flathub.png)
 </details>
 
 <details>
 <summary><strong>5.</strong> Signal Messenger (Flathub)</summary>
 
 Signal Messenger geïnstalleerd via Flathub. Mijn voorkeurs-app voor messaging. Officieel is Signal alleen voor Debian/Ubuntu, maar de Flatpak versie werkt prima op Fedora. Signal is gebouwd op Electron, dus biedt goede prestaties.
-![Signal Messenger app in de Flathub store](assets/images/signal-flathub.png)
+![Signal Messenger app in de Flathub store](static/images/signal-flathub.png)
 </details>
 
 <details>
@@ -79,7 +79,7 @@ sudo dnf install git
 <summary><strong>7.</strong> Proton Mail (Flathub wrapper)</summary>
 
 Proton Mail geïnstalleerd via Flathub. Dit is een wrapper. Sommige apps zijn wrappers en geen officiële native apps, maar voor webgebaseerde mail-apps vind ik dat acceptabel.
-![Proton Mail app in Flathub](assets/images/protonmail-flathub.png)
+![Proton Mail app in Flathub](static/images/protonmail-flathub.png)
 </details>
 
 <details>
@@ -102,7 +102,7 @@ dnf check-update
 sudo dnf install code
 ```
 
-> **Known issue:** Op kernel 6.18.x kan hardware acceleration in VS Code een amdgpu page fault veroorzaken. Zet hardware acceleration uit. Zie de [NVIDIA Driver Installation Guide](nvidia-driver-installation.nl.md).
+> **Known issue:** Op kernel 6.18.x kan hardware acceleration in VS Code een amdgpu page fault veroorzaken. Zet hardware acceleration uit. Zie de [NVIDIA Driver Installation Guide](content/docs/nvidia-driver-installation.nl.md).
 </details>
 
 <details>
@@ -142,7 +142,7 @@ Ik gebruik deze app voor mijn muziek; er is geen officiële Linux-client, dus de
 
 De RTX 4060 heeft proprietary NVIDIA drivers nodig voor goede prestaties. Nouveau (open-source) werkt slecht voor moderne GPU's.
 
-Volledige installatie handleiding: [NVIDIA Driver Installation Guide](nvidia-driver-installation.nl.md)
+Volledige installatie handleiding: [NVIDIA Driver Installation Guide](content/docs/nvidia-driver-installation.nl.md)
 
 **Samenvatting:**
 - Installeer NVIDIA driver 580.119.02 via RPM Fusion
@@ -164,7 +164,7 @@ Windows apps draaien via Wine.
 
 Voor Microsoft 365 is een Windows VM nodig.
 
-![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](assets/images/bottles-install.png)
+![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](static/images/bottles-install.png)
 </details>
 
 <details>
@@ -214,12 +214,17 @@ StartupWMClass=Archi
 
 Voor apps die niet onder Wine/Bottles draaien (zoals Microsoft 365) kun je een Windows 11 VM opzetten.
 
-Volledige setup guide: [VM Setup Guide](vm-setup.nl.md)
+Volledige setup guide: [VM Setup Guide](content/docs/vm-setup.nl.md)
 
 **Samenvatting:**
-- Windows 11 IoT Enterprise LTSC
-- virt-manager met KVM/QEMU
-- VirtIO drivers en SPICE
+- Windows 11 Enterprise met Q35 chipset, UEFI Secure Boot en geëmuleerde TPM 2.0
+- virt-manager met KVM/QEMU, host-passthrough CPU, 8 GB RAM, 8 cores
+- VirtIO disk (writeback cache, threaded I/O, TRIM/discard), VirtIO netwerk
+- SPICE display met GL-acceleratie via AMD iGPU
+- Hyper-V enlightenments voor geoptimaliseerde Windows-prestaties
+- VirtIO Guest Tools en SPICE Guest Tools vereist in de VM
+
+> **GPU passthrough gewenst?** Zie [stap 21 — Looking Glass poging](looking-glass-attempt.nl.md).
 </details>
 
 <details>
@@ -350,4 +355,46 @@ sudo nano /etc/libinput.conf
 ```bash
 sudo rm /etc/libinput.conf
 ```
+</details>
+
+<details>
+<summary><strong>19.</strong> GDM autologin na LUKS</summary>
+
+Sla het GDM inlogscherm over na LUKS ontgrendeling. Na het invoeren van je schijfwachtwoord bij het opstarten laadt het bureaublad direct. De schermvergrendeling bij slaapstand/inactiviteit vraagt nog steeds om je wachtwoord.
+
+Volledige handleiding: [GDM Autologin Handleiding](content/docs/autologin.nl.md)
+
+**Samenvatting:**
+- Bewerk `/etc/gdm/custom.conf`
+- Stel `AutomaticLoginEnable=True` en `AutomaticLogin=sten` in onder `[daemon]`
+- Herstart
+</details>
+
+<details>
+<summary><strong>20.</strong> YubiKey 5C NFC</summary>
+
+Documenteert mijn pogingen om de YubiKey te gebruiken voor FIDO2 LUKS ontgrendeling bij het opstarten en wat vandaag betrouwbaar werkt.
+
+Volledige handleiding: [YubiKey Handleiding](content/docs/yubikey.nl.md)
+
+**Samenvatting:**
+- FIDO2 LUKS ontgrendeling is te onbetrouwbaar op Fedora 43
+- Opnieuw proberen op Fedora 44 als systemd 259+ `token-timeout=` in crypttab heeft
+- YubiKey werkt betrouwbaar voor OATH/TOTP, SSH en pam-u2f (sudo/schermvergrendeling)
+</details>
+
+<details>
+<summary><strong>21.</strong> Looking Glass B7 — GPU passthrough poging (niet werkend)</summary>
+
+Geprobeerd om Looking Glass te gebruiken voor near-native GPU performance in een Windows VM. De RTX 4060 op deze laptop heeft geen fysieke display-outputs — alle poorten lopen via de AMD iGPU — waardoor frame capture onmogelijk is.
+
+> **Vereiste:** Dit bouwt voort op de [Windows 11 VM setup (stap 14)](content/docs/vm-setup.nl.md). Zet eerst de VM op voordat je GPU passthrough probeert.
+
+Volledige handleiding: [Looking Glass Poging](content/docs/looking-glass-attempt.nl.md)
+
+**Samenvatting:**
+- VFIO/IOMMU setup, KVMFR module, Looking Glass client build zijn allemaal geslaagd
+- Host applicatie faalt: "Failed to locate a valid output device"
+- Fundamentele hardwarebeperking — RTX 4060 heeft geen display-connectors op deze laptop
+- Alle stappen en rollback procedure gedocumenteerd als referentie
 </details>

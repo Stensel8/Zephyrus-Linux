@@ -4,7 +4,6 @@ English | [Nederlands](README.nl.md)
 
 > **Disclaimer:** This is an independent personal project documenting my own research and findings while setting up Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). I am not affiliated with, endorsed by, or acting on behalf of Microsoft, Windows, ASUS, ROG, G-Helper, or any other company or project mentioned herein. This repository shares my personal configuration and troubleshooting notes. No stability guarantees are provided. Your mileage may vary.
 
----
 
 ## tl;dr
 
@@ -12,7 +11,8 @@ In 2026 I moved this Zephyrus G16 to Fedora 43. It is not perfect, but stability
 
 This repo documents the steps, tweaks, and workarounds I use and I keep it updated as Fedora and drivers change.
 
----
+**Browse the full documentation site: [zephyrus-linux.stentijhuis.nl](https://zephyrus-linux.stentijhuis.nl/)**
+
 
 ## Installation & Configuration
 
@@ -28,7 +28,7 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 - Search for "Brave"
 - Click Install
 
-<img src="assets/images/brave-flathub.png" alt="Brave Browser in the Flathub store" width="400">
+<img src="static/images/brave-flathub.png" alt="Brave Browser in the Flathub store" width="400">
 </details>
 
 <details>
@@ -36,7 +36,7 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 
 I set the hostname in the system settings to the desired name.
 
-![Set hostname](assets/images/system-info.png)
+![Set hostname](static/images/system-info.png)
 </details>
 
 <details>
@@ -44,7 +44,7 @@ I set the hostname in the system settings to the desired name.
 
 I configured the window buttons in GNOME 49 to show minimize, maximize, and close buttons. By default, GNOME only shows the close button.
 
-![Example of how the new GNOME windows look](assets/images/window-controls.png)
+![Example of how the new GNOME windows look](static/images/window-controls.png)
 
 **Configuration:**
 ```bash
@@ -59,7 +59,7 @@ This ensures that all three window buttons (minimize, maximize/zoom, and close) 
 
 I installed the Bitwarden desktop app via Flathub.
 
-![Bitwarden desktop app in Flathub](assets/images/bitwarden-flathub.png)
+![Bitwarden desktop app in Flathub](static/images/bitwarden-flathub.png)
 </details>
 
 <details>
@@ -67,7 +67,7 @@ I installed the Bitwarden desktop app via Flathub.
 
 Signal Messenger installed via Flathub. My preferred messaging app. Officially, Signal is only for Debian/Ubuntu, but the Flatpak version works great on Fedora. Signal is built on Electron, so it offers good performance.
 
-![Signal Messenger app in Flathub](assets/images/signal-flathub.png)
+![Signal Messenger app in Flathub](static/images/signal-flathub.png)
 </details>
 
 <details>
@@ -85,7 +85,7 @@ sudo dnf install git
 
 Proton Mail installed via Flathub. This is a wrapper. Some apps are wrappers and not official native apps, but for web-based mail apps I find that acceptable.
 
-![Proton Mail app in Flathub](assets/images/protonmail-flathub.png)
+![Proton Mail app in Flathub](static/images/protonmail-flathub.png)
 </details>
 
 <details>
@@ -108,7 +108,7 @@ dnf check-update
 sudo dnf install code
 ```
 
-> **Known issue:** On kernel 6.18.x, VS Code hardware acceleration can trigger an amdgpu page fault. Disable hardware acceleration. See the [NVIDIA Driver Installation Guide](nvidia-driver-installation.md).
+> **Known issue:** On kernel 6.18.x, VS Code hardware acceleration can trigger an amdgpu page fault. Disable hardware acceleration. See the [NVIDIA Driver Installation Guide](content/docs/nvidia-driver-installation.md).
 </details>
 
 <details>
@@ -148,7 +148,7 @@ I use this app for my music; there is no official Linux client, so the community
 
 The RTX 4060 requires proprietary NVIDIA drivers for good performance. Nouveau (open-source) performs poorly on modern GPUs.
 
-Full installation guide: [NVIDIA Driver Installation Guide](nvidia-driver-installation.md)
+Full installation guide: [NVIDIA Driver Installation Guide](content/docs/nvidia-driver-installation.md)
 
 **Summary:**
 - Install NVIDIA driver 580.119.02 via RPM Fusion
@@ -170,7 +170,7 @@ Run Windows apps via Wine.
 
 For Microsoft 365, use a Windows VM.
 
-![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](assets/images/bottles-install.png)
+![Bottles application window showing bottle creation process with status messages: Generating bottle configuration, The Wine config is being updated, Wine config updated, Setting Windows version, Apply CMD default settings, and Enabling font smoothing. A Cancel Creation button is visible at the bottom.](static/images/bottles-install.png)
 </details>
 
 <details>
@@ -220,12 +220,17 @@ StartupWMClass=Archi
 
 For apps that don't run under Wine/Bottles (like Microsoft 365), set up a Windows 11 VM.
 
-Full setup guide: [VM Setup Guide](vm-setup.md)
+Full setup guide: [VM Setup Guide](content/docs/vm-setup.md)
 
 **Summary:**
-- Windows 11 IoT Enterprise LTSC
-- virt-manager with KVM/QEMU
-- VirtIO drivers and SPICE
+- Windows 11 Enterprise with Q35 chipset, UEFI Secure Boot, and emulated TPM 2.0
+- virt-manager with KVM/QEMU, host-passthrough CPU, 8 GB RAM, 8 cores
+- VirtIO disk (writeback cache, threaded I/O, TRIM/discard), VirtIO network
+- SPICE display with GL acceleration via AMD iGPU
+- Hyper-V enlightenments for optimized Windows performance
+- VirtIO Guest Tools and SPICE Guest Tools required inside the VM
+
+> **Want GPU passthrough?** See [step 21 — Looking Glass attempt](content/docs/looking-glass-attempt.md).
 </details>
 
 <details>
@@ -356,4 +361,46 @@ sudo nano /etc/libinput.conf
 ```bash
 sudo rm /etc/libinput.conf
 ```
+</details>
+
+<details>
+<summary><strong>19.</strong> GDM autologin after LUKS</summary>
+
+Skip the GDM login screen after LUKS unlock. After entering your disk password at boot, the desktop loads immediately. The screen lock on suspend/idle still requires your password.
+
+Full setup guide: [GDM Autologin Guide](content/docs/autologin.md)
+
+**Summary:**
+- Edit `/etc/gdm/custom.conf`
+- Set `AutomaticLoginEnable=True` and `AutomaticLogin=sten` under `[daemon]`
+- Reboot
+</details>
+
+<details>
+<summary><strong>20.</strong> YubiKey 5C NFC</summary>
+
+Documents my attempts to use the YubiKey for FIDO2 LUKS unlock at boot and what works reliably today.
+
+Full guide: [YubiKey Guide](content/docs/yubikey.md)
+
+**Summary:**
+- FIDO2 LUKS unlock is too unreliable on Fedora 43 (systemd 258 regression — no password fallback, dracut timing issues)
+- Revisit on Fedora 44 when systemd 259+ ships `token-timeout=` in crypttab
+- YubiKey works reliably for OATH/TOTP, SSH, and pam-u2f (sudo/screen unlock)
+</details>
+
+<details>
+<summary><strong>21.</strong> Looking Glass B7 — GPU passthrough attempt (not working)</summary>
+
+Attempted to use Looking Glass for near-native GPU performance in a Windows VM. The RTX 4060 on this laptop has no physical display outputs — all ports route through the AMD iGPU — making frame capture impossible.
+
+> **Prerequisite:** This builds on the [Windows 11 VM setup (step 14)](content/docs/vm-setup.md). Set up the VM first before attempting GPU passthrough.
+
+Full guide: [Looking Glass Attempt](content/docs/looking-glass-attempt.md)
+
+**Summary:**
+- VFIO/IOMMU setup, KVMFR module, Looking Glass client build all succeeded
+- Host application fails: "Failed to locate a valid output device"
+- Fundamental hardware limitation — RTX 4060 has no display connectors on this laptop
+- Documented all steps and rollback procedure for reference
 </details>

@@ -1,16 +1,17 @@
-# NVIDIA Driver Installation - ROG Zephyrus G16 GA605WV (2024)
-
-English | [Nederlands](nvidia-driver-installation.nl.md)
+---
+title: "NVIDIA Driver Installation"
+weight: 11
+---
 
 Guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot enabled.
 
 **System Configuration:**
 - Model: ASUS ROG Zephyrus G16 GA605WV (2024)
 - CPU: AMD Ryzen AI 9 HX 370
-- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q)
+- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q) + AMD Radeon 890M (iGPU)
 - OS: Fedora 43
-- Kernel: 6.18.8-200.fc43.x86_64
-- Display Server: Wayland (GNOME)
+- Kernel: 6.18.9-200.fc43.x86_64
+- Display Server: Wayland (GNOME 49)
 - Secure Boot: Enabled
 
 **Driver Information:**
@@ -206,14 +207,27 @@ sudo systemctl enable nvidia-hibernate.service nvidia-suspend.service nvidia-res
 
 These services prevent GPU state issues after suspend/resume cycles.
 
-**Important: Do NOT enable `nvidia-powerd`**
+**Important: Do NOT enable `nvidia-powerd` — mask it permanently**
 
-The `nvidia-powerd.service` (NVIDIA dynamic power management daemon) can conflict with AMD ATPX power management on the Zephyrus G16 and cause soft lockups.
+The `nvidia-powerd.service` manages NVIDIA Dynamic Boost, which shifts extra wattage (~5-15W) from the CPU to the GPU during heavy GPU loads. While useful on Intel-based laptops, it conflicts with AMD ATPX power management on the Zephyrus G16 and causes soft lockups and "GPU has fallen off the bus" errors.
 
-If you accidentally enabled `nvidia-powerd`:
+On this laptop, GPU power is managed via ATPX (AMD-driven via ACPI). The NVIDIA suspend/hibernate/resume services and `supergfxctl` handle power states correctly without `nvidia-powerd`.
+
+**What you lose by disabling it:** Minimal — a few FPS less during heavy GPU workloads. The ~5-15W Dynamic Boost is not worth the instability on AMD ATPX hardware.
+
+**Disable and mask permanently:**
 ```bash
 sudo systemctl disable nvidia-powerd.service
 sudo systemctl stop nvidia-powerd.service
+sudo systemctl mask nvidia-powerd.service
+```
+
+Masking creates a symlink to `/dev/null`, preventing any process — including NVIDIA driver updates via `dnf` — from re-enabling the service.
+
+**If you want to try re-enabling it later** (e.g., after a kernel or driver update that may fix the ATPX conflict):
+```bash
+sudo systemctl unmask nvidia-powerd.service
+sudo systemctl enable --now nvidia-powerd.service
 ```
 
 **Reference:**
@@ -318,6 +332,20 @@ sudo reboot
 
 **Note:** These parameters are optional but recommended for optimal performance.
 
+**Re-enable graphical boot splash:**
+
+Fedora uses `rhgb` (Red Hat Graphical Boot) and `quiet` to show a Plymouth splash screen during boot instead of scrolling kernel text. If you removed these while debugging NVIDIA or boot issues, re-add them:
+
+```bash
+sudo grubby --update-kernel=ALL --args="rhgb quiet"
+```
+
+The default Plymouth theme (`bgrt`) shows the ASUS/BIOS manufacturer logo. To debug boot issues in the future, you can temporarily remove them:
+
+```bash
+sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
+```
+
 **References:**
 - [NVIDIA Driver Modesetting - Arch Wiki](https://wiki.archlinux.org/title/NVIDIA)
 - [Understanding nvidia-drm.modeset=1 - NVIDIA Developer Forums](https://forums.developer.nvidia.com/t/understanding-nvidia-drm-modeset-1-nvidia-linux-driver-modesetting/204068)
@@ -336,13 +364,13 @@ These color profiles were extracted from ASUS Windows driver packages and optimi
 
 **Install the color profiles:**
 
-The ICC color profiles are located in the `assets/icc-profiles/` directory of this repository. Clone the repository or manually download the profiles and copy them to `~/.local/share/icc`:
+The ICC color profiles are located in the `/icc-profiles/` directory of this repository. Clone the repository or manually download the profiles and copy them to `~/.local/share/icc`:
 
 ```bash
 mkdir -p ~/.local/share/icc
 
 # If you've already cloned the repository:
-cp assets/icc-profiles/*.icm ~/.local/share/icc/
+cp /icc-profiles/*.icm ~/.local/share/icc/
 
 # Or download the specific profiles you need from the repository
 ```
@@ -519,12 +547,45 @@ This can occur due to a combination of factors on hybrid GPU laptops:
 - NVIDIA dGPU power state transitions fail
 - Corrupted VRAM after suspend/resume cycles
 
+**Additional symptom: Reboot hang (black screen, backlights stay on)**
+
+The system appears to shut down but never completes the hardware reset — the screen goes black but keyboard and screen backlights remain on. This occurs when `nvidia-powerd` interferes with ACPI power state transitions during shutdown/reboot.
+
+**Root cause: `supergfxd` starts `nvidia-powerd` behind your back**
+
+Even when `nvidia-powerd` is disabled via `systemctl disable`, `supergfxd` (the GPU switching daemon from asusctl) directly calls `systemctl start nvidia-powerd.service` during GPU mode switches. This bypasses the disabled state and re-activates the conflict with ATPX.
+
+**How this was diagnosed:**
+
+Checking the logs of the hung boot reveals `supergfxd` starting `nvidia-powerd`:
+```bash
+journalctl -b -1 --no-pager | grep -iE "nvidia.*powerd|supergfxd"
+```
+
+Key evidence:
+```
+supergfxd: [DEBUG supergfxctl] Did CommandArgs { inner: ["start", "nvidia-powerd.service"] }
+nvidia-powerd: ERROR! Client (presumably SBIOS) has requested to disable Dynamic Boost DC controller
+```
+
+The SBIOS error confirms the firmware rejected Dynamic Boost, but `nvidia-powerd` was already running and interfering with power state management. Checking the shutdown sequence:
+
+```bash
+journalctl -b -1 --reverse | head -20
+```
+
+Shows the hardware watchdog failed to stop, confirming the ACPI reboot never completed:
+```
+watchdog: watchdog0: watchdog did not stop!
+```
+
 **Fix:**
 
-1. Disable `nvidia-powerd`:
+1. Disable and **mask** `nvidia-powerd` (masking is essential — `disable` alone is not enough because `supergfxd` bypasses it):
 ```bash
 sudo systemctl disable nvidia-powerd.service
 sudo systemctl stop nvidia-powerd.service
+sudo systemctl mask nvidia-powerd.service
 ```
 
 2. Add kernel parameters for more stable NVIDIA power management:
@@ -538,7 +599,7 @@ sudo reboot
 ```
 
 **Next steps:**
-System is more stable after these changes. The NVIDIA dGPU is still properly managed via ATPX (AMD-driven power switching) without `nvidia-powerd` interfering.
+System is more stable after these changes. The NVIDIA dGPU is still properly managed via ATPX (AMD-driven power switching) without `nvidia-powerd` interfering. The mask creates a symlink to `/dev/null`, ensuring no process — including `supergfxd` and NVIDIA driver updates — can re-enable the service.
 
 **Background:**
 On laptops with AMD iGPU + NVIDIA dGPU, the ATPX framework (via ACPI) controls which GPU is active. `nvidia-powerd` tries to make power decisions independently, which conflicts with ATPX. The `NVreg_PreserveVideoMemoryAllocations=1` parameter prevents VRAM from being lost during power transitions, and `nvidia-drm.fbdev=1` provides cleaner framebuffer handoff.
