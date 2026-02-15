@@ -1,6 +1,6 @@
 # Zephyrus-Linux
 
-Nederlands | [English](README.md) | [Live Site](https://zephyrus-linux.stentijhuis.nl/)
+Nederlands | [English](README.md)
 
 > **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
 
