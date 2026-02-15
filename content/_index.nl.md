@@ -23,7 +23,15 @@ toc: false
 {{< /hextra/hero-badge >}}
 </div>
 
-> **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
+{{< callout type="warning" >}}
+**Experimenteel — gebruik op eigen risico.** Deze site documenteert persoonlijke tests en experimenten met Fedora Linux op de Zephyrus G16. Dit zijn mijn bevindingen, geen officiële instructies. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
+{{< /callout >}}
+
+{{< callout type="info" >}}
+**Kernel vereiste:** De ASUS ROG Zephyrus G16 GA605WV vereist **kernel 6.18 of hoger** voor goede hardware-ondersteuning. Alle kernelversies onder 6.18 zijn problematisch op deze laptop (display-problemen, GPU crashes, suspend/resume failures).
+{{< /callout >}}
+
+> **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen.
 
 ## tl;dr
 
@@ -41,3 +49,7 @@ Deze site bevat de concrete stappen, tweaks en workarounds die ik gebruikt heb. 
   {{< card link="docs/looking-glass-attempt" title="Looking Glass Poging" subtitle="GPU passthrough poging (niet werkend op deze hardware)" icon="eye" >}}
   {{< card link="docs/asusctl-rog-control" title="asusctl & ROG Control Center" subtitle="Fan curves, performance profielen, GPU switching, Slash LED" icon="adjustments" >}}
 {{< /cards >}}
+
+---
+
+Dit project valt onder de [MIT Licentie](https://github.com/Stensel8/Zephyrus-Linux/blob/main/LICENSE).

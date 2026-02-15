@@ -23,7 +23,15 @@ toc: false
 {{< /hextra/hero-badge >}}
 </div>
 
-> **Disclaimer:** This is an independent personal project documenting my own research and findings while setting up Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). I am not affiliated with, endorsed by, or acting on behalf of Microsoft, Windows, ASUS, ROG, G-Helper, or any other company or project mentioned herein. This repository shares my personal configuration and troubleshooting notes. No stability guarantees are provided. Your mileage may vary.
+{{< callout type="warning" >}}
+**Experimental — use at your own risk.** This site documents personal testing and experimentation with Fedora Linux on the Zephyrus G16. These are my findings, not official instructions. No stability guarantees are provided. Your mileage may vary.
+{{< /callout >}}
+
+{{< callout type="info" >}}
+**Kernel requirement:** The ASUS ROG Zephyrus G16 GA605WV requires **kernel 6.18 or higher** for proper hardware support. All kernel versions below 6.18 are problematic on this laptop (display issues, GPU crashes, suspend/resume failures).
+{{< /callout >}}
+
+> **Disclaimer:** This is an independent personal project documenting my own research and findings while setting up Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). I am not affiliated with, endorsed by, or acting on behalf of Microsoft, Windows, ASUS, ROG, G-Helper, or any other company or project mentioned herein. This repository shares my personal configuration and troubleshooting notes.
 
 ## tl;dr
 
@@ -41,3 +49,7 @@ This site documents the steps, tweaks, and workarounds I use and I keep it updat
   {{< card link="docs/looking-glass-attempt" title="Looking Glass Attempt" subtitle="GPU passthrough attempt (not working on this hardware)" icon="eye" >}}
   {{< card link="docs/asusctl-rog-control" title="asusctl & ROG Control Center" subtitle="Fan curves, performance profiles, GPU switching, Slash LED" icon="adjustments" >}}
 {{< /cards >}}
+
+---
+
+This project is licensed under the [MIT License](https://github.com/Stensel8/Zephyrus-Linux/blob/main/LICENSE).
