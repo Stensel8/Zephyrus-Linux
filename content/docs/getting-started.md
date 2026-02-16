@@ -9,7 +9,7 @@ Complete setup guide for the ROG Zephyrus G16 on Fedora Linux. Follow the steps 
 
 ### Install Brave browser (Flathub)
 
-I installed Brave via Flathub. The official `.sh` script version from Brave's website crashed regularly and sometimes refused to open. The Flatpak version works stable.
+I installed Brave via Flathub. The official `.sh` script version from Brave's website crashed regularly and sometimes refused to open. The Flatpak version is stable.
 
 **Installation:**
 - Open GNOME Software Center
