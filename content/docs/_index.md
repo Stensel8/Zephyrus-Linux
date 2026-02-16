@@ -6,7 +6,20 @@ toc: false
 
 # Installation & Configuration Guides
 
-Complete setup guides for the ROG Zephyrus G16 on Fedora Linux. Select a guide from the sidebar to get started.
+Complete setup guides for the ROG Zephyrus G16 on Fedora Linux. Start with the Getting Started guide for a step-by-step walkthrough, or jump directly to a specific reference guide.
+
+## Getting Started
+
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="Getting Started"
+    subtitle="Step-by-step setup guide — from fresh Fedora install to fully configured system"
+    icon="play"
+    link="getting-started"
+  >}}
+{{< /hextra/feature-grid >}}
+
+## Reference Guides
 
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
