@@ -337,6 +337,19 @@ Log out and back in (or reboot) and adjust `scroll-factor` as needed.
 sudo rm /etc/libinput.conf
 ```
 
+### Connect to eduroam (university Wi-Fi)
+
+eduroam on Linux can be tricky — the official installers and community tools often fail. A custom PEAP/MSCHAPv2 setup via nmcli works reliably.
+
+{{< callout type="info" >}}
+Full setup guide: [eduroam Network Installation]({{< relref "/docs/eduroam-network-installation" >}})
+{{< /callout >}}
+
+**Summary:**
+- PEAP / MSCHAPv2 without CA certificate validation
+- Automated Python script or manual nmcli command
+- Based on reverse-engineering the working Android/Windows configuration
+
 ### GDM autologin after LUKS
 
 Skip the GDM login screen after LUKS unlock. After entering your disk password at boot, the desktop loads immediately.

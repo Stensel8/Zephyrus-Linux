@@ -66,7 +66,7 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Aan de slag"
-    subtitle="Stap-voor-stap setup-handleiding — van schone Fedora-installatie tot volledig geconfigureerd systeem"
+    subtitle="Van schone Fedora-installatie tot volledig geconfigureerd systeem"
     icon="play"
     link="docs/getting-started"
   >}}
@@ -110,6 +110,12 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
     subtitle="Fan curves, performance profielen, GPU switching, Slash LED"
     icon="adjustments"
     link="docs/asusctl-rog-control"
+  >}}
+  {{< hextra/feature-card
+    title="eduroam Setup"
+    subtitle="PEAP/MSCHAPv2 configuratie die daadwerkelijk werkt op Linux"
+    icon="wifi"
+    link="docs/eduroam-network-installation"
   >}}
 {{< /hextra/feature-grid >}}
 

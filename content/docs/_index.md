@@ -13,7 +13,7 @@ Complete setup guides for the ROG Zephyrus G16 on Fedora Linux. Start with the G
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Getting Started"
-    subtitle="Step-by-step setup guide — from fresh Fedora install to fully configured system"
+    subtitle="From fresh Fedora install to fully configured system"
     icon="play"
     link="getting-started"
   >}}
@@ -57,5 +57,11 @@ Complete setup guides for the ROG Zephyrus G16 on Fedora Linux. Start with the G
     subtitle="Fan curves, performance profiles, GPU switching, Slash LED"
     icon="adjustments"
     link="asusctl-rog-control"
+  >}}
+  {{< hextra/feature-card
+    title="eduroam Network Installation"
+    subtitle="PEAP/MSCHAPv2 setup that actually works on Linux"
+    icon="wifi"
+    link="eduroam-network-installation"
   >}}
 {{< /hextra/feature-grid >}}

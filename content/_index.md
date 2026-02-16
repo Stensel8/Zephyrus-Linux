@@ -66,7 +66,7 @@ Fedora 44 is expected to ship with kernel 6.19, bringing native asus-armoury sup
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Getting Started"
-    subtitle="Step-by-step setup guide — from fresh Fedora install to fully configured system"
+    subtitle="From fresh Fedora install to fully configured system"
     icon="play"
     link="docs/getting-started"
   >}}
@@ -110,6 +110,12 @@ Fedora 44 is expected to ship with kernel 6.19, bringing native asus-armoury sup
     subtitle="Fan curves, performance profiles, GPU switching, Slash LED"
     icon="adjustments"
     link="docs/asusctl-rog-control"
+  >}}
+  {{< hextra/feature-card
+    title="eduroam Network Installation"
+    subtitle="PEAP/MSCHAPv2 setup that actually works on Linux"
+    icon="wifi"
+    link="docs/eduroam-network-installation"
   >}}
 {{< /hextra/feature-grid >}}
 

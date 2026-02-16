@@ -28,6 +28,40 @@ Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens ASUS, NVIDIA, Mi
 | **Secure Boot** | Ingeschakeld |
 
 
+## De site lokaal bouwen
+
+Deze documentatiesite is gebouwd met [Hugo](https://gohugo.io/) en het [Hextra](https://imfing.github.io/hextra/)-thema. Het thema is opgenomen als git submodule.
+
+**Vereisten:**
+- [Hugo extended](https://gohugo.io/installation/) (v0.152.2 of later)
+- Git
+
+**Clone met submodules:**
+```bash
+git clone --recurse-submodules https://github.com/Stensel8/Zephyrus-Linux.git
+cd Zephyrus-Linux
+```
+
+Als je al gekloond hebt zonder `--recurse-submodules`:
+```bash
+git submodule update --init --recursive
+```
+
+**Ontwikkelserver starten:**
+```bash
+hugo server
+```
+
+De site is beschikbaar op `http://localhost:1313/`. Hugo detecteert wijzigingen en herlaadt automatisch.
+
+**Bouwen voor productie:**
+```bash
+hugo --gc --minify
+```
+
+De output wordt geschreven naar `./public/`. Bij een push naar `main` bouwt GitHub Actions de site automatisch en deployt naar GitHub Pages.
+
+
 ## Credits & bronnen
 
 Dit project zou niet bestaan zonder het werk van deze mensen en communities:

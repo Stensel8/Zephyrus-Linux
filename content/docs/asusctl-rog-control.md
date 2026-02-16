@@ -14,7 +14,7 @@ Guide for setting up ASUS ROG hardware controls on Fedora 43: fan curves, perfor
 
 ## Prerequisites
 
-{{% details title="Why lukenukem COPR and not a regular repo" %}}
+{{% details title="Why lukenukem COPR and not a regular repo" closed="true" %}}
 
 COPR is Fedora's official community package hosting platform (similar to AUR for Arch). The `lukenukem` COPR is maintained by Luke Jones (flukejones), the primary developer of asusctl itself — not a random third party.
 
@@ -24,7 +24,7 @@ The packages are GPG-signed (`gpgcheck=1`) and this is the officially recommende
 
 {{% /details %}}
 
-{{% details title="Compatibility with tuned (power-profiles-daemon conflict) — Fedora-specific" %}}
+{{% details title="Compatibility with tuned (power-profiles-daemon conflict) — Fedora-specific" closed="true" %}}
 
 `asusctl` requires the `power-profiles-daemon` D-Bus API to manage performance profiles (Silent/Balanced/Performance). On Arch Linux, you simply install `power-profiles-daemon` and it works. On Fedora however, this conflicts with `tuned`, which [replaced `power-profiles-daemon` as the default power management daemon since Fedora 41](https://fedoraproject.org/wiki/Changes/TunedAsTheDefaultPowerProfileManagementDaemon).
 
