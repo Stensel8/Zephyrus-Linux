@@ -508,7 +508,7 @@ Dit kan optreden door een combinatie van factoren op hybrid GPU laptops:
 
 Het systeem lijkt af te sluiten maar voltooit de hardware reset niet — het scherm wordt zwart maar toetsenbord- en schermverlichting blijven aan. Dit gebeurt wanneer `nvidia-powerd` interfereert met ACPI power state transitions tijdens shutdown/reboot.
 
-**Oorzaak: `supergfxd` start `nvidia-powerd` achter je rug**
+**Oorzaak: `supergfxd` start `nvidia-powerd` achter je rug om**
 
 Zelfs wanneer `nvidia-powerd` is uitgeschakeld via `systemctl disable`, roept `supergfxd` (de GPU switching daemon van asusctl) direct `systemctl start nvidia-powerd.service` aan tijdens GPU mode switches. Dit omzeilt de disabled status en activeert het conflict met ATPX opnieuw.
 
@@ -620,7 +620,7 @@ Als output `x11` is, zorg dat Wayland ingeschakeld is in GDM:
 sudo nano /etc/gdm/custom.conf
 ```
 
-Verifieer dat deze regel aanwezig is en niet gecommentarieerd:
+Verifieer dat deze regel aanwezig is en niet uitgecommentarieerd:
 ```
 WaylandEnable=true
 ```
@@ -644,7 +644,7 @@ sudo akmods --force
 {{% /details %}}
 
 
-## Technische goed om te weten
+## Technische weetjes
 
 ### Package Naming
 De package `xorg-x11-drv-nvidia` is een legacy naam. De driver ondersteunt zowel X11 als Wayland. Fedora 43 gebruikt standaard Wayland met GNOME.

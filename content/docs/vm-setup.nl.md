@@ -33,7 +33,7 @@ Gebruik de officiële Windows 11 Media Creation Tool met een activatiemethode:
 
 **Optie 3: AtlasOS (Geoptimaliseerd voor prestatie)**
 
-[AtlasOS](https://atlasos.net/) creëert een minifiëde Windows 11 ISO met bloatware verwijderd en onnodige services uitgeschakeld—wat resulteert in aanzienlijk betere prestaties in een VM.
+[AtlasOS](https://atlasos.net/) creëert een uitgeklede Windows 11 ISO met bloatware verwijderd en onnodige services uitgeschakeld — wat zorgt voor aanzienlijk betere prestaties in een VM.
 
 **Een AtlasOS ISO aanmaken:**
 

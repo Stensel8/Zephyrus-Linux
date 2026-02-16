@@ -38,7 +38,7 @@ Dit project zou niet bestaan zonder het werk van deze mensen en communities:
 - **[lz42/libinput-config](https://github.com/lz42/libinput-config)** — Third-party workaround voor de ontbrekende scroll speed-instelling in GNOME/Wayland.
 - **[Looking Glass](https://looking-glass.io/)** — Low-latency VM display project. Werkt niet op deze hardware, maar het project en de documentatie zijn uitstekend.
 - **[Mastermindzh/tidal-hifi](https://github.com/Mastermindzh/tidal-hifi)** — Community Electron-client voor Tidal op Linux.
-- **[Hextra](https://imfing.github.io/hextra/)** — Het Hugo-thema dat de documentatiesite aandrijft.
+- **[Hextra](https://imfing.github.io/hextra/)** — Het Hugo-thema waarop de documentatiesite is gebouwd.
 
 
 ## Licentie
