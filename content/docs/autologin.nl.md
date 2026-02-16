@@ -76,8 +76,7 @@ AutomaticLogin=sten
 ## Probleemoplossing
 
 
-<details>
-<summary>Autologin werkt niet na config wijziging</summary>
+{{% details title="Autologin werkt niet na config wijziging" closed="true" %}}
 
 Verifieer dat het configuratiebestand correct is:
 
@@ -96,10 +95,10 @@ Check ook dat GDM de actieve display manager is:
 ```bash
 systemctl status gdm
 ```
-</details>
 
-<details>
-<summary>Autologin uitschakelen</summary>
+{{% /details %}}
+
+{{% details title="Autologin uitschakelen" closed="true" %}}
 
 ```bash
 sudo nano /etc/gdm/custom.conf
@@ -113,4 +112,5 @@ Verwijder of becommentarieer de twee regels:
 ```
 
 Herstart om toe te passen.
-</details>
+
+{{% /details %}}

@@ -7,23 +7,40 @@ Windows 11 VM voor apps die niet draaien onder Wine.
 
 > **GPU passthrough gewenst?** Als je near-native GPU performance wilt in je VM, zie de [Looking Glass Poging]({{< relref "/docs/looking-glass-attempt" >}}). Spoiler: het werkt niet op deze laptop door hardwarebeperkingen, maar de documentatie kan nuttig zijn voor andere hardware.
 
-**Systeemconfiguratie:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- CPU: AMD Ryzen AI 9 HX 370
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- Virtualisatie: virt-manager (KVM/QEMU)
-- Guest: Windows 11 Enterprise 25H2
-
 
 ## Windows 11 Enterprise ISO
 
-Download evaluatie ISO (~6,6 GB):
+**Optie 1: Evaluatie (90-daagse trial)**
+
+Download evaluatie ISO (~6,6 GB) van Microsoft:
 ```
 microsoft.com/en-us/evalcenter/download-windows-11-enterprise
 ```
 
 90 dagen gratis, geen bloatware, geen verplichte Microsoft-account.
+
+**Optie 2: Media Creation Tool + Activatiescript**
+
+Gebruik de officiële Windows 11 Media Creation Tool met een activatiemethode:
+
+1. Download [Windows 11 Media Creation Tool](https://www.microsoft.com/software-download/windows11)
+2. Maak installatiemedium aan op een USB-stick of ISO-bestand
+3. Gebruik [MAS (Microsoft Activation Scripts)](https://massgrave.dev/) voor activatie:
+   - Open PowerShell als Administrator in Windows
+   - Voer uit: `irm https://get.activated.win | iex`
+   - Selecteer de juiste activatiemethode voor je setup
+   - Geen 90-daagse beperking, volledige Windows 11-ervaring
+
+**Optie 3: AtlasOS (Geoptimaliseerd voor prestatie)**
+
+[AtlasOS](https://atlasos.net/) creëert een minifiëde Windows 11 ISO met bloatware verwijderd en onnodige services uitgeschakeld—wat resulteert in aanzienlijk betere prestaties in een VM.
+
+**Een AtlasOS ISO aanmaken:**
+
+- **Vanaf een Windows machine:** Download de [AtlasOS Playbook](https://atlasos.net/) en voer deze uit op een Windows-installatie om een geoptimaliseerde ISO aan te maken
+- **Vanuit de VM (OOBE):** Je kunt de AtlasOS Playbook rechtstreeks uitvoeren tijdens de initiële setup fase van Windows 11
+
+**Belangrijk:** ISOs gemaakt met AtlasOS zijn **alleen voor persoonlijk gebruik**. Distribueer of deel deze ISOs niet, want ze bevatten Microsoft-software. Iedere gebruiker moet zijn eigen geoptimaliseerde kopie aanmaken met de officiële tools en AtlasOS Playbook.
 
 
 ## Installatie
@@ -184,8 +201,7 @@ Nadat Windows is geïnstalleerd en de guest tools aanwezig zijn, kun je de VM-co
 
 ### Volledige VM XML referentie
 
-<details>
-<summary>Klik om de volledige geoptimaliseerde VM XML te zien</summary>
+{{% details title="Klik om de volledige geoptimaliseerde VM XML te zien" closed="true" %}}
 
 ```xml
 <domain type="kvm">
@@ -303,7 +319,7 @@ Nadat Windows is geïnstalleerd en de guest tools aanwezig zijn, kun je de VM-co
 
 > Dit is een opgeschoonde versie zonder automatisch gegenereerde PCI-adressen en controller-definities — libvirt voegt die zelf toe. Je kunt je eigen XML exporteren met `virsh dumpxml win11`.
 
-</details>
+{{% /details %}}
 
 ### Guest tools installatie (in Windows)
 
@@ -390,5 +406,4 @@ sudo restorecon -Rv /mnt/vmstore/
 
 **Klembord werkt niet:**
 - SPICE Guest Tools geïnstalleerd?
-
 

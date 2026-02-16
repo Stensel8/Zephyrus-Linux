@@ -47,8 +47,8 @@ enableGitInfo = true
 
   [params.footer]
     enable = true
-    displayCopyright = true
-    displayPoweredBy = true
+    displayCopyright = false
+    displayPoweredBy = false
     width = 'normal'
 
   displayUpdatedDate = true
@@ -71,7 +71,7 @@ enableGitInfo = true
       display = 'hover'
 
   [params.page]
-    width = 'normal'
+    width = 'wide'
 
   [params.imageZoom]
     enable = true

@@ -12,7 +12,7 @@ toc: false
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV &mdash; step-by-step guides for NVIDIA drivers, VMs, YubiKey, and more.
+  Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV. Step-by-step guides for NVIDIA drivers, VMs, YubiKey, and more.
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -33,13 +33,15 @@ toc: false
 
 > **Disclaimer:** This is an independent personal project documenting my own research and findings while setting up Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). I am not affiliated with, endorsed by, or acting on behalf of Microsoft, Windows, ASUS, ROG, G-Helper, or any other company or project mentioned herein. This repository shares my personal configuration and troubleshooting notes.
 
-## tl;dr
+{{< callout type="info" >}}
+**Personal Documentation.** This is an independent project where I'm progressively figuring out how to get the most out of Linux on this laptop. Everything here is at your own risk. I'm not responsible for any changes you make to your system. Requires kernel 6.18+.
+{{< /callout >}}
 
-In 2026 I moved this Zephyrus G16 to Fedora 43. It is not perfect, but stability is close to Windows 11 Pro and I prefer the control.
+## News
 
-This site documents the steps, tweaks, and workarounds I use and I keep it updated as Fedora and drivers change.
+### Kernel 7.0: ASUS laptop quirks + newer AMDGPU enablement
 
-## Guides
+Linus confirmed the next kernel will be 7.0, with the merge window now open and a stable release expected mid-April 2026. For this ASUS ROG G16, the headline is better graphics driver coverage: the DRM updates bring AMDGPU enablement for newer RDNA 3.5-class IP blocks (GFX11.5.4) plus ongoing NVIDIA Nova/Nouveau work, which should translate into better handling of both the iGPU and dGPU. Early expectations are that the Radeon 890M could see around a 20% uplift moving from kernel 6.18 to 7.0. Not a drop-in upgrade for Fedora 43 yet, but a good sign for upcoming releases.
 
 {{< cards >}}
   {{< card link="docs/nvidia-driver-installation" title="NVIDIA Driver Installation" subtitle="Proprietary NVIDIA drivers with Secure Boot on Fedora 43" icon="chip" >}}

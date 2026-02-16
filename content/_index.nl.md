@@ -12,7 +12,7 @@ toc: false
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Fedora 43 op de ASUS ROG Zephyrus G16 GA605WV &mdash; stap-voor-stap handleidingen voor NVIDIA drivers, VMs, YubiKey en meer.
+  Fedora 43 op de ASUS ROG Zephyrus G16 GA605WV. Handleidingen voor NVIDIA drivers, VMs, YubiKey en meer.
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -33,13 +33,15 @@ toc: false
 
 > **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen.
 
-## tl;dr
+{{< callout type="info" >}}
+**Persoonlijke Documentatie.** Dit is een onafhankelijk project waarin ik stap voor stap probeer om steeds meer voor elkaar te krijgen met Linux op deze laptop. Alles wat hier staat is op eigen risico. Ik ben niet verantwoordelijk voor wat je met je systeem doet. Vereist kernel 6.18+.
+{{< /callout >}}
 
-In 2026 ben ik naar Fedora 43 gegaan op mijn Zephyrus G16. Het is niet perfect, maar de stabiliteit zit dicht bij Windows 11 Pro en ik heb weer controle over mijn systeem.
+## Nieuws
 
-Deze site bevat de concrete stappen, tweaks en workarounds die ik gebruikt heb. Ik werk hem bij als Fedora en de drivers veranderen.
+### Kernel 7.0: ASUS laptop quirks + nieuw AMDGPU-werk
 
-## Handleidingen
+Linus heeft bevestigd dat de volgende kernel 7.0 is, met de merge window nu open en een stabiele release verwacht rond midden april 2026. Voor deze ASUS ROG G16 is het belangrijkste nieuws betere grafische driver-ondersteuning: de DRM-updates brengen AMDGPU-enablement voor nieuwere RDNA 3.5-klasse IP blocks (GFX11.5.4) plus verder werk aan NVIDIA Nova/Nouveau, wat moet zorgen voor betere afhandeling van zowel de iGPU als dGPU. Verwachting is dat de Radeon 890M ongeveer 20% sneller kan worden bij de stap van kernel 6.18 naar 7.0. Nog geen directe upgrade voor Fedora 43, maar wel een goed teken voor komende releases.
 
 {{< cards >}}
   {{< card link="docs/nvidia-driver-installation" title="NVIDIA Driver Installatie" subtitle="Proprietary NVIDIA drivers met Secure Boot op Fedora 43" icon="chip" >}}

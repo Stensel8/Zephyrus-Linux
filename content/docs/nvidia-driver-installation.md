@@ -5,15 +5,6 @@ weight: 11
 
 Guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot enabled.
 
-**System Configuration:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- CPU: AMD Ryzen AI 9 HX 370
-- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q) + AMD Radeon 890M (iGPU)
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- Display Server: Wayland (GNOME 49)
-- Secure Boot: Enabled
-
 **Driver Information:**
 - Version: 580.119.02
 - Source: RPM Fusion
@@ -24,25 +15,23 @@ Guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot en
 
 ### System Verification
 
-<details>
-<summary>Check kernel version</summary>
+{{% details title="Check kernel version" %}}
 
-Required: Kernel 6.10+ for Ryzen AI 9 HX 370 support.
+Required: Kernel 6.18+ for Ryzen AI 9 HX 370 support.
 
 ```bash
 uname -r
 ```
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Check Secure Boot status</summary>
+{{% details title="Check Secure Boot status" %}}
 
 ```bash
 mokutil --sb-state
 ```
 
-</details>
+{{% /details %}}
 
 ### Why Proprietary Driver
 
@@ -54,8 +43,9 @@ The open-source Nouveau driver has poor performance on modern NVIDIA GPUs. The p
 
 ## Installation Steps
 
-<details>
-<summary><strong>Step 1:</strong> Resolve repository issues</summary>
+{{% steps %}}
+
+### Resolve repository issues
 
 If encountering checksum errors during `dnf update`, clean the cache:
 
@@ -64,10 +54,7 @@ sudo dnf clean all
 sudo dnf makecache
 ```
 
-</details>
-
-<details>
-<summary><strong>Step 2:</strong> Add RPM Fusion repositories</summary>
+### Add RPM Fusion repositories
 
 RPM Fusion provides NVIDIA drivers for Fedora. NVIDIA's official CUDA repository does not yet support Fedora 43.
 
@@ -75,20 +62,15 @@ RPM Fusion provides NVIDIA drivers for Fedora. NVIDIA's official CUDA repository
 sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
 ```
 
-</details>
-
-<details>
-<summary><strong>Step 3:</strong> Update system</summary>
+### Update system
 
 ```bash
 sudo dnf update -y
 ```
 
 Wait for update completion.
-</details>
 
-<details>
-<summary><strong>Step 4:</strong> Verify driver version</summary>
+### Verify driver version
 
 Check available NVIDIA driver version:
 
@@ -97,10 +79,8 @@ dnf info akmod-nvidia
 ```
 
 Confirm the version matches the current release for Fedora 43.
-</details>
 
-<details>
-<summary><strong>Step 5:</strong> Install NVIDIA driver</summary>
+### Install NVIDIA driver
 
 Install driver with CUDA support:
 
@@ -115,10 +95,8 @@ This installs the driver, CUDA libraries, and build dependencies (about 1 GB).
 - Build dependencies (gcc, kernel-devel, etc.)
 
 Note: A MOK password prompt may not appear during installation. This is normal.
-</details>
 
-<details>
-<summary><strong>Step 6:</strong> Build kernel modules</summary>
+### Build kernel modules
 
 Force akmod to build NVIDIA kernel modules:
 
@@ -127,10 +105,8 @@ sudo akmods --force
 ```
 
 This process may take 5-10 minutes.
-</details>
 
-<details>
-<summary><strong>Step 7:</strong> Verify kernel modules</summary>
+### Verify kernel modules
 
 Check that kernel modules were built:
 
@@ -139,20 +115,16 @@ ls /lib/modules/$(uname -r)/extra/nvidia/
 ```
 
 All five kernel modules should be present.
-</details>
 
-<details>
-<summary><strong>Step 8:</strong> First reboot and check GNOME Software</summary>
+### First reboot and check GNOME Software
 
 ```bash
 sudo reboot
 ```
 
 After reboot, open GNOME Software and note the MOK enrollment code. The driver is not yet active.
-</details>
 
-<details>
-<summary><strong>Step 9:</strong> MOK enrollment on next boot</summary>
+### MOK enrollment on next boot
 
 Reboot again:
 
@@ -168,10 +140,8 @@ During boot, the MOK Management screen (blue screen) will appear:
 5. Reboot
 
 The system will boot normally after MOK enrollment.
-</details>
 
-<details>
-<summary><strong>Step 10:</strong> Rebuild modules after MOK enrollment</summary>
+### Rebuild modules after MOK enrollment
 
 After MOK enrollment, rebuild the kernel modules. They will now be signed with the enrolled key.
 
@@ -179,20 +149,15 @@ After MOK enrollment, rebuild the kernel modules. They will now be signed with t
 sudo akmods --force --rebuild
 ```
 
-</details>
-
-<details>
-<summary><strong>Step 11:</strong> Final reboot</summary>
+### Final reboot
 
 ```bash
 sudo reboot
 ```
 
 The NVIDIA driver will now load correctly. GNOME Software should show the driver as installed (not pending).
-</details>
 
-<details>
-<summary><strong>Step 12:</strong> Enable NVIDIA power management services</summary>
+### Enable NVIDIA power management services
 
 Enable NVIDIA power services for better suspend/resume behavior and power management:
 
@@ -232,13 +197,15 @@ sudo systemctl enable --now nvidia-powerd.service
 
 **Reference:**
 - [NVIDIA Power Management Documentation](https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/powermanagement.html)
-</details>
+
+{{% /steps %}}
 
 
 ## Post-Installation Verification
 
-<details>
-<summary><strong>Test 1:</strong> Verify NVIDIA driver</summary>
+{{% steps %}}
+
+### Verify NVIDIA driver
 
 After reboot, check driver status:
 
@@ -247,10 +214,8 @@ nvidia-smi
 ```
 
 You should see the NVIDIA driver and CUDA versions listed.
-</details>
 
-<details>
-<summary><strong>Test 2:</strong> Verify Wayland session</summary>
+### Verify Wayland session
 
 Confirm running Wayland (not X11):
 
@@ -258,20 +223,15 @@ Confirm running Wayland (not X11):
 echo $XDG_SESSION_TYPE
 ```
 
-</details>
-
-<details>
-<summary><strong>Test 3:</strong> Check loaded kernel modules</summary>
+### Check loaded kernel modules
 
 ```bash
 lsmod | grep nvidia
 ```
 
 The NVIDIA modules are loaded and the driver is functional.
-</details>
 
-<details>
-<summary><strong>Test 4:</strong> Verify in GNOME Software</summary>
+### Verify in GNOME Software
 
 Open GNOME Software (white bag icon):
 - Navigate to "Installed"
@@ -280,13 +240,13 @@ Open GNOME Software (white bag icon):
 - "Uninstall" button is visible
 
 This confirms the system recognizes the driver as properly installed.
-</details>
+
+{{% /steps %}}
 
 
 ## Performance Optimizations
 
-<details>
-<summary>Kernel parameters for improved performance and stability</summary>
+{{% details title="Kernel parameters for improved performance and stability" closed="true" %}}
 
 Adding certain kernel parameters can improve NVIDIA driver performance, especially for Wayland sessions and dual-GPU setups.
 
@@ -350,21 +310,21 @@ sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
 - [NVIDIA Driver Modesetting - Arch Wiki](https://wiki.archlinux.org/title/NVIDIA)
 - [Understanding nvidia-drm.modeset=1 - NVIDIA Developer Forums](https://forums.developer.nvidia.com/t/understanding-nvidia-drm-modeset-1-nvidia-linux-driver-modesetting/204068)
 - [NVIDIA Power Management Documentation](https://download.nvidia.com/XFree86/Linux-x86_64/580.119.02/README/powermanagement.html)
-</details>
+
+{{% /details %}}
 
 
 ## ICC Color Profiles
 
-<details>
-<summary>Install ASUS GameVisual color profiles for Sharp LQ160R1JW02 panel</summary>
+{{% details title="Install ASUS GameVisual color profiles for Sharp LQ160R1JW02 panel" closed="true" %}}
 
 The GA605WV ships with a Sharp LQ160R1JW02 16" 2560x1600 240Hz display. ASUS factory-calibrates each panel and provides color profiles via their ASUS System Control Interface. On Windows, these are automatically applied by Armoury Crate/GameVisual. On Linux, we must install them manually.
 
-These color profiles were extracted from ASUS Windows driver packages and optimized for GNOME Color Management.
+These color profiles were obtained through a combination of reverse engineering and dissecting ASUS Windows driver packages. By analyzing the ASUS CDN structure and the contents of the driver ZIP files, all factory-calibrated color profiles for this specific panel were recovered. The ICC metadata was then modified so the profiles appear with readable names directly in GNOME Color Management.
 
 **Install the color profiles:**
 
-The ICC color profiles are located in the `/icc-profiles/` directory of this repository. Clone the repository or manually download the profiles and copy them to `~/.local/share/icc`:
+The ICC color profiles are located in the [`/icc-profiles/`](https://github.com/Stensel8/Zephyrus-Linux/tree/main/static/icc-profiles) directory of this repository. Clone the repository or manually download the profiles and copy them to `~/.local/share/icc`:
 
 ```bash
 mkdir -p ~/.local/share/icc
@@ -414,13 +374,13 @@ The profiles contain factory color corrections specific to the Sharp LQ160R1JW02
 **Technical Details:**
 
 The profiles in this repository are pre-processed with custom ICC metadata 'desc' tags so they appear with readable names directly in GNOME Color Management. For users interested in how such modifications work, you can implement similar ICC 'desc' tag manipulation yourself using Python's PIL/ImageCms.
-</details>
+
+{{% /details %}}
 
 
 ## Known Issues
 
-<details>
-<summary>System crashes with external monitors (AMD GPU PSR bug)</summary>
+{{% details title="System crashes with external monitors (AMD GPU PSR bug)" closed="true" %}}
 
 **Problem:**
 System freezes or crashes when using external monitors via Thunderbolt/USB-C, especially when connecting/disconnecting displays. Logs show AMD GPU errors:
@@ -469,10 +429,10 @@ If no `amdgpu: [drm] *ERROR*` messages appear, the fix is working.
 
 **Reference:**
 - [Fedora Discussion: Zephyrus G16 External Monitor Crashes](https://discussion.fedoraproject.org/t/asus-zephyrus-g16-with-nvidia-and-external-monitor-crashes-every-few-minutes/147175)
-</details>
 
-<details>
-<summary>VS Code crashes system (AMD GPU page fault - Kernel 6.18.x bug)</summary>
+{{% /details %}}
+
+{{% details title="VS Code crashes system (AMD GPU page fault - Kernel 6.18.x bug)" closed="true" %}}
 
 **What's happening:**
 System freezes completely during VS Code use. Kernel 6.18.x/6.19.x have critical amdgpu driver bugs. VS Code hardware acceleration triggers AMD Radeon 890M page fault → complete freeze.
@@ -491,10 +451,10 @@ Restart VS Code. System stays stable, VS Code slightly slower but perfectly usab
 **Sources:**
 - [VS Code Issue #238088](https://github.com/microsoft/vscode/issues/238088)
 - [Framework: Critical amdgpu bugs kernel 6.18.x](https://community.frame.work/t/attn-critical-bugs-in-amdgpu-driver-included-with-kernel-6-18-x-6-19-x/79221)
-</details>
 
-<details>
-<summary>Brave Browser crashes system (AMD GPU page fault - Kernel 6.18.x bug)</summary>
+{{% /details %}}
+
+{{% details title="Brave Browser crashes system (AMD GPU page fault - Kernel 6.18.x bug)" closed="true" %}}
 
 **What's happening:**
 System freezes or crashes during Brave Browser use, even with minimal workload (a few tabs). This is the same underlying issue as the VS Code crash: Chromium-based applications with hardware acceleration trigger AMD Radeon 890M page faults on kernel 6.18.x/6.19.x.
@@ -530,10 +490,10 @@ Brave, VS Code, and other Chromium-based applications (Chrome, Edge, Electron ap
 
 **Sources:**
 - [Framework: Critical amdgpu bugs kernel 6.18.x](https://community.frame.work/t/attn-critical-bugs-in-amdgpu-driver-included-with-kernel-6-18-x-6-19-x/79221)
-</details>
 
-<details>
-<summary>NVIDIA soft lockup with minimal GPU load (hybrid GPU power management)</summary>
+{{% /details %}}
+
+{{% details title="NVIDIA soft lockup with minimal GPU load (hybrid GPU power management)" closed="true" %}}
 
 **What's happening:**
 System freezes with an NVIDIA soft lockup, even without active GPU use. Kernel logs show:
@@ -603,13 +563,13 @@ System is more stable after these changes. The NVIDIA dGPU is still properly man
 
 **Background:**
 On laptops with AMD iGPU + NVIDIA dGPU, the ATPX framework (via ACPI) controls which GPU is active. `nvidia-powerd` tries to make power decisions independently, which conflicts with ATPX. The `NVreg_PreserveVideoMemoryAllocations=1` parameter prevents VRAM from being lost during power transitions, and `nvidia-drm.fbdev=1` provides cleaner framebuffer handoff.
-</details>
+
+{{% /details %}}
 
 
 ## Troubleshooting
 
-<details>
-<summary>nvidia-smi command not found or fails</summary>
+{{% details title="nvidia-smi command not found or fails" closed="true" %}}
 
 Check if NVIDIA modules are loaded:
 ```bash
@@ -626,10 +586,10 @@ Rebuild kernel modules:
 sudo akmods --force --rebuild
 sudo reboot
 ```
-</details>
 
-<details>
-<summary>MOK enrollment issues or "Key was rejected by service" error</summary>
+{{% /details %}}
+
+{{% details title="MOK enrollment issues or \"Key was rejected by service\" error" closed="true" %}}
 
 If you receive the error `modprobe: ERROR: could not insert 'nvidia': Key was rejected by service`, the kernel modules were built before MOK enrollment completed.
 
@@ -648,10 +608,10 @@ sudo mokutil --reset
 ```
 
 Reboot and attempt enrollment again.
-</details>
 
-<details>
-<summary>Running X11 instead of Wayland</summary>
+{{% /details %}}
+
+{{% details title="Running X11 instead of Wayland" closed="true" %}}
 
 Check session type:
 ```bash
@@ -669,10 +629,10 @@ WaylandEnable=true
 ```
 
 Reboot after changes.
-</details>
 
-<details>
-<summary>Kernel module build failures</summary>
+{{% /details %}}
+
+{{% details title="Kernel module build failures" closed="true" %}}
 
 Ensure kernel headers match running kernel:
 ```bash
@@ -683,7 +643,8 @@ Force rebuild:
 ```bash
 sudo akmods --force
 ```
-</details>
+
+{{% /details %}}
 
 
 ## Technical Notes
@@ -705,5 +666,3 @@ GNOME Software may show "NVIDIA Linux Graphics Driver" with "Pending install" st
 - [NVIDIA vs Nouveau Performance](https://machaddr.substack.com/p/nouveau-vs-nvidia-the-battle-between)
 - [Zephyrus G16 2024 Linux Guide](https://www.ehmiiz.se/blog/linux_asus_g16_2024/)
 - [Fedora Discussion: Zephyrus External Monitor Issues](https://discussion.fedoraproject.org/t/asus-zephyrus-g16-with-nvidia-and-external-monitor-crashes-every-few-minutes/147175)
-
-

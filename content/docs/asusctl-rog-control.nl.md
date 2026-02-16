@@ -5,15 +5,6 @@ weight: 22
 
 Handleiding voor het instellen van ASUS ROG hardware controls op Fedora 43: fan curves, performance profielen, GPU switching, Slash LED en batterijbeheer.
 
-**Systeemconfiguratie:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- CPU: AMD Ryzen AI 9 HX 370
-- GPU: NVIDIA GeForce RTX 4060 Laptop (Max-Q) + AMD Radeon 890M (iGPU)
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- Display Server: Wayland (GNOME 49)
-- Secure Boot: Ingeschakeld
-
 **Package informatie:**
 - `asusctl` 6.3.2 — CLI voor fan curves, profielen, batterijlimiet, RGB, Slash LED
 - `asusctl-rog-gui` 6.3.2 — ROG Control Center GUI
@@ -23,8 +14,7 @@ Handleiding voor het instellen van ASUS ROG hardware controls op Fedora 43: fan 
 
 ## Vereisten
 
-<details>
-<summary>Waarom lukenukem COPR en geen reguliere repo</summary>
+{{% details title="Waarom lukenukem COPR en geen reguliere repo" %}}
 
 COPR is Fedora's officiële community-package-hostingplatform (vergelijkbaar met AUR voor Arch). De `lukenukem` COPR wordt beheerd door Luke Jones (flukejones), de primaire developer van asusctl zelf — geen willekeurige derde partij.
 
@@ -32,10 +22,9 @@ De packages zijn GPG-gesigned (`gpgcheck=1`) en dit is de officieel aanbevolen i
 
 **Let op:** Als je zoekt naar "lukenukem COPR" op Reddit, vind je mogelijk threads met zorgen. Deze gaan doorgaans over de openSUSE repository die tijdelijk offline was — geen beveiligingsprobleem met de COPR zelf.
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Compatibiliteit met tuned (power-profiles-daemon conflict) — Fedora-specifiek</summary>
+{{% details title="Compatibiliteit met tuned (power-profiles-daemon conflict) — Fedora-specifiek" %}}
 
 `asusctl` vereist de `power-profiles-daemon` D-Bus API om performance profielen te beheren (Silent/Balanced/Performance). Op Arch Linux installeer je simpelweg `power-profiles-daemon` en het werkt. Op Fedora conflicteert dit echter met `tuned`, dat [sinds Fedora 41 de standaard power management daemon is](https://fedoraproject.org/wiki/Changes/TunedAsTheDefaultPowerProfileManagementDaemon).
 
@@ -51,22 +40,20 @@ Als je `tuned` hebt geïnstalleerd (Fedora standaard), moet je overstappen naar 
 - [asus-linux FAQ](https://asus-linux.org/faq/)
 - [asusctl ArchWiki](https://wiki.archlinux.org/title/Asusctl)
 
-</details>
+{{% /details %}}
 
 
 ## Installatie
 
-<details>
-<summary><strong>Stap 1:</strong> lukenukem COPR repository toevoegen</summary>
+{{% steps %}}
+
+### lukenukem COPR repository toevoegen
 
 ```bash
 sudo dnf copr enable lukenukem/asus-linux
 ```
 
-</details>
-
-<details>
-<summary><strong>Stap 2:</strong> Van tuned naar tuned-ppd overstappen (Fedora-specifiek)</summary>
+### Van tuned naar tuned-ppd overstappen (Fedora-specifiek)
 
 `asusctl` heeft de `power-profiles-daemon` D-Bus API nodig. Op Fedora 41+ is `tuned` de standaard en conflicteert met `power-profiles-daemon`. Installeer `tuned-ppd` als compatibiliteitslaag:
 
@@ -85,10 +72,7 @@ systemctl status tuned-ppd
 
 **Let op:** Op Arch Linux installeer je `power-profiles-daemon` direct. Deze stap is alleen nodig op Fedora.
 
-</details>
-
-<details>
-<summary><strong>Stap 3:</strong> asusctl, ROG Control Center en supergfxctl installeren</summary>
+### asusctl, ROG Control Center en supergfxctl installeren
 
 ```bash
 sudo dnf install asusctl asusctl-rog-gui supergfxctl
@@ -99,10 +83,7 @@ Dit installeert:
 - `asusctl-rog-gui` — ROG Control Center GUI
 - `supergfxctl` — GPU mode switching daemon
 
-</details>
-
-<details>
-<summary><strong>Stap 4:</strong> Services activeren</summary>
+### Services activeren
 
 ```bash
 sudo systemctl enable --now asusd.service
@@ -114,10 +95,7 @@ Herstart om te zorgen dat alle services correct opstarten:
 sudo reboot
 ```
 
-</details>
-
-<details>
-<summary><strong>Stap 5:</strong> Hardware detectie verifiëren</summary>
+### Hardware detectie verifiëren
 
 Na de herstart, verifieer dat asusctl je hardware correct heeft gedetecteerd:
 
@@ -131,10 +109,7 @@ Product family: ROG Zephyrus G16
 Board name: GA605WV
 ```
 
-</details>
-
-<details>
-<summary><strong>Stap 6 (optioneel):</strong> Monitoring tools installeren</summary>
+### Monitoring tools installeren (optioneel)
 
 Handige tools voor hardware monitoring naast asusctl:
 
@@ -150,13 +125,12 @@ sudo dnf install nvtop powertop s-tui lm_sensors i2c-tools
 | `lm_sensors` | Hardware temperatuursensor uitlezen |
 | `i2c-tools` | Low-level hardware bus diagnostics |
 
-</details>
+{{% /steps %}}
 
 
 ## Configuratie
 
-<details>
-<summary>Batterijlaadlimiet instellen (aanbevolen: 80%)</summary>
+{{% details title="Batterijlaadlimiet instellen (aanbevolen: 80%)" closed="true" %}}
 
 Het beperken van het laden tot 80% verlengt de levensduur van de batterij aanzienlijk. De laptop werkt normaal op netstroom ongeacht deze instelling.
 
@@ -175,10 +149,9 @@ asusctl battery
 
 Deze instelling blijft behouden na herstarten en wordt beheerd door `asusd`.
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Slash LED configureren (de lichtbalk op het deksel)</summary>
+{{% details title="Slash LED configureren (de lichtbalk op het deksel)" closed="true" %}}
 
 De Slash LED is de diagonale lichtbalk op het deksel van de G16. Deze ondersteunt meerdere animaties en kan worden ingesteld om uit te gaan op batterij.
 
@@ -209,10 +182,9 @@ asusctl slash --mode Spectrum
 asusctl slash -l 128
 ```
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Performance profielen</summary>
+{{% details title="Performance profielen" closed="true" %}}
 
 asusctl biedt drie performance profielen die de CPU/GPU-vermogensgrenzen en ventilatorgedrag bepalen:
 
@@ -241,10 +213,9 @@ asusctl profile
 
 > **Let op:** Profielwisseling vereist dat `tuned-ppd` actief is. Zie de installatiestappen hierboven.
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>GPU mode switching (supergfxctl)</summary>
+{{% details title="GPU mode switching (supergfxctl)" closed="true" %}}
 
 De GA605WV heeft een hybrid GPU setup: de AMD Radeon 890M (iGPU) stuurt het interne display aan en de NVIDIA RTX 4060 (dGPU) verwerkt GPU workloads.
 
@@ -271,10 +242,9 @@ supergfxctl --mode Integrated
 
 > **Belangrijk:** `nvidia-powerd.service` moet uitgeschakeld en **gemaskt** blijven op deze laptop. Het conflicteert met AMD ATPX power management en veroorzaakt soft lockups en reboot hangs (zwart scherm, backlights blijven aan). Masken is essentieel omdat `supergfxd` direct `systemctl start nvidia-powerd.service` aanroept tijdens GPU mode switches — `disable` alleen voorkomt dit niet. De mask (symlink naar `/dev/null`) blokkeert zowel `supergfxd` als NVIDIA driver updates. GPU-vermogensbeheer loopt via ATPX (via ACPI). Zie de [NVIDIA Driver Installatie Guide]({{< relref "/docs/nvidia-driver-installation" >}}) voor diagnosedetails en commando's.
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Toetsenbord RGB (Aura)</summary>
+{{% details title="Toetsenbord RGB (Aura)" closed="true" %}}
 
 **Toetsenbordverlichting helderheid aanpassen:**
 ```bash
@@ -289,10 +259,9 @@ rog-control-center
 
 Ga naar de sectie "Keyboard Aura" voor animatie, kleur en per-toets configuratie.
 
-</details>
+{{% /details %}}
 
-<details>
-<summary>Aangepaste fan curves</summary>
+{{% details title="Aangepaste fan curves" closed="true" %}}
 
 Fan curves kunnen per performance profiel worden geconfigureerd in ROG Control Center of via de CLI.
 
@@ -314,13 +283,12 @@ asusctl fan-curve -m Balanced -D 30:0,40:10,50:30,60:50,70:70,80:85,90:100,100:1
 
 > **Let op:** Fan curve aanpassing vereist de `asus-armoury` kernel driver. Op kernel < 6.19 is de driver niet beschikbaar en worden curves die je in de GUI instelt mogelijk niet correct opgeslagen. Zie de sectie Bekende Problemen hieronder.
 
-</details>
+{{% /details %}}
 
 
 ## Monitoring
 
-<details>
-<summary>Hardware monitoring commando's</summary>
+{{% details title="Hardware monitoring commando's" closed="true" %}}
 
 **GPU monitor (AMD + NVIDIA):**
 ```bash
@@ -352,13 +320,12 @@ sudo journalctl -b -u asusd
 sudo journalctl -b -u supergfxd
 ```
 
-</details>
+{{% /details %}}
 
 
 ## Bekende Problemen
 
-<details>
-<summary>ROG Control Center melding: "The asus-armoury driver is not loaded"</summary>
+{{% details title="ROG Control Center melding: \"The asus-armoury driver is not loaded\"" closed="true" %}}
 
 **Probleem:**
 ROG Control Center toont een melding dat de `asus-armoury` kernel driver niet geladen is. Geavanceerde functies (PPT vermogensgrenzen, APU geheugenallocatie, MUX switch besturing) zijn niet beschikbaar.
@@ -386,7 +353,7 @@ Als hij laadt, heropen ROG Control Center — de melding zou verdwenen moeten zi
 
 > **Let op voor GA605WV ondersteuning:** De initiële 6.19 release vermeldt GA403-serie modellen expliciet. Als de GA605WV nog niet in de DMI-tabel staat, zijn sommige model-specifieke functies (PPT-afstemming, APU-geheugen) mogelijk nog steeds niet beschikbaar, zelfs op 6.19. Dit zal worden opgelost via follow-up kernel patches.
 
-</details>
+{{% /details %}}
 
 
 ## CLI Snelreferentie

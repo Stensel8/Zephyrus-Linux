@@ -5,14 +5,6 @@ weight: 20
 
 > **Status:** LUKS ontgrendeling met FIDO2 is te onbetrouwbaar op Fedora 43 (systemd 258). Dit onderzoek documenteert wat geprobeerd is, wat de oorzaak is, en wat je in de tussentijd kunt doen. Mijn advies? Opnieuw proberen als Fedora 44 verschijnt met systemd 259+.
 
-**Systeemconfiguratie:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- systemd: 258.4
-- YubiKey: 5C NFC (firmware 5.7.4)
-- LUKS2 partitie: NVMe (`/dev/nvme1n1p3`)
-
 
 ## Wat op dit moment werkt
 
@@ -109,8 +101,7 @@ Een betrouwbaar alternatief dat wel werkt: vereist een YubiKey touch voor `sudo`
 
 ## Probleemoplossing
 
-<details>
-<summary>Systeem vast in boot loop na FIDO2 enrollment</summary>
+{{% details title="Systeem vast in boot loop na FIDO2 enrollment" closed="true" %}}
 
 Als je FIDO2 hebt ingericht en niet kunt booten, tik snel op de YubiKey direct na het BIOS scherm. Het touch venster is erg kort en je zult dus op het juiste moment moeten spammen. Als je geluk hebt, boot je succesvol en kun je de FIDO2 enrollment ongedaan maken (zie hieronder).
 
@@ -121,14 +112,15 @@ sudo nano /etc/crypttab  # verwijder fido2-device=auto
 sudo rm /etc/dracut.conf.d/fido2.conf
 sudo dracut --force --regenerate-all
 ```
-</details>
 
-<details>
-<summary>LUKS keyslots verifiëren</summary>
+{{% /details %}}
+
+{{% details title="LUKS keyslots verifiëren" closed="true" %}}
 
 ```bash
 sudo cryptsetup luksDump /dev/nvme1n1p3 | grep -E "^\s+[0-9]+:"
 ```
 
 Moet alleen `0: luks2` tonen na terugdraaien. Als slot 1 nog aanwezig is, is FIDO2 nog steeds ingeschreven.
-</details>
+
+{{% /details %}}
