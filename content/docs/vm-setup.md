@@ -7,23 +7,40 @@ Windows 11 VM for apps that do not run under Wine.
 
 > **Want GPU passthrough?** If you want near-native GPU performance in your VM, see the [Looking Glass Attempt]({{< relref "/docs/looking-glass-attempt" >}}). Spoiler: it doesn't work on this laptop due to hardware limitations, but the documentation may be useful for other hardware.
 
-**System Configuration:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- CPU: AMD Ryzen AI 9 HX 370
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- Virtualization: virt-manager (KVM/QEMU)
-- Guest: Windows 11 Enterprise 25H2
-
 
 ## Windows 11 Enterprise ISO
 
-Download evaluation ISO (~6.6 GB):
+**Option 1: Evaluation (90-day trial)**
+
+Download evaluation ISO (~6.6 GB) from Microsoft:
 ```
 microsoft.com/en-us/evalcenter/download-windows-11-enterprise
 ```
 
 90 days free, no bloatware, no mandatory Microsoft account.
+
+**Option 2: Media Creation Tool + Activation Script**
+
+Use the official Windows 11 Media Creation Tool with an activation method:
+
+1. Download [Windows 11 Media Creation Tool](https://www.microsoft.com/software-download/windows11)
+2. Create installation media on a USB drive or ISO file
+3. Use [MAS (Microsoft Activation Scripts)](https://massgrave.dev/) for activation:
+   - Open PowerShell as Administrator in Windows
+   - Run: `irm https://get.activated.win | iex`
+   - Select the appropriate activation method for your setup
+   - No 90-day limit, full Windows 11 experience
+
+**Option 3: AtlasOS (Optimized for Performance)**
+
+[AtlasOS](https://atlasos.net/) creates a minified Windows 11 ISO with bloatware removed and unnecessary services disabled—resulting in significantly better performance in a VM.
+
+**Creating an AtlasOS ISO:**
+
+- **From a Windows machine:** Download the [AtlasOS Playbook](https://atlasos.net/) and run it on a Windows installation to create an optimized ISO
+- **From inside the VM (OOBE):** You can run the AtlasOS Playbook directly during Windows 11's initial setup phase
+
+**Important:** ISOs created with AtlasOS are for **personal use only**. Do not distribute or share these ISOs as they contain Microsoft software. Each user must create their own optimized copy using the official tools and AtlasOS Playbook.
 
 
 ## Installation
@@ -184,8 +201,7 @@ After Windows is installed and the guest tools are in place, you can fine-tune t
 
 ### Full VM XML reference
 
-<details>
-<summary>Click to expand the full optimized VM XML</summary>
+{{% details title="Click to expand the full optimized VM XML" closed="true" %}}
 
 ```xml
 <domain type="kvm">
@@ -303,7 +319,7 @@ After Windows is installed and the guest tools are in place, you can fine-tune t
 
 > This is a cleaned-up version without auto-generated PCI addresses and controller definitions — libvirt adds those automatically. You can export your own XML with `virsh dumpxml win11`.
 
-</details>
+{{% /details %}}
 
 ### Guest tools installation (inside Windows)
 
@@ -390,5 +406,4 @@ sudo restorecon -Rv /mnt/vmstore/
 
 **Clipboard doesn't work:**
 - SPICE Guest Tools installed?
-
 

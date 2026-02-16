@@ -1,0 +1,111 @@
+/* Calmer homepage styling */
+
+/* Reduce hero title size */
+.hx-hero-headline {
+  font-size: 2.5rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Tone down subtitle */
+.hx-hero-subtitle {
+  opacity: 0.85;
+  font-size: 1.125rem !important;
+  line-height: 1.7 !important;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Make info callout less prominent */
+.callout.info {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  border-left-color: rgba(59, 130, 246, 0.3) !important;
+  margin-bottom: 3.5rem !important;
+  padding: 1.25rem 1.5rem !important;
+}
+
+.callout.info .callout-title {
+  opacity: 0.85;
+  font-size: 0.95rem !important;
+}
+
+/* Better spacing for hero sections */
+.hx-mt-6 {
+  margin-top: 2rem !important;
+}
+
+.hx-mb-6 {
+  margin-bottom: 2.5rem !important;
+}
+
+.hx-mb-12 {
+  margin-bottom: 3.5rem !important;
+}
+
+/* Feature card styling */
+.hextra-feature-card {
+  min-height: 180px !important;
+  transition: all 0.2s ease;
+}
+
+.hextra-feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Style system config table to match theme */
+.content table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1rem !important;
+  overflow: hidden !important;
+  display: table !important;
+  max-width: 36rem;
+}
+
+.content table thead {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.content table th {
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 0.75rem 1.25rem !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.content table td {
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 0.625rem 1.25rem !important;
+}
+
+.content table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.content table tr {
+  border: none !important;
+}
+
+.content table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Add spacing to feature grid */
+.hextra-feature-grid {
+  gap: 2rem !important;
+  margin-top: 3.5rem !important;
+}
+
+/* Reduce hero badge prominence */
+.hx-hero-badge {
+  opacity: 0.9;
+  padding: 0.625rem 1.25rem !important;
+  font-size: 1rem !important;
+}

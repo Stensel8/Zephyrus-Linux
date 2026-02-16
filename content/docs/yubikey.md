@@ -5,14 +5,6 @@ weight: 20
 
 > **Status:** LUKS unlock with FIDO2 is too unreliable on Fedora 43 (systemd 258). This guide documents what was attempted, what the root cause is, and what to do instead. Revisit when Fedora 44 ships with systemd 259+.
 
-**System Configuration:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- OS: Fedora 43
-- Kernel: 6.18.9-200.fc43.x86_64
-- systemd: 258.4
-- YubiKey: 5C NFC (firmware 5.7.4)
-- LUKS2 partition: NVMe (`/dev/nvme1n1p3`)
-
 
 ## What Works Today
 
@@ -109,8 +101,7 @@ A reliable alternative that works today: require a YubiKey touch for `sudo` and/
 
 ## Troubleshooting
 
-<details>
-<summary>System stuck in boot loop after FIDO2 enrollment</summary>
+{{% details title="System stuck in boot loop after FIDO2 enrollment" closed="true" %}}
 
 If you enrolled FIDO2 and cannot boot, spam-tap the YubiKey immediately after the BIOS screen. The touch window is very short.
 
@@ -121,14 +112,15 @@ sudo nano /etc/crypttab  # remove fido2-device=auto
 sudo rm /etc/dracut.conf.d/fido2.conf
 sudo dracut --force --regenerate-all
 ```
-</details>
 
-<details>
-<summary>Verify LUKS keyslots</summary>
+{{% /details %}}
+
+{{% details title="Verify LUKS keyslots" closed="true" %}}
 
 ```bash
 sudo cryptsetup luksDump /dev/nvme1n1p3 | grep -E "^\s+[0-9]+:"
 ```
 
 Should show only `0: luks2` after reverting. If slot 1 is still present, FIDO2 is still enrolled.
-</details>
+
+{{% /details %}}

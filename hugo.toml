@@ -71,7 +71,7 @@ enableGitInfo = true
       display = 'hover'
 
   [params.page]
-    width = 'normal'
+    width = 'wide'
 
   [params.imageZoom]
     enable = true

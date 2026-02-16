@@ -18,17 +18,6 @@ weight: 21
 - KVMFR kernel module on the host
 - Looking Glass host application in the Windows VM
 
----
-
-**System Configuration:**
-- Model: ASUS ROG Zephyrus G16 GA605WV (2024)
-- CPU: AMD Ryzen AI 9 HX 370
-- iGPU: AMD Radeon 890M — card0, renderD128
-- dGPU: NVIDIA GeForce RTX 4060 Mobile — card1, renderD129
-- OS: Fedora 43, kernel 6.18.9
-- Secure Boot: Enabled
-- VM: Windows 11 (AtlasOS 0.5.0)
-
 
 ## Phase 1 — Setting up IOMMU and VFIO
 
@@ -368,14 +357,6 @@ Produces errors when VFIO is active. Solution: mask it (see Phase 1). When rever
 sudo systemctl unmask nvidia-fallback.service
 sudo systemctl enable nvidia-fallback.service
 ```
-
-### Samsung S24U monitor USB hub errors
-
-Repeated dmesg errors when using the Samsung S24U via USB-C:
-```
-usb 5-1: device not accepting address, error -71
-```
-Not related to VM or GPU passthrough — built-in USB hub of the monitor.
 
 ### QEMU shared memory fallback
 
