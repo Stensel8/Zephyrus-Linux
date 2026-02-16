@@ -54,7 +54,7 @@ Signal Messenger installed via Flathub. My preferred messaging app. Officially, 
 Git is needed to work with repositories and make commits. On Fedora, Git comes pre-installed as part of the system. If for some reason it's not installed, you can install it manually with:
 
 ```bash
-sudo dnf install git
+sudo dnf install git gh
 ```
 
 ### Proton Mail (Flathub)
@@ -346,9 +346,9 @@ Full setup guide: [eduroam Network Installation]({{< relref "/docs/eduroam-netwo
 {{< /callout >}}
 
 **Summary:**
-- PEAP / MSCHAPv2 without CA certificate validation
+- PEAP / MSCHAPv2 with CA validation via the system trust store
+- `domain-suffix-match` instead of the deprecated `altsubject-matches`
 - Automated Python script or manual nmcli command
-- Based on reverse-engineering the working Android/Windows configuration
 
 ### GDM autologin after LUKS
 

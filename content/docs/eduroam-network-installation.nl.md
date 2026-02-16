@@ -29,7 +29,7 @@ De handleiding op [linux.datanose.nl](https://linux.datanose.nl/linux/eduroam/) 
 
 ## Wat wel werkt
 
-De werkende configuratie gebruikt PEAP/MSCHAPv2 zonder CA-certificaatvalidatie — precies zoals Android en Windows in de praktijk ook verbinden met eduroam.
+De werkende configuratie gebruikt PEAP/MSCHAPv2 met CA-validatie via de systeem-truststore en `domain-suffix-match` — de moderne vervanging voor het verouderde `altsubject-matches` dat niet werkt op Fedora 43.
 
 ### Verbindingsinstellingen
 
@@ -39,11 +39,12 @@ De werkende configuratie gebruikt PEAP/MSCHAPv2 zonder CA-certificaatvalidatie �
 | Authenticatie | Protected EAP (PEAP) |
 | PEAP-versie | Automatisch |
 | Interne authenticatie | MSCHAPv2 |
-| CA-certificaat | Geen |
+| CA-certificaat | Systeem-CA-bundel (`/etc/pki/tls/certs/ca-bundle.crt`) |
+| Domeinvalidatie | `domain-suffix-match: saxion.net` |
 | Identiteit | `gebruiker@instelling.nl` |
 
-{{< callout type="warning" >}}
-Deze configuratie valideert het CA-certificaat van de server **niet**. Dit komt overeen met hoe Android en Windows zich gedragen, en voorkomt de validatieproblemen waardoor de officiele tools falen. Wees je bewust van de beveiligings-afweging.
+{{< callout type="info" >}}
+Deze configuratie valideert het RADIUS-servercertificaat via de systeem-CA-truststore en `domain-suffix-match`. Dit is veiliger dan de "Niet valideren"-aanpak op Android, en equivalent aan wat Windows doet nadat je het certificaat bij de eerste verbinding accepteert.
 {{< /callout >}}
 
 ### Geautomatiseerde installatie (aanbevolen)
@@ -59,8 +60,14 @@ Het script doet het volgende:
 1. Controleren of NetworkManager (`nmcli`) beschikbaar is
 2. Een eventueel bestaand eduroam-verbindingsprofiel verwijderen
 3. Om je inloggegevens vragen (gebruikersnaam + wachtwoord)
-4. Een PEAP/MSCHAPv2-verbindingsprofiel aanmaken zonder CA-certificaatvalidatie
+4. Een PEAP/MSCHAPv2-verbindingsprofiel aanmaken met CA-validatie via de systeem-truststore
 5. Proberen de verbinding te activeren
+
+Het standaard domeinsuffix is `saxion.net`. Voor andere instellingen: gebruik `--domain jouw-instelling.tld`.
+
+{{< callout type="info" >}}
+Na afloop van het script wordt de verbinding automatisch geactiveerd — je zou binnen enkele seconden verbonden moeten zijn. Als je inloggegevens of het RADIUS-servercertificaat niet kloppen, kan NetworkManager een GUI-prompt tonen om je gegevens opnieuw in te voeren.
+{{< /callout >}}
 
 Als alles goed gaat, zie je zoiets als dit:
 
@@ -79,7 +86,9 @@ nmcli connection add \
   802-1x.eap peap \
   802-1x.phase2-auth mschapv2 \
   802-1x.identity "gebruiker@instelling.nl" \
-  802-1x.password "je-wachtwoord"
+  802-1x.password "je-wachtwoord" \
+  802-1x.ca-cert /etc/pki/tls/certs/ca-bundle.crt \
+  802-1x.domain-suffix-match "saxion.net"
 ```
 
 Maak daarna verbinding:
@@ -112,8 +121,8 @@ De officiele CAT-installer (van [cat.eduroam.org](https://cat.eduroam.org/)) en 
 
 | | Officieel CAT-script | Dit script |
 |---|---|---|
-| **CA-certificaat** | USERTrust RSA → GEANT OV RSA CA 4 (ingebouwd) | Geen |
-| **Servervalidatie** | `altsubject-matches: DNS:ise.infra.saxion.net` | Geen |
+| **CA-certificaat** | USERTrust RSA → GEANT OV RSA CA 4 (ingebouwd) | Systeem-CA-bundel (`/etc/pki/tls/certs/ca-bundle.crt`) |
+| **Servervalidatie** | `altsubject-matches: DNS:ise.infra.saxion.net` (verouderd) | `domain-suffix-match: saxion.net` |
 | **`password-flags`** | `1` (agent-owned — vereist secret agent zoals GNOME Keyring) | `0` (opgeslagen in verbindingsbestand) |
 | **Resultaat op Fedora 43** | Blijft hangen tijdens TLS-handshake | Verbindt direct |
 
@@ -129,18 +138,18 @@ De officiele CAT-installer doet drie dingen die problemen veroorzaken op modern 
 
 ### Hoe dit script verbindt
 
-Dit script verwijdert alle drie die instellingen:
+Dit script lost alle drie de problemen op:
 
-- **Geen CA-certificaat** — NetworkManager slaat servercertificaatvalidatie over en gaat direct naar de PEAP-tunnel.
-- **Geen `altsubject-matches`** — vermijdt het kapotte validatiepad volledig.
+- **Systeem-CA-bundel** in plaats van een ingebouwde certificaatketen — NetworkManager valideert het RADIUS-servercertificaat tegen de systeem-truststore, die USERTrust RSA bevat.
+- **`domain-suffix-match`** in plaats van het verouderde `altsubject-matches` — verifieert dat het servercertificaat overeenkomt met `saxion.net` (configureerbaar via `--domain`) zonder de TLS-handshake-bug te triggeren.
 - **`password-flags` op `0`** — het wachtwoord wordt direct in het verbindingsbestand opgeslagen, zodat NetworkManager kan verbinden zonder afhankelijk te zijn van een externe secret agent.
 
-Dit is functioneel hetzelfde als wat Android en Windows doen:
+Dit is veiliger dan wat Android en Windows standaard doen:
 
-- **Windows** vraagt bij de eerste verbinding "Vertrouwt u dit certificaat?" — op OK klikken slaat verdere validatie over.
-- **Android** — institutionele setup-handleidingen (inclusief die van Saxion zelf) instrueren gebruikers om certificaatvalidatie in te stellen op "Niet valideren".
+- **Windows** vraagt bij de eerste verbinding "Vertrouwt u dit certificaat?" — op OK klikken accepteert het. Dit script valideert automatisch.
+- **Android** — institutionele setup-handleidingen (inclusief die van Saxion zelf) instrueren gebruikers om certificaatvalidatie in te stellen op "Niet valideren". Dit script valideert wél.
 
-De RADIUS-server van de instelling (`ise.infra.saxion.net`, Cisco ISE) werkt prima. Het probleem zit volledig aan de clientkant.
+De RADIUS-server van de instelling (`ise.infra.saxion.net`, Cisco ISE) werkt prima. Het probleem was volledig aan de clientkant: de verouderde `altsubject-matches`-property die de TLS-handshake liet vastlopen.
 
 ### Wachtwoordopslag
 

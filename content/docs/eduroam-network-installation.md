@@ -29,7 +29,7 @@ The guide at [linux.datanose.nl](https://linux.datanose.nl/linux/eduroam/) (UvA/
 
 ## What does work
 
-The working setup uses PEAP/MSCHAPv2 without CA certificate validation — the same way Android and Windows actually connect to eduroam in practice.
+The working setup uses PEAP/MSCHAPv2 with CA validation via the system trust store and `domain-suffix-match` — the modern replacement for the deprecated `altsubject-matches` that breaks on Fedora 43.
 
 ### Connection settings
 
@@ -39,11 +39,12 @@ The working setup uses PEAP/MSCHAPv2 without CA certificate validation — the s
 | Authentication | Protected EAP (PEAP) |
 | PEAP version | Automatic |
 | Inner authentication | MSCHAPv2 |
-| CA certificate | None |
+| CA certificate | System CA bundle (`/etc/pki/tls/certs/ca-bundle.crt`) |
+| Domain validation | `domain-suffix-match: saxion.net` |
 | Identity | `user@institution.tld` |
 
-{{< callout type="warning" >}}
-This configuration does **not** validate the server's CA certificate. This matches how Android and Windows behave and avoids the validation issues that break the official tools. Be aware of the security trade-off.
+{{< callout type="info" >}}
+This configuration validates the RADIUS server certificate using the system CA trust store and `domain-suffix-match`. This is more secure than the "Do not validate" approach on Android, and equivalent to what Windows does after you accept the certificate on first connection.
 {{< /callout >}}
 
 ### Automated setup (recommended)
@@ -59,8 +60,14 @@ The script will:
 1. Check that NetworkManager (`nmcli`) is available
 2. Remove any existing eduroam connection profile
 3. Ask for your credentials (username + password)
-4. Create a PEAP/MSCHAPv2 connection profile without CA certificate validation
+4. Create a PEAP/MSCHAPv2 connection profile with CA validation via the system trust store
 5. Try to activate the connection
+
+The default domain suffix is `saxion.net`. For other institutions, pass `--domain your-institution.tld`.
+
+{{< callout type="info" >}}
+After the script finishes, it activates the connection automatically — you should be connected within a few seconds. If your credentials or the RADIUS server certificate are incorrect, NetworkManager may show a GUI prompt asking you to re-enter your credentials.
+{{< /callout >}}
 
 If everything goes well, you should see something like this:
 
@@ -79,7 +86,9 @@ nmcli connection add \
   802-1x.eap peap \
   802-1x.phase2-auth mschapv2 \
   802-1x.identity "user@institution.tld" \
-  802-1x.password "your-password"
+  802-1x.password "your-password" \
+  802-1x.ca-cert /etc/pki/tls/certs/ca-bundle.crt \
+  802-1x.domain-suffix-match "saxion.net"
 ```
 
 Then connect:
@@ -112,8 +121,8 @@ The official CAT installer (from [cat.eduroam.org](https://cat.eduroam.org/)) an
 
 | | Official CAT script | This script |
 |---|---|---|
-| **CA certificate** | USERTrust RSA → GEANT OV RSA CA 4 (embedded) | None |
-| **Server validation** | `altsubject-matches: DNS:ise.infra.saxion.net` | None |
+| **CA certificate** | USERTrust RSA → GEANT OV RSA CA 4 (embedded) | System CA bundle (`/etc/pki/tls/certs/ca-bundle.crt`) |
+| **Server validation** | `altsubject-matches: DNS:ise.infra.saxion.net` (deprecated) | `domain-suffix-match: saxion.net` |
 | **`password-flags`** | `1` (agent-owned — requires secret agent like GNOME Keyring) | `0` (stored in connection file) |
 | **Result on Fedora 43** | Hangs during TLS handshake | Connects immediately |
 
@@ -129,18 +138,18 @@ The official CAT installer does three things that cause problems on modern Fedor
 
 ### How this script connects
 
-This script removes all three of those settings:
+This script fixes all three issues:
 
-- **No CA certificate** — NetworkManager skips server certificate validation and goes straight to the PEAP tunnel.
-- **No `altsubject-matches`** — avoids the broken validation path entirely.
+- **System CA bundle** instead of an embedded certificate chain — NetworkManager validates the RADIUS server certificate against the system trust store, which includes USERTrust RSA.
+- **`domain-suffix-match`** instead of the deprecated `altsubject-matches` — verifies that the server certificate matches `saxion.net` (configurable via `--domain`) without triggering the TLS handshake bug.
 - **`password-flags` set to `0`** — the password is stored directly in the connection file so NetworkManager can connect without depending on an external secret agent.
 
-This is functionally the same as what Android and Windows do:
+This is more secure than what Android and Windows do by default:
 
-- **Windows** prompts "Do you trust this certificate?" on first connection — clicking OK skips further validation.
-- **Android** — institutional setup guides (including Saxion's own) tell users to set certificate validation to "Do not validate".
+- **Windows** prompts "Do you trust this certificate?" on first connection — clicking OK accepts it. This script validates automatically.
+- **Android** — institutional setup guides (including Saxion's own) tell users to set certificate validation to "Do not validate". This script does validate.
 
-The institution's RADIUS server (`ise.infra.saxion.net`, Cisco ISE) works fine. The problem is purely client-side.
+The institution's RADIUS server (`ise.infra.saxion.net`, Cisco ISE) works fine. The problem was purely client-side: the deprecated `altsubject-matches` property stalling the TLS handshake.
 
 ### Password storage
 

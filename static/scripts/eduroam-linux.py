@@ -7,10 +7,11 @@ Based on the official eduroam CAT installer structure
 modern NetworkManager versions (1.8+) where the original script fails.
 
 Changes from the official CAT installer:
-  - Removed CA certificate (USERTrust → GEANT OV RSA CA 4)
-  - Removed altsubject-matches (deprecated since NM 1.8+)
-  - Removed server-match validation
-  - Result: connects immediately instead of hanging during TLS handshake
+  - Replaced altsubject-matches (deprecated since NM 1.8+) with
+    domain-suffix-match — the modern equivalent that actually works
+  - Uses the system CA bundle instead of an embedded certificate chain
+  - Result: connects immediately instead of hanging during TLS handshake,
+    while still validating the RADIUS server certificate
 
 Improvements over the official CAT installer:
   - Full type annotations checked with Pylance/mypy (strict mode)
@@ -20,17 +21,19 @@ Improvements over the official CAT installer:
   - subprocess calls use capture_output instead of manual PIPE wiring
   - Wayland display detection (WAYLAND_DISPLAY) alongside X11 (DISPLAY)
   - shutil.which() instead of subprocess(['which', ...]) for tool detection
-  - Clean fallback chain: D-Bus → nmcli → wpa_supplicant
+  - Clean fallback chain: nmcli → D-Bus → wpa_supplicant
   - argparse with proper help text and mutual requirements (--silent needs -u/-p)
-  - No embedded CA certificates or PKCS12 handling (not needed for PEAP)
+  - Configurable domain suffix via --domain (default: saxion.net)
   - Single responsibility: ~400 lines vs ~900+ lines in official CAT script
 
-These changes match the effective behavior on Android ("Do not validate")
-and Windows ("Trust this certificate?" → OK on first connect).
+The official CAT script uses altsubject-matches for server validation,
+which is deprecated since NM 1.8 (2017). On Fedora 43 with NM 1.50+,
+this causes the TLS handshake to stall indefinitely. This script
+replaces it with domain-suffix-match and the system CA trust store,
+which provides equivalent security without the compatibility issue.
 
-The institution's RADIUS server works correctly — the problem is purely
-client-side: NetworkManager silently ignores the deprecated property and
-stalls the TLS handshake indefinitely.
+Default domain suffix is saxion.net (Saxion University of Applied
+Sciences). Use --domain to override for other institutions.
 
 Tested alternatives that did NOT work:
   - cat.eduroam.org installer (hangs during TLS handshake)
@@ -96,6 +99,10 @@ parser.add_argument(
     "--wpa_conf", action="store_true", default=False,
     help="generate wpa_supplicant config instead of using NM",
 )
+parser.add_argument(
+    "--domain", type=str, default="saxion.net",
+    help="domain suffix for RADIUS server validation (default: saxion.net)",
+)
 ARGS = parser.parse_args()
 
 if ARGS.debug:
@@ -135,9 +142,8 @@ class Config:
     eap_outer: str = "PEAP"
     eap_inner: str = "MSCHAPV2"
     anonymous_identity: str = ""
-    # NOTE: No CA certificate and no server validation — this is intentional.
-    # The official CAT script uses altsubject-matches which is deprecated
-    # since NetworkManager 1.8+ and causes the TLS handshake to hang.
+    ca_cert: str = "/etc/pki/tls/certs/ca-bundle.crt"
+    domain_suffix: str = "saxion.net"  # overridden by --domain arg
 
 
 class Messages:
@@ -150,7 +156,12 @@ class Messages:
     repeat_password: str = "Repeat password"
     passwords_differ: str = "Passwords do not match"
     empty_field: str = "One of the fields was empty"
-    installation_finished: str = "Installation successful"
+    installation_finished: str = (
+        "Installation successful!\n\n"
+        "eduroam is now connected. If your credentials or the server\n"
+        "certificate are incorrect, NetworkManager may prompt you to\n"
+        "re-enter your credentials."
+    )
     cont: str = "Continue?"
     nm_not_supported: str = "This NetworkManager version is not supported"
     dbus_error: str = "DBus connection problem, a sudo might help"
@@ -198,8 +209,8 @@ class InstallerData:
 
         self.show_info(
             "This installer configures eduroam using PEAP/MSCHAPv2.\n\n"
-            "It does NOT configure CA certificate validation.\n"
-            "This is intentional — see the documentation for details.\n\n"
+            "It validates the RADIUS server using the system CA bundle\n"
+            f"and domain-suffix-match ({Config.domain_suffix}).\n\n"
             "Author: Sten Tijhuis (Stensel8)\n"
             "https://github.com/Stensel8"
         )
@@ -469,7 +480,7 @@ class WpaConf:
 
     @staticmethod
     def _prepare_network_block(ssid: str, user_data: InstallerData) -> str:
-        """Build a wpa_supplicant network block (no CA cert)."""
+        """Build a wpa_supplicant network block."""
         lines = [
             "network={",
             f'    ssid="{ssid}"',
@@ -477,6 +488,8 @@ class WpaConf:
             "    pairwise=CCMP",
             "    group=CCMP TKIP",
             f"    eap={Config.eap_outer}",
+            f'    ca_cert="{Config.ca_cert}"',
+            f'    domain_suffix_match="{Config.domain_suffix}"',
             f'    identity="{user_data.username}"',
             f'    phase2="auth={Config.eap_inner}"',
             f'    password="{user_data.password}"',
@@ -514,7 +527,8 @@ class CatNMConfigTool:
     Configure eduroam via NetworkManager D-Bus interface.
 
     Based on the official CAT installer's NM configuration,
-    but without CA certificate and deprecated altsubject-matches.
+    using system CA bundle and domain-suffix-match instead of
+    the deprecated altsubject-matches.
     """
 
     SYSTEM_SERVICE: str = "org.freedesktop.NetworkManager"
@@ -633,11 +647,9 @@ class CatNMConfigTool:
 
         debug(f"Adding connection: {ssid}")
 
-        # NOTE: Unlike the official CAT script, we intentionally do NOT set:
-        #   - ca-cert (was: USERTrust → GEANT OV RSA CA 4)
-        #   - altsubject-matches (deprecated since NM 1.8+)
-        #   - subject-match
-        # This is what makes it work on modern NetworkManager versions.
+        # Use the system CA bundle and domain-suffix-match instead of the
+        # deprecated altsubject-matches that hangs on modern NM versions.
+        ca_cert_uri = f"file://{Config.ca_cert}\0"
 
         s_8021x_data: dict[str, Any] = {
             "eap": [Config.eap_outer.lower()],
@@ -645,6 +657,10 @@ class CatNMConfigTool:
             "password": self.user_data.password,
             "phase2-auth": Config.eap_inner.lower(),
             "password-flags": _dbus.UInt32(0),  # type: ignore[attr-defined]
+            "ca-cert": _dbus.ByteArray(  # type: ignore[attr-defined]
+                ca_cert_uri.encode("utf-8"),
+            ),
+            "domain-suffix-match": Config.domain_suffix,
         }
         if Config.anonymous_identity:
             s_8021x_data["anonymous-identity"] = Config.anonymous_identity
@@ -687,8 +703,8 @@ class CatNMConfigTool:
 # ---------------------------------------------------------------------------
 
 
-def nmcli_fallback(user_data: InstallerData) -> None:
-    """Configure eduroam via nmcli when D-Bus is not available."""
+def nmcli_configure(user_data: InstallerData) -> None:
+    """Configure eduroam via nmcli (preferred method)."""
     con_name = "eduroam"
 
     # Delete existing connection if present
@@ -713,6 +729,9 @@ def nmcli_fallback(user_data: InstallerData) -> None:
         "802-1x.phase2-auth", Config.eap_inner.lower(),
         "802-1x.identity", user_data.username,
         "802-1x.password", user_data.password,
+        "802-1x.password-flags", "0",
+        "802-1x.ca-cert", f"file://{Config.ca_cert}",
+        "802-1x.domain-suffix-match", Config.domain_suffix,
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -722,6 +741,19 @@ def nmcli_fallback(user_data: InstallerData) -> None:
         if stderr:
             print(f"  {stderr}")
         sys.exit(1)
+
+    # Activate the connection immediately instead of waiting for
+    # NM auto-connect (which takes 20-40s and prompts for credentials).
+    debug("Activating eduroam connection")
+    activate = subprocess.run(
+        ["nmcli", "connection", "up", con_name],
+        capture_output=True, text=True,
+    )
+    if activate.returncode != 0:
+        debug(f"Activation failed: {activate.stderr.strip()}")
+        print("Connection profile created. NetworkManager will connect automatically.")
+    else:
+        debug("Connection activated successfully")
 
 
 # ---------------------------------------------------------------------------
@@ -737,6 +769,7 @@ def run_installer() -> None:
     password: str = ARGS.password or ""
     silent: bool = ARGS.silent
     wpa_conf: bool = ARGS.wpa_conf
+    Config.domain_suffix = ARGS.domain
 
     debug("Starting installer")
     installer_data = InstallerData(
@@ -746,7 +779,17 @@ def run_installer() -> None:
     if wpa_conf:
         nm_available = False
 
-    # Try D-Bus connection to NetworkManager
+    # Prefer nmcli over D-Bus: nmcli handles ca-cert correctly on all
+    # NM versions, while the D-Bus ByteArray format for ca-cert is
+    # rejected by NM 1.50+ supplicant config builder.
+    if nm_available and shutil.which("nmcli") is not None:
+        debug("nmcli found — using nmcli")
+        installer_data.get_user_cred()
+        nmcli_configure(installer_data)
+        installer_data.show_info(Messages.installation_finished)
+        return
+
+    # No nmcli — try D-Bus as fallback
     config_tool: CatNMConfigTool | None = None
     if nm_available:
         config_tool = CatNMConfigTool()
@@ -755,15 +798,7 @@ def run_installer() -> None:
             config_tool = None
 
     if not nm_available and not wpa_conf:
-        # No D-Bus — try nmcli as fallback before offering wpa_supplicant
-        if shutil.which("nmcli") is not None:
-            debug("D-Bus unavailable but nmcli found — using nmcli fallback")
-            installer_data.get_user_cred()
-            nmcli_fallback(installer_data)
-            installer_data.show_info(Messages.installation_finished)
-            return
-
-        # No nmcli either — offer wpa_supplicant config
+        # No nmcli and no D-Bus — offer wpa_supplicant config
         if installer_data.ask(Messages.save_wpa_conf, Messages.cont, 1):
             sys.exit(1)
         wpa_conf = True
