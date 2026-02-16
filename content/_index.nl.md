@@ -61,6 +61,19 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
 | **Display Server** | Wayland (GNOME 49) |
 | **Secure Boot** | Ingeschakeld |
 
+## Aan de slag
+
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="Aan de slag"
+    subtitle="Stap-voor-stap setup-handleiding — van verse Fedora-installatie tot volledig geconfigureerd systeem"
+    icon="play"
+    link="docs/getting-started"
+  >}}
+{{< /hextra/feature-grid >}}
+
+## Referentie Handleidingen
+
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="NVIDIA Driver Installatie"

@@ -6,7 +6,20 @@ toc: false
 
 # Installatie & Configuratie Handleidingen
 
-Volledige handleidingen voor de ROG Zephyrus G16 op Fedora Linux. Selecteer een handleiding in de sidebar om te beginnen.
+Volledige handleidingen voor de ROG Zephyrus G16 op Fedora Linux. Begin met de Aan de slag-handleiding voor een stap-voor-stap doorloop, of spring direct naar een specifieke referentiehandleiding.
+
+## Aan de slag
+
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="Aan de slag"
+    subtitle="Stap-voor-stap setup-handleiding — van verse Fedora-installatie tot volledig geconfigureerd systeem"
+    icon="play"
+    link="getting-started"
+  >}}
+{{< /hextra/feature-grid >}}
+
+## Referentie Handleidingen
 
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card

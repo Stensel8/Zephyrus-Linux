@@ -61,6 +61,19 @@ Fedora 44 is expected to ship with kernel 6.19, bringing native asus-armoury sup
 | **Display Server** | Wayland (GNOME 49) |
 | **Secure Boot** | Enabled |
 
+## Getting Started
+
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="Getting Started"
+    subtitle="Step-by-step setup guide — from fresh Fedora install to fully configured system"
+    icon="play"
+    link="docs/getting-started"
+  >}}
+{{< /hextra/feature-grid >}}
+
+## Reference Guides
+
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="NVIDIA Driver Installation"
