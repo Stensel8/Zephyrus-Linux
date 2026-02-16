@@ -13,7 +13,7 @@ Volledige handleidingen voor de ROG Zephyrus G16 op Fedora Linux. Begin met de A
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Aan de slag"
-    subtitle="Stap-voor-stap setup-handleiding — van verse Fedora-installatie tot volledig geconfigureerd systeem"
+    subtitle="Stap-voor-stap setup-handleiding — van schone Fedora-installatie tot volledig geconfigureerd systeem"
     icon="play"
     link="getting-started"
   >}}

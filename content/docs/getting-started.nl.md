@@ -3,7 +3,7 @@ title: "Aan de slag"
 weight: 2
 ---
 
-Complete setup-handleiding voor de ROG Zephyrus G16 op Fedora Linux. Volg de stappen op volgorde om van een verse Fedora 43-installatie naar een volledig geconfigureerd systeem te gaan.
+Complete setup-handleiding voor de ROG Zephyrus G16 op Fedora Linux. Volg de stappen op volgorde om van een schone Fedora 43-installatie naar een volledig geconfigureerd systeem te gaan.
 
 {{% steps %}}
 
@@ -26,7 +26,7 @@ Stel de hostnaam in via de systeeminstellingen naar de gewenste naam.
 
 ### GNOME vensterknoppen configureren
 
-Ik heb de venster-knoppen in GNOME 49 aangepast om minimize, maximize en close knoppen te tonen. Standaard toont GNOME alleen de close knop.
+Ik heb de vensterknoppen in GNOME 49 aangepast om minimize, maximize en close knoppen te tonen. Standaard toont GNOME alleen de close knop.
 
 ![Een voorbeeld van hoe de nieuwe GNOME vensters eruit zien](/images/window-controls.png)
 
@@ -45,7 +45,7 @@ Installeer de Bitwarden desktop-app via Flathub.
 
 ### Signal Messenger (Flathub)
 
-Signal Messenger geïnstalleerd via Flathub. Mijn voorkeurs-app voor messaging. Officieel is Signal alleen voor Debian/Ubuntu, maar de Flatpak versie werkt prima op Fedora. Signal is gebouwd op Electron, dus biedt goede prestaties.
+Signal Messenger geïnstalleerd via Flathub. Mijn favoriete app voor berichten. Officieel is Signal alleen voor Debian/Ubuntu, maar de Flatpak versie werkt prima op Fedora. Signal is gebouwd op Electron, dus biedt goede prestaties.
 
 ![Signal Messenger app in de Flathub store](/images/signal-flathub.png)
 
@@ -108,7 +108,7 @@ Gebruik de key ID van de `sec` regel (bijv. `rsa4096/JOUW_GPG_KEY_ID`).
 
 ### Tidal Hi-Fi (Electron)
 
-Er is geen officiële Tidal-client voor Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) van Rick van Lieshout (Mastermindzh) is een community Electron-client die de Tidal webplayer wrapt met Hi-Fi en Max kwaliteit ondersteuning. Installeer via Flathub.
+Er is geen officiële Tidal-client voor Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) van Rick van Lieshout (Mastermindzh) is een community Electron-client die de Tidal webplayer verpakt als desktopapp met Hi-Fi en Max kwaliteit ondersteuning. Installeer via Flathub.
 
 ![Tidal Hi-Fi in de Flathub store](/images/tidal-hifi-flathub.png)
 
@@ -157,14 +157,14 @@ De downloadpagina van Archi waarschuwt voor mogelijke UI-problemen op Wayland. I
 
 **Installatie:**
 ```bash
-# Download en extract in één flow
+# Download en extract in één keer
 cd /tmp
 curl -L https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz | tar -xz
 
-# Move naar /opt
+# Verplaats naar /opt
 sudo mv Archi-Linux64-5.7.0/Archi /opt/
 
-# Cleanup
+# Opruimen
 rm -rf Archi-Linux64-5.7.0
 cd ~
 
@@ -291,7 +291,7 @@ Op GNOME 49 en Fedora 43 is er **geen native instelling** voor touchpad scroll s
 
 In de tussentijd is [libinput-config](https://github.com/lz42/libinput-config) van lz42 een third-party workaround die libinput events onderschept en een scroll multiplier toepast.
 
-**Installatie (éénmalig):**
+**Installatie (eenmalig):**
 
 ```bash
 # 1. Dependencies installeren

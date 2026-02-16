@@ -18,7 +18,7 @@ De YubiKey werkt betrouwbaar voor alles **buiten** de vroege boot processen:
 
 ## Wat Geprobeerd Is: FIDO2 LUKS Ontgrendeling
 
-Het doel was: YubiKey inplugggen → aanraken bij boot → LUKS ontgrendelt → bureaublad. Geen LUKS wachtwoord nodig dus.
+Het doel was: YubiKey inpluggen → aanraken bij boot → LUKS ontgrendelt → bureaublad. Geen LUKS wachtwoord nodig dus.
 
 ### Wat gedaan is
 

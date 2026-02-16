@@ -32,7 +32,7 @@ toc: false
 
 ### Kernel 7.0: ASUS laptop quirks + nieuw AMDGPU-werk
 
-Linus heeft bevestigd dat de volgende kernel 7.0 is, met de merge window nu open en een stabiele release verwacht rond midden april 2026. Voor deze ASUS ROG G16 is het belangrijkste nieuws betere grafische driver-ondersteuning: de DRM-updates brengen AMDGPU-enablement voor nieuwere RDNA 3.5-klasse IP blocks (GFX11.5.4) plus verder werk aan NVIDIA Nova/Nouveau, wat moet zorgen voor betere afhandeling van zowel de iGPU als dGPU. Verwachting is dat de Radeon 890M ongeveer 20% sneller kan worden bij de stap van kernel 6.18 naar 7.0. Nog geen directe upgrade voor Fedora 43, maar wel een goed teken voor komende releases.
+Linus heeft bevestigd dat de volgende kernel 7.0 is, met de merge window nu open en een stabiele release verwacht rond midden april 2026. Voor deze ASUS ROG G16 is het belangrijkste nieuws betere grafische driver-ondersteuning: de DRM-updates brengen AMDGPU-ondersteuning voor nieuwere RDNA 3.5-klasse IP blocks (GFX11.5.4) plus verder werk aan NVIDIA Nova/Nouveau, wat moet zorgen voor betere afhandeling van zowel de iGPU als dGPU. Verwachting is dat de Radeon 890M ongeveer 20% sneller kan worden bij de stap van kernel 6.18 naar 7.0. Nog geen directe upgrade voor Fedora 43, maar wel een goed teken voor komende releases.
 
 **Bronnen:** [Linus bevestigt Linux 7.0](https://www.phoronix.com/news/Linux-7.0-Is-Next) · [HID laptop quirks voor ASUS ROG modellen](https://www.phoronix.com/news/Linux-7.0-HID) · [Linux 7.0 DRM/AMDGPU updates](https://www.phoronix.com/news/Linux-7.0-Graphics-Drivers)
 
@@ -66,7 +66,7 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Aan de slag"
-    subtitle="Stap-voor-stap setup-handleiding — van verse Fedora-installatie tot volledig geconfigureerd systeem"
+    subtitle="Stap-voor-stap setup-handleiding — van schone Fedora-installatie tot volledig geconfigureerd systeem"
     icon="play"
     link="docs/getting-started"
   >}}
@@ -101,7 +101,7 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
   >}}
   {{< hextra/feature-card
     title="Looking Glass Poging"
-    subtitle="GPU passthrough poging (niet werkend op deze hardware)"
+    subtitle="GPU passthrough poging (werkt niet op deze hardware)"
     icon="eye"
     link="docs/looking-glass-attempt"
   >}}
