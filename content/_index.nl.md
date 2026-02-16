@@ -22,21 +22,47 @@ toc: false
 {{< /hextra/hero-badge >}}
 </div>
 
-> **Disclaimer:** Dit is een onafhankelijk persoonlijk project waarin ik mijn eigen onderzoek en bevindingen documenteer bij het opzetten van Fedora 43 op mijn ASUS ROG Zephyrus G16 GA605WV (2024). Ik ben niet gelieerd aan, goedgekeurd door, of handelend namens Microsoft, Windows, ASUS, ROG, G-Helper, of enig ander bedrijf of project dat hier wordt genoemd. Deze repository deelt mijn persoonlijke configuratie en troubleshooting-aantekeningen. Geen stabiliteitgarantie wordt gegeven. Jouw resultaten kunnen afwijken.
+<div class="hx-mt-6"></div>
 
-## tl;dr
+{{< callout type="warning" >}}
+**Experimenteel — gebruik op eigen risico.** Dit is een onafhankelijk persoonlijk project waarin ik mijn tests met Fedora op de Zephyrus G16 documenteer. Geen officiële instructies. Vereist **kernel 6.18+** — alle versies daaronder zijn problematisch (display-problemen, GPU crashes, suspend failures). Geen stabiliteitgarantie. Jouw resultaten kunnen afwijken.
+{{< /callout >}}
 
-In 2026 ben ik naar Fedora 43 gegaan op mijn Zephyrus G16. Het is niet perfect, maar de stabiliteit zit dicht bij Windows 11 Pro en ik heb weer controle over mijn systeem.
-
-Deze site bevat de concrete stappen, tweaks en workarounds die ik gebruikt heb. Ik werk hem bij als Fedora en de drivers veranderen.
-
-## Handleidingen
-
-{{< cards >}}
-  {{< card link="docs/nvidia-driver-installation" title="NVIDIA Driver Installatie" subtitle="Proprietary NVIDIA drivers met Secure Boot op Fedora 43" icon="chip" >}}
-  {{< card link="docs/vm-setup" title="Windows 11 VM Setup" subtitle="KVM/QEMU VM met VirtIO, SPICE GL en Hyper-V enlightenments" icon="desktop-computer" >}}
-  {{< card link="docs/autologin" title="GDM Autologin" subtitle="GDM inlogscherm overslaan na LUKS ontgrendeling" icon="lock-open" >}}
-  {{< card link="docs/yubikey" title="YubiKey 5C NFC" subtitle="FIDO2 LUKS poging en wat vandaag werkt" icon="key" >}}
-  {{< card link="docs/looking-glass-attempt" title="Looking Glass Poging" subtitle="GPU passthrough poging (niet werkend op deze hardware)" icon="eye" >}}
-  {{< card link="docs/asusctl-rog-control" title="asusctl & ROG Control Center" subtitle="Fan curves, performance profielen, GPU switching, Slash LED" icon="adjustments" >}}
-{{< /cards >}}
+{{< hextra/feature-grid >}}
+  {{< hextra/feature-card
+    title="NVIDIA Driver Installatie"
+    subtitle="Proprietary NVIDIA drivers met Secure Boot op Fedora 43"
+    icon="chip"
+    link="docs/nvidia-driver-installation"
+  >}}
+  {{< hextra/feature-card
+    title="Windows 11 VM Setup"
+    subtitle="KVM/QEMU VM met VirtIO, SPICE GL en Hyper-V enlightenments"
+    icon="desktop-computer"
+    link="docs/vm-setup"
+  >}}
+  {{< hextra/feature-card
+    title="GDM Autologin"
+    subtitle="GDM inlogscherm overslaan na LUKS ontgrendeling"
+    icon="lock-open"
+    link="docs/autologin"
+  >}}
+  {{< hextra/feature-card
+    title="YubiKey 5C NFC"
+    subtitle="FIDO2 LUKS poging en wat vandaag werkt"
+    icon="key"
+    link="docs/yubikey"
+  >}}
+  {{< hextra/feature-card
+    title="Looking Glass Poging"
+    subtitle="GPU passthrough poging (niet werkend op deze hardware)"
+    icon="eye"
+    link="docs/looking-glass-attempt"
+  >}}
+  {{< hextra/feature-card
+    title="asusctl & ROG Control Center"
+    subtitle="Fan curves, performance profielen, GPU switching, Slash LED"
+    icon="adjustments"
+    link="docs/asusctl-rog-control"
+  >}}
+{{< /hextra/feature-grid >}}

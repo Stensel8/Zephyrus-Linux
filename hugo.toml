@@ -47,8 +47,8 @@ enableGitInfo = true
 
   [params.footer]
     enable = true
-    displayCopyright = true
-    displayPoweredBy = true
+    displayCopyright = false
+    displayPoweredBy = false
     width = 'normal'
 
   displayUpdatedDate = true
