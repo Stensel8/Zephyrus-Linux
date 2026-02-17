@@ -11,7 +11,7 @@ toc: false
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV. Step-by-step guides for NVIDIA drivers, VMs, YubiKey, and more.
+  Everything you should know when running Fedora 43 on your Zephyrus
 {{< /hextra/hero-subtitle >}}
 </div>
 
