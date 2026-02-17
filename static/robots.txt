@@ -1,0 +1,8 @@
+# robots.txt
+
+# Allow all user agents
+User-agent: *
+Disallow:
+
+# Sitemap
+Sitemap: https://zephyrus-linux.stentijhuis.nl/sitemap.xml
