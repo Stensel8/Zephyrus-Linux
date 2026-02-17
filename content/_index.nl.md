@@ -42,7 +42,7 @@ De `asus-armoury` driver is [gemerged in Linux 6.19](https://www.phoronix.com/ne
 
 Op kernel 6.18 is de driver nog niet beschikbaar:
 
-![ROG Control toont dat de asus-armoury driver niet geladen is](/images/rog-control-armoury.png)
+![ROG Control toont dat de asus-armoury driver niet geladen is](/images/rog-control-armoury.avif)
 
 Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-armoury ondersteuning.
 
@@ -66,7 +66,7 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Aan de slag"
-    subtitle="Stap-voor-stap setup-handleiding — van schone Fedora-installatie tot volledig geconfigureerd systeem"
+    subtitle="Van schone Fedora-installatie tot volledig geconfigureerd systeem"
     icon="play"
     link="docs/getting-started"
   >}}
@@ -110,6 +110,12 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
     subtitle="Fan curves, performance profielen, GPU switching, Slash LED"
     icon="adjustments"
     link="docs/asusctl-rog-control"
+  >}}
+  {{< hextra/feature-card
+    title="eduroam Setup"
+    subtitle="PEAP/MSCHAPv2 configuratie die daadwerkelijk werkt op Linux"
+    icon="wifi"
+    link="docs/eduroam-network-installation"
   >}}
 {{< /hextra/feature-grid >}}
 

@@ -15,7 +15,7 @@ Handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met
 
 ### Systeem Verificatie
 
-{{% details title="Check kernel versie" %}}
+{{% details title="Check kernel versie" closed="true" %}}
 
 Vereist: Kernel 6.18+ voor Ryzen AI 9 HX 370 ondersteuning.
 
@@ -25,7 +25,7 @@ uname -r
 
 {{% /details %}}
 
-{{% details title="Check Secure Boot status" %}}
+{{% details title="Check Secure Boot status" closed="true" %}}
 
 ```bash
 mokutil --sb-state

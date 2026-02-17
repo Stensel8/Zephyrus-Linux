@@ -14,7 +14,7 @@ Handleiding voor het instellen van ASUS ROG hardware controls op Fedora 43: fan 
 
 ## Vereisten
 
-{{% details title="Waarom lukenukem COPR en geen reguliere repo" %}}
+{{% details title="Waarom lukenukem COPR en geen reguliere repo" closed="true" %}}
 
 COPR is Fedora's officiële community-package-hostingplatform (vergelijkbaar met AUR voor Arch). De `lukenukem` COPR wordt beheerd door Luke Jones (flukejones), de primaire developer van asusctl zelf — geen willekeurige derde partij.
 
@@ -24,7 +24,7 @@ De packages zijn GPG-gesigned (`gpgcheck=1`) en dit is de officieel aanbevolen i
 
 {{% /details %}}
 
-{{% details title="Compatibiliteit met tuned (power-profiles-daemon conflict) — Fedora-specifiek" %}}
+{{% details title="Compatibiliteit met tuned (power-profiles-daemon conflict) — Fedora-specifiek" closed="true" %}}
 
 `asusctl` vereist de `power-profiles-daemon` D-Bus API om performance profielen te beheren (Silent/Balanced/Performance). Op Arch Linux installeer je simpelweg `power-profiles-daemon` en het werkt. Op Fedora conflicteert dit echter met `tuned`, dat [sinds Fedora 41 de standaard power management daemon is](https://fedoraproject.org/wiki/Changes/TunedAsTheDefaultPowerProfileManagementDaemon).
 

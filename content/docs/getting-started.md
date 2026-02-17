@@ -16,19 +16,19 @@ I installed Brave via Flathub. The official `.sh` script version from Brave's we
 - Search for "Brave"
 - Click Install
 
-![Brave Browser in the Flathub store](/images/brave-flathub.png)
+![Brave Browser in the Flathub store](/images/brave-flathub.avif)
 
 ### Set hostname
 
 Set the hostname in the system settings to the desired name.
 
-![Set hostname](/images/system-info.png)
+![Set hostname](/images/system-info.avif)
 
 ### Configure GNOME window buttons
 
 I configured the window buttons in GNOME 49 to show minimize, maximize, and close buttons. By default, GNOME only shows the close button.
 
-![Example of how the new GNOME windows look](/images/window-controls.png)
+![Example of how the new GNOME windows look](/images/window-controls.avif)
 
 **Configuration:**
 ```bash
@@ -41,27 +41,27 @@ This ensures that all three window buttons (minimize, maximize/zoom, and close) 
 
 Install the Bitwarden desktop app via Flathub.
 
-![Bitwarden desktop app in Flathub](/images/bitwarden-flathub.png)
+![Bitwarden desktop app in Flathub](/images/bitwarden-flathub.avif)
 
 ### Signal Messenger (Flathub)
 
 Signal Messenger installed via Flathub. My preferred messaging app. Officially, Signal is only for Debian/Ubuntu, but the Flatpak version works great on Fedora. Signal is built on Electron, so it offers good performance.
 
-![Signal Messenger app in Flathub](/images/signal-flathub.png)
+![Signal Messenger app in Flathub](/images/signal-flathub.avif)
 
 ### Install Git
 
 Git is needed to work with repositories and make commits. On Fedora, Git comes pre-installed as part of the system. If for some reason it's not installed, you can install it manually with:
 
 ```bash
-sudo dnf install git
+sudo dnf install git gh
 ```
 
 ### Proton Mail (Flathub)
 
 Proton Mail installed via Flathub. This is a wrapper. Some apps are wrappers and not official native apps, but for web-based mail apps I find that acceptable.
 
-![Proton Mail app in Flathub](/images/protonmail-flathub.png)
+![Proton Mail app in Flathub](/images/protonmail-flathub.avif)
 
 ### Install Visual Studio Code
 
@@ -110,7 +110,7 @@ Use the key ID from the `sec` line (e.g., `rsa4096/YOUR_GPG_KEY_ID`).
 
 There is no official Tidal client for Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) by Rick van Lieshout (Mastermindzh) is a community Electron client that wraps the Tidal web player with Hi-Fi and Max quality support. Install it via Flathub.
 
-![Tidal Hi-Fi in the Flathub store](/images/tidal-hifi-flathub.png)
+![Tidal Hi-Fi in the Flathub store](/images/tidal-hifi-flathub.avif)
 
 ### Install NVIDIA GPU drivers
 
@@ -139,13 +139,13 @@ After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
 
 For Microsoft 365, use a Windows VM instead.
 
-![Bottles in the Flathub store](/images/bottles-flathub.png)
+![Bottles in the Flathub store](/images/bottles-flathub.avif)
 
 ### Install Archi (ArchiMate modeling tool)
 
 [Archi](https://www.archimatetool.com/) is a free, open-source tool for creating ArchiMate models. Download it from the [official download page](https://www.archimatetool.com/download/).
 
-![Archi download page — Linux version with Wayland note](/images/archi-download.png)
+![Archi download page — Linux version with Wayland note](/images/archi-download.avif)
 
 The Linux package is a portable archive — there is no installer, `.deb`, or `.rpm`. To have Archi appear as a proper application with an icon in GNOME, you need to move the files yourself and create a desktop entry.
 
@@ -191,9 +191,9 @@ StartupWMClass=Archi
 
 After saving the desktop entry, Archi appears in the GNOME application launcher:
 
-![Archi in the GNOME application launcher](/images/archi-launcher.png)
+![Archi in the GNOME application launcher](/images/archi-launcher.avif)
 
-![Archi running on Wayland with GNOME 49](/images/archi-running.png)
+![Archi running on Wayland with GNOME 49](/images/archi-running.avif)
 
 ### Set up Windows 11 VM with virt-manager (KVM/QEMU)
 
@@ -232,7 +232,7 @@ sudo dnf config-manager setopt fedora-cisco-openh264.enabled=1
 sudo dnf install steam -y
 ```
 
-![Steam in GNOME Software — installed via rpmfusion-nonfree-steam](/images/steam-gnome-software.png)
+![Steam in GNOME Software — installed via rpmfusion-nonfree-steam](/images/steam-gnome-software.avif)
 
 Reboot after installation. Steam includes Proton by default, which allows you to run many Windows games on Linux. You can select specific Proton versions per game via Steam Settings > Compatibility.
 
@@ -253,7 +253,7 @@ __GL_CONSTANT_FRAME_RATE_HINT=3 steam
 - Select the **Flathub** source (not Fedora Linux / RPM)
 - Click Install
 
-![Solaar in GNOME Software — select the Flathub version](/images/solaar-flathub.png)
+![Solaar in GNOME Software — select the Flathub version](/images/solaar-flathub.avif)
 
 **Features:**
 - Monitor battery levels of Logitech devices
@@ -261,7 +261,7 @@ __GL_CONSTANT_FRAME_RATE_HINT=3 steam
 - Manage multiple devices on one Unifying receiver
 - Support for both Unifying and Bluetooth devices
 
-![Solaar about screen — version 1.1.19](/images/solaar-about.png)
+![Solaar about screen — version 1.1.19](/images/solaar-about.avif)
 
 Solaar runs as a system tray application and shows notifications when a device's battery is running low.
 
@@ -336,6 +336,19 @@ Log out and back in (or reboot) and adjust `scroll-factor` as needed.
 ```bash
 sudo rm /etc/libinput.conf
 ```
+
+### Connect to eduroam (university Wi-Fi)
+
+eduroam on Linux can be tricky — the official installers and community tools often fail. A custom PEAP/MSCHAPv2 setup via nmcli works reliably.
+
+{{< callout type="info" >}}
+Full setup guide: [eduroam Network Installation]({{< relref "/docs/eduroam-network-installation" >}})
+{{< /callout >}}
+
+**Summary:**
+- PEAP / MSCHAPv2 with CA validation via the system trust store
+- `domain-suffix-match` instead of the deprecated `altsubject-matches`
+- Automated Python script or manual nmcli command
 
 ### GDM autologin after LUKS
 

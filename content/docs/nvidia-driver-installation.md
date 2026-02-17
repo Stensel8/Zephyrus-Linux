@@ -15,7 +15,7 @@ Guide for installing NVIDIA proprietary drivers on Fedora 43 with Secure Boot en
 
 ### System Verification
 
-{{% details title="Check kernel version" %}}
+{{% details title="Check kernel version" closed="true" %}}
 
 Required: Kernel 6.18+ for Ryzen AI 9 HX 370 support.
 
@@ -25,7 +25,7 @@ uname -r
 
 {{% /details %}}
 
-{{% details title="Check Secure Boot status" %}}
+{{% details title="Check Secure Boot status" closed="true" %}}
 
 ```bash
 mokutil --sb-state

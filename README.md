@@ -28,6 +28,40 @@ I am not affiliated with, endorsed by, or acting on behalf of ASUS, NVIDIA, Micr
 | **Secure Boot** | Enabled |
 
 
+## Building the site locally
+
+This documentation site is built with [Hugo](https://gohugo.io/) using the [Hextra](https://imfing.github.io/hextra/) theme. The theme is included as a git submodule.
+
+**Prerequisites:**
+- [Hugo extended](https://gohugo.io/installation/) (v0.152.2 or later)
+- Git
+
+**Clone with submodules:**
+```bash
+git clone --recurse-submodules https://github.com/Stensel8/Zephyrus-Linux.git
+cd Zephyrus-Linux
+```
+
+If you already cloned without `--recurse-submodules`:
+```bash
+git submodule update --init --recursive
+```
+
+**Run the development server:**
+```bash
+hugo server
+```
+
+The site is available at `http://localhost:1313/`. Hugo watches for file changes and reloads automatically.
+
+**Build for production:**
+```bash
+hugo --gc --minify
+```
+
+The output is written to `./public/`. On push to `main`, GitHub Actions builds and deploys to GitHub Pages automatically.
+
+
 ## Credits & resources
 
 This project wouldn't exist without the work of these people and communities:
