@@ -81,69 +81,69 @@ dnf check-update
 # VS Code installeren
 sudo dnf install code
 ```
-
+![Brave Browser in de Flathub store](/images/brave-flathub.avif)
 {{< callout type="warning" >}}
 Op kernel 6.18.x kan hardware acceleration in VS Code een amdgpu page fault veroorzaken. Zet hardware acceleration uit. Zie de [NVIDIA Driver Installatie]({{< relref "/docs/nvidia-driver-installation" >}}).
 {{< /callout >}}
 
-### Kleopatra & git commit signing
+![Hostname instellen](/images/system-info.avif)
 
 Na het installeren van VS Code en Git, installeer `kleopatra` en maak je GPG-keys aan via de GUI. Daarna configureer je Git om commits en tags te ondertekenen.
 
 **Eenmalige setup:**
-```bash
+![Een voorbeeld van hoe de nieuwe GNOME vensters eruit zien](/images/window-controls.avif)
 git config --global user.name "JOUW_NAAM"
 git config --global user.email "JOUW_EMAIL"
 git config --global user.signingkey JOUW_GPG_KEY_ID
 git config --global commit.gpgsign true
-git config --global tag.gpgsign true
+![Bitwarden desktop app in Flathub](/images/bitwarden-flathub.avif)
 git config --global gpg.program gpg
 ```
 
 **Vind je GPG key ID:**
-```bash
+![Signal Messenger app in de Flathub store](/images/signal-flathub.avif)
 gpg --list-secret-keys --keyid-format=long
 ```
 Gebruik de key ID van de `sec` regel (bijv. `rsa4096/JOUW_GPG_KEY_ID`).
 
-### Tidal Hi-Fi (Electron)
+![Proton Mail app in Flathub](/images/protonmail-flathub.avif)
 
 Er is geen officiële Tidal-client voor Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) van Rick van Lieshout (Mastermindzh) is een community Electron-client die de Tidal webplayer verpakt als desktopapp met Hi-Fi en Max kwaliteit ondersteuning. Installeer via Flathub.
 
 ![Tidal Hi-Fi in de Flathub store](/images/tidal-hifi-flathub.png)
-
+![Tidal Hi-Fi in de Flathub store](/images/tidal-hifi-flathub.avif)
 ### NVIDIA GPU drivers installeren
 
 De RTX 4060 heeft proprietary NVIDIA drivers nodig voor goede prestaties. Nouveau (open-source) werkt slecht voor moderne GPU's.
 
-{{< callout type="info" >}}
+![Bottles in de Flathub store](/images/bottles-flathub.avif)
 Volledige installatie handleiding: [NVIDIA Driver Installatie]({{< relref "/docs/nvidia-driver-installation" >}})
 {{< /callout >}}
-
+![Bottles application window](/images/bottles-install.avif)
 **Samenvatting:**
 - Installeer NVIDIA driver 580.119.02 via RPM Fusion
 - MOK enrollment voor Secure Boot
 - Kernel parameter voor AMD GPU crash fix (externe monitors)
-
+![Archi downloadpagina — Linux versie met Wayland opmerking](/images/archi-download.avif)
 Na installatie werkt de GPU correct met Wayland en CUDA 13.0 support.
 
-### Bottles installeren (Flathub)
+![Archi in de GNOME applicatie launcher](/images/archi-launcher.avif)
 
 [Bottles](https://usebottles.com/) laat je Windows software draaien op Linux via Wine. Installeer via Flathub — de RPM-pakketten uit Fedora's repos zijn verouderd en bevatten oudere versies. Zorg dat je minimaal versie 61 hebt.
-
+![Archi draaiend op Wayland met GNOME 49](/images/archi-running.avif)
 **Installatie:**
 - Open GNOME Software Center
 - Zoek naar "Bottles"
 - Selecteer de **Flathub** bron (niet Fedora Linux / RPM)
-- Klik op Installeren
+![Steam in GNOME Software — geïnstalleerd via rpmfusion-nonfree-steam](/images/steam-gnome-software.avif)
 
 Voor Microsoft 365 is een Windows VM nodig.
 
 ![Bottles in de Flathub store](/images/bottles-flathub.png)
-
+![Solaar in GNOME Software — selecteer de Flathub versie](/images/solaar-flathub.avif)
 ![Bottles application window](/images/bottles-install.png)
 
-### Archi installeren (ArchiMate modelleertool)
+![Solaar about screen — version 1.1.19](/images/solaar-about.avif)
 
 [Archi](https://www.archimatetool.com/) is een gratis, open-source tool voor het maken van ArchiMate modellen. Download het van de [officiële downloadpagina](https://www.archimatetool.com/download/).
 
@@ -363,4 +363,4 @@ Volledige handleiding: [GDM Autologin Handleiding]({{< relref "/docs/autologin" 
 - Stel `AutomaticLoginEnable=True` en `AutomaticLogin=sten` in onder `[daemon]`
 - Herstart
 
-{{% /steps %}}
+

@@ -42,7 +42,7 @@ The `asus-armoury` driver has been [merged into Linux 6.19](https://www.phoronix
 
 Currently on kernel 6.18, the driver is not yet available:
 
-![ROG Control showing asus-armoury driver not loaded](/images/rog-control-armoury.png)
+![ROG Control showing asus-armoury driver not loaded](/images/rog-control-armoury.avif)
 
 Fedora 44 is expected to ship with kernel 6.19, bringing native asus-armoury support.
 
