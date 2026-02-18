@@ -333,17 +333,18 @@ Coming from Windows, some things feel off without the right shortcuts. These are
 
 **Built-in shortcuts (via Settings > Keyboard > Keyboard Shortcuts):**
 
-| # | Action | Shortcut | Category |
-|---|--------|----------|----------|
-| 1 | Show desktop (hide all windows) | `Super+D` | Navigation |
-| 2 | Take a screenshot interactively | `Shift+Super+S` | Screenshots |
-| 3 | Open Settings | `Super+I` | System |
+| # | Action | Shortcut |
+|---|--------|----------|
+| 1 | Show desktop (hide all windows) | `Super+D` |
+| 2 | Take a screenshot interactively | `Shift+Super+S` |
+| 3 | Record a screencast interactively | `Shift+Super+R` |
+| 4 | Open Settings | `Super+I` |
 
 **Custom shortcut (via Settings > Keyboard > Keyboard Shortcuts > Custom Shortcuts):**
 
 | # | Action | Command | Shortcut |
 |---|--------|---------|----------|
-| 4 | Open file manager | `nautilus` | `Super+E` |
+| 5 | Open file manager | `nautilus` | `Super+E` |
 
 GNOME doesn't have a built-in shortcut for the file manager, so this one needs to be created manually.
 

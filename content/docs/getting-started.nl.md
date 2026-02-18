@@ -333,17 +333,18 @@ Als je vanuit Windows komt, voelt een paar dingen meteen anders zonder de juiste
 
 **Ingebouwde sneltoetsen (via Settings > Keyboard > Keyboard Shortcuts):**
 
-| # | Actie | Sneltoets | Categorie |
-|---|-------|-----------|-----------|
-| 1 | Desktop tonen (alle vensters verbergen) | `Super+D` | Navigation |
-| 2 | Interactieve screenshot | `Shift+Super+S` | Screenshots |
-| 3 | Instellingen openen | `Super+I` | System |
+| # | Actie | Sneltoets |
+|---|-------|-----------|
+| 1 | Desktop tonen (alle vensters verbergen) | `Super+D` |
+| 2 | Interactieve screenshot | `Shift+Super+S` |
+| 3 | Interactieve schermopname | `Shift+Super+R` |
+| 4 | Instellingen openen | `Super+I` |
 
 **Custom shortcut (via Settings > Keyboard > Keyboard Shortcuts > Custom Shortcuts):**
 
 | # | Actie | Commando | Sneltoets |
 |---|-------|----------|-----------|
-| 4 | Bestandsbeheer openen | `nautilus` | `Super+E` |
+| 5 | Bestandsbeheer openen | `nautilus` | `Super+E` |
 
 GNOME heeft standaard geen sneltoets voor de bestandsbeheerder, dus die moet je handmatig aanmaken.
 
