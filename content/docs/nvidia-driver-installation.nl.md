@@ -3,9 +3,9 @@ title: "NVIDIA Driver Installatie"
 weight: 11
 ---
 
-Handleiding voor het installeren van NVIDIA proprietary drivers op Fedora 43 met Secure Boot ingeschakeld.
+De G16 heeft een NVIDIA RTX 4060 naast de AMD iGPU. De open-source Nouveau driver werkt niet goed op moderne NVIDIA-hardware, dus proprietary drivers zijn nodig. Ze werkend krijgen op Fedora met Secure Boot ingeschakeld kost een paar stappen — dit is wat bij mij werkte. Ik liep ook tegen meerdere crashes en lockups aan na de installatie die wat tijd kostten om op te sporen, dus die heb ik ook gedocumenteerd.
 
-**Driver Informatie:**
+**Driver die ik gebruik:**
 - Versie: 580.119.02
 - Bron: RPM Fusion
 - Installatiemethode: akmod (automatisch kernel module rebuilding)

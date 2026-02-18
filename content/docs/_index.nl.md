@@ -4,9 +4,9 @@ weight: 1
 toc: false
 ---
 
-# Installatie & Configuratie Handleidingen
+# Mijn setup-notities
 
-Volledige handleidingen voor de ROG Zephyrus G16 op Fedora Linux. Begin met de Aan de slag-handleiding voor een stap-voor-stap doorloop, of spring direct naar een specifieke referentiehandleiding.
+Alles wat ik heb opgeschreven tijdens het draaien van Fedora Linux op de ROG Zephyrus G16. Begin bij Aan de slag als je vanaf nul instelt, of ga direct naar de handleiding die je nodig hebt.
 
 ## Aan de slag
 

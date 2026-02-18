@@ -4,9 +4,9 @@ weight: 1
 toc: false
 ---
 
-# Installation & Configuration Guides
+# My Setup Notes
 
-Complete setup guides for the ROG Zephyrus G16 on Fedora Linux. Start with the Getting Started guide for a step-by-step walkthrough, or jump directly to a specific reference guide.
+Everything I've documented while running Fedora Linux on the ROG Zephyrus G16. Start with Getting Started if you're setting up from scratch, or jump to whichever guide is relevant to your situation.
 
 ## Getting Started
 

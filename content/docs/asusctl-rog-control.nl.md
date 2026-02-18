@@ -3,7 +3,7 @@ title: "asusctl & ROG Control Center"
 weight: 22
 ---
 
-Handleiding voor het instellen van ASUS ROG hardware controls op Fedora 43: fan curves, performance profielen, GPU switching, Slash LED en batterijbeheer.
+De Zephyrus G16 heeft veel hardware-functies die op Linux niet zomaar werken — fan curves, performance-profielen, de Slash LED op het deksel, GPU-switching, batterijlaadlimiet. Op deze pagina staat hoe ik dat allemaal werkend heb gekregen met asusctl en de tools van het ASUS Linux-project. De Fedora-specifieke onderdelen staan niet in hun eigen documentatie, dus ik heb ze hier opgeschreven.
 
 **Package informatie:**
 - `asusctl` 6.3.2 — CLI voor fan curves, profielen, batterijlimiet, RGB, Slash LED

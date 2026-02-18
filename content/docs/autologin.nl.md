@@ -3,7 +3,7 @@ title: "GDM Autologin"
 weight: 19
 ---
 
-Sla het GDM inlogscherm over na LUKS ontgrendeling bij het opstarten. De schermvergrendeling bij slaapstand/inactiviteit vraagt nog steeds om je wachtwoord.
+Na het ontgrendelen van de schijf met LUKS bij het opstarten wilde ik niet nog een keer een wachtwoord invoeren om in te loggen. Dit slaat het GDM-inlogscherm volledig over — je voert je schijfwachtwoord één keer in en het bureaublad laadt direct. De schermvergrendeling vraagt gewoon nog steeds om je wachtwoord.
 
 **Bootgedrag:**
 - Opstarten → LUKS wachtwoord prompt → bureaublad (geen tweede inlog)

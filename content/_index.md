@@ -11,7 +11,7 @@ toc: false
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Everything you should know when running Fedora 43 on your Zephyrus
+  What I learned running Fedora 43 on my Zephyrus — and what I wish someone had told me
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -25,7 +25,7 @@ toc: false
 <div class="hx-mt-6"></div>
 
 {{< callout type="info" >}}
-**Personal Documentation.** This is an independent project where I'm progressively figuring out how to get the most out of Linux on this laptop. Everything here is at your own risk. I'm not responsible for any changes you make to your system. Requires kernel 6.18+.
+**Personal documentation.** I'm not a developer or Linux expert — just someone who switched to Linux on this laptop and figured things out along the way. I share what worked for me so others don't have to start from scratch. Everything here is at your own risk. Feel free to reach out if something doesn't work; I'm happy to think along. Requires kernel 6.18+.
 {{< /callout >}}
 
 ## News

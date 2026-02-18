@@ -3,7 +3,7 @@ title: "Windows 11 VM Setup"
 weight: 14
 ---
 
-Windows 11 VM voor apps die niet draaien onder Wine.
+Sommige dingen draaien gewoon niet op Linux — Microsoft 365 is het meest voor de hand liggende voorbeeld. Daarvoor heb ik een Windows 11 VM opgezet met KVM/QEMU via virt-manager. Met VirtIO-drivers en SPICE GL-acceleratie via de AMD iGPU is de performance goed genoeg voor dagelijks kantoorwerk.
 
 > **GPU passthrough gewenst?** Als je near-native GPU performance wilt in je VM, zie de [Looking Glass Poging]({{< relref "/docs/looking-glass-attempt" >}}). Spoiler: het werkt niet op deze laptop door hardwarebeperkingen, maar de documentatie kan nuttig zijn voor andere hardware.
 

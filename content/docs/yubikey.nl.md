@@ -3,7 +3,9 @@ title: "YubiKey 5C NFC"
 weight: 20
 ---
 
-> **Status:** LUKS ontgrendeling met FIDO2 is te onbetrouwbaar op Fedora 43 (systemd 258). Dit onderzoek documenteert wat geprobeerd is, wat de oorzaak is, en wat je in de tussentijd kunt doen. Mijn advies? Opnieuw proberen als Fedora 44 verschijnt met systemd 259+.
+Ik wilde mijn YubiKey gebruiken om de LUKS-schijfversleuteling bij het opstarten te ontgrendelen — inpluggen, aanraken, en het bureaublad laadt. Bleek dat dat momenteel niet goed werkt op Fedora 43. Ik heb er flink wat tijd in gestoken voordat ik ermee gestopt ben. Op deze pagina staat wat ik geprobeerd heb, waarom het niet werkt, en wat er in de tussentijd wél werkt.
+
+> **Status:** LUKS ontgrendeling met FIDO2 is te onbetrouwbaar op Fedora 43 (systemd 258). Deze pagina documenteert wat geprobeerd is, wat de oorzaak is, en wat je in de tussentijd kunt doen. Mijn advies: opnieuw proberen als Fedora 44 verschijnt met systemd 259+.
 
 
 ## Wat op dit moment werkt

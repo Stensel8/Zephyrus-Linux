@@ -3,7 +3,7 @@ title: "eduroam Netwerkinstallatie"
 weight: 23
 ---
 
-De officiële eduroam-installers werken niet betrouwbaar op modern Linux. Op Fedora 43 met NetworkManager 1.50+ blijft de verbinding hangen tijdens de TLS-handshake. Ik liep hier zelf tegenaan en heb het installatiescript herschreven zodat het werkt op actuele systemen — ik deel het hier voor anderen die hetzelfde probleem hebben.
+eduroam werkend krijgen op Linux is pijnlijker dan het zou moeten zijn. Elke "officiële" methode die ik probeerde faalde op Fedora 43 — de verbinding bleef gewoon hangen tijdens de TLS-handshake en verbond nooit. Uiteindelijk heb ik een handmatige setup gevonden die betrouwbaar werkt en daar een script omheen geschreven. Ik deel het hier zodat jij hopelijk niet hetzelfde proces hoeft door te maken.
 
 ## Wat niet werkt
 
