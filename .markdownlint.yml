@@ -40,3 +40,11 @@ MD040: false
 
 # Headings surrounded by blank lines — pre-existing violations in some docs
 MD022: false
+
+# Heading levels increment by one — Hugo docs intentionally start at ### because
+# h1/h2 are rendered by the theme template, not the content file
+MD001: false
+
+# Table column style (pipe spacing/alignment) — overly pedantic, tables render
+# correctly regardless of exact pipe spacing
+MD060: false
