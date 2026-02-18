@@ -72,7 +72,7 @@ Start Brave altijd vanuit het GNOME-dock of de app launcher — niet vanuit de t
 **Derde workaround: hardware video decode uitschakelen in `brave://flags`**
 
 {{< callout type="warning" >}}
-Hardware video decode veroorzaakt nog steeds crashes, ook met de twee flags hierboven. Zolang de AMD VCN decoder actief is, crasht GNOME Shell met een SIGABRT (`g_assertion_message_expr`) — reproduceerbaar bij Picture-in-Picture video en bij intensief videobeheer. Zie [gnome-shell issue #9056](https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/9056) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **nog niet stabiel** op de AMD Radeon 890M met GNOME Wayland. Ik snap niet waarom video decode in een browser de hele sessiemanager mee kan trekken, maar het uitschakelen lost het op.
+Hardware video decode veroorzaakt nog steeds crashes, ook met de twee flags hierboven. Zolang de AMD VCN decoder actief is, crasht GNOME Shell met een SIGABRT (`g_assertion_message_expr`) — reproduceerbaar bij Picture-in-Picture video en bij intensief videobeheer. Zie [gnome-mutter issue #4625](https://gitlab.gnome.org/GNOME/mutter/-/issues/4625) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **nog niet stabiel** op de AMD Radeon 890M met GNOME Wayland.
 {{< /callout >}}
 
 Ga naar `brave://flags` en schakel uit:
