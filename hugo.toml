@@ -3,6 +3,7 @@ title = 'Zephyrus Linux'
 theme = 'hextra'
 defaultContentLanguage = 'en'
 enableRobotsTXT = true
+disableKinds = ['taxonomy', 'term']
 enableGitInfo = true
 
 [languages]
