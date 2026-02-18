@@ -2,14 +2,16 @@
 
 English | [Nederlands](README.nl.md)
 
-Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). Step-by-step guides for NVIDIA drivers, VMs, YubiKey, and more.
+Fedora 43 on the ASUS ROG Zephyrus G16 GA605WV (2024). My personal setup log — documenting what worked, what didn't, and how I fixed it.
 
 **Browse the full documentation site: [zephyrus-linux.stentijhuis.nl](https://zephyrus-linux.stentijhuis.nl/)**
 
 
 ## About this project
 
-This is an independent personal project where I document my own findings while setting up and daily-driving Fedora Linux on this laptop. I'm still actively testing and experimenting — things may change, break, or turn out to be wrong. Everything here is based on my own experience and should be taken as-is, at your own risk.
+This is my personal setup log for running Fedora Linux on this laptop. I'm not a software engineer or developer — just someone who switched to Linux and ran into a lot of things that didn't work out of the box. I figured I'd write it all down so others don't have to go through the same trial and error I did.
+
+I'm still actively testing and experimenting — things may change, break, or turn out to be wrong. Everything here is based on my own experience and should be taken as-is, at your own risk.
 
 I am not affiliated with, endorsed by, or acting on behalf of ASUS, NVIDIA, Microsoft, Fedora, or any other company or project mentioned here.
 
