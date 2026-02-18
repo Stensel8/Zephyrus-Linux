@@ -57,7 +57,7 @@ Fedora 44 is expected to ship with kernel 6.19, bringing native asus-armoury sup
 | **iGPU** | AMD Radeon 890M |
 | **dGPU** | NVIDIA GeForce RTX 4060 Laptop (Max-Q) |
 | **OS** | Fedora 43 |
-| **Kernel** | 6.18.9-200.fc43.x86_64 |
+| **Kernel** | 6.18.10-200.fc43.x86_64 |
 | **Display Server** | Wayland (GNOME 49) |
 | **Secure Boot** | Enabled |
 
