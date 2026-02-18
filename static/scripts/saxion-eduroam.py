@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import getpass
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,10 @@ SSID = "eduroam"
 REALM = "saxion.nl"
 SERVER_DOMAIN = "ise.infra.saxion.net"
 ANONYMOUS_ID = f"anonymous@{REALM}"
+
+# Strict allowlist for valid Saxion usernames (prevents argument injection into nmcli).
+# Allows: number@student.saxion.nl  OR  name@saxion.nl  (staff accounts)
+_USERNAME_RE = re.compile(r"^[a-zA-Z0-9._-]+@([a-zA-Z0-9-]+\.)*saxion\.nl$", re.IGNORECASE)
 
 TITLE = "Saxion eduroam Installer"
 DESCRIPTION = (
@@ -103,16 +108,28 @@ class Installer:
             val = val[:-1]
         return val
 
+    @staticmethod
+    def validate_username(username: str) -> bool:
+        """
+        Validate username format to prevent argument injection into nmcli.
+        Accepts: number@student.saxion.nl  or  name@saxion.nl (staff)
+        Rejects any value that doesn't match the strict allowlist pattern.
+        """
+        return bool(_USERNAME_RE.match(username.strip()))
+
     def get_credentials(self):
         # Only ask for username; password will be requested by the keyring at connection time
         while not self.username:
             val = self.prompt_input(f"Username (e.g. number@student.{REALM})")
             if val is None:
                 sys.exit(1)
-            if "@" not in val:
-                self.show_message(f"Invalid format. Username must contain @{REALM}", True)
+            if not self.validate_username(val):
+                self.show_message(
+                    f"Invalid username. Expected format: number@student.{REALM} or name@{REALM}",
+                    True,
+                )
                 continue
-            self.username = val
+            self.username = val.strip()
 
     def find_system_ca_bundle(self) -> str:
         candidates = [
@@ -132,9 +149,14 @@ class Installer:
             # Check for a specific error to allow fallback
             if "Failed to recognize certificate" in res.stderr:
                 return False
-            
-            # Fatal error, abort installation
-            self.show_message(f"NetworkManager failed:\n{res.stderr}", True)
+
+            # Log full nmcli error to stderr (terminal only — never into GUI subprocess args).
+            print(f"NetworkManager error:\n{res.stderr.strip()}", file=sys.stderr)
+
+            # Fatal error: show a static message to the GUI to avoid passing
+            # nmcli output (which may echo user input) into a subprocess argument
+            # (CWE-78 / CodeQL py/command-line-injection).
+            self.show_message("NetworkManager failed to configure the connection.\nSee terminal output for details.", True)
             sys.exit(1)
         return True
 
@@ -206,7 +228,17 @@ def main():
     parser.add_argument("--silent", action="store_true", help="Run without GUI")
     args = parser.parse_args()
 
-    installer = Installer(args.silent, args.username, args.password)
+    # Validate CLI-provided username before it can reach subprocess args.
+    # If invalid, fall back to interactive prompt in get_credentials().
+    initial_username = args.username or ""
+    if initial_username and not Installer.validate_username(initial_username):
+        print(
+            f"Warning: '{initial_username}' is not a valid Saxion username. You will be prompted.",
+            file=sys.stderr,
+        )
+        initial_username = ""
+
+    installer = Installer(args.silent, initial_username, args.password)
     installer.install()
 
 if __name__ == "__main__":
