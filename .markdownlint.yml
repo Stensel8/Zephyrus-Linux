@@ -1,0 +1,42 @@
+default: true
+
+# ── Disabled: not applicable to Hugo docs ──────────────────────────────────
+
+# Line length — docs have long tables, code examples, and URLs
+MD013: false
+
+# Inline HTML — Hugo shortcodes ({{< callout >}}, {{% steps %}}) trigger this
+MD033: false
+
+# First line must be H1 — files start with YAML front matter
+MD041: false
+
+# Bare URLs — allowed in code blocks and examples
+MD034: false
+
+# Multiple H1s — Hugo steps/details shortcodes contain headings
+MD025: false
+
+# Blank lines around fences — common inside Hugo shortcode blocks
+MD031: false
+
+# Blank lines around lists — pervasive in existing content
+MD032: false
+
+# Multiple consecutive blank lines — style preference, not a bug
+MD012: false
+
+# Blank line inside blockquote — Hugo callout/details shortcodes trigger this
+MD028: false
+
+# Ordered list prefix style — 1/2/3 vs 1/1/1 is a style choice
+MD029: false
+
+# Emphasis used instead of heading — intentional in existing docs
+MD036: false
+
+# Code block language — desirable but too many pre-existing violations
+MD040: false
+
+# Headings surrounded by blank lines — pre-existing violations in some docs
+MD022: false

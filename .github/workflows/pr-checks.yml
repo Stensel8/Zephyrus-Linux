@@ -1,0 +1,137 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, development]
+
+jobs:
+
+  # ── 1. PR title follows conventional commits ────────────────────────────────
+  pr-title:
+    name: Conventional commit title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            content
+            docs
+            chore
+            refactor
+            style
+            revert
+
+  # ── 2. Markdown formatting ──────────────────────────────────────────────────
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: "content/**/*.md"
+
+  # ── 3. Python security scan ─────────────────────────────────────────────────
+  python-security:
+    name: Python security (bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install bandit
+      - name: Run bandit
+        run: bandit -r static/scripts/ -ll
+
+  # ── 4. Images must be AVIF ──────────────────────────────────────────────────
+  image-format:
+    name: No PNG/JPG in static/images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for non-AVIF images
+        run: |
+          bad=$(find static/images -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \))
+          if [ -n "$bad" ]; then
+            echo "::error::Non-AVIF images found — convert them with avifenc before submitting:"
+            echo "$bad"
+            exit 1
+          fi
+          echo "All images are AVIF."
+
+  # ── 5. Both EN and NL files present ─────────────────────────────────────────
+  bilingual:
+    name: EN/NL file parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check every .md has a matching .nl.md
+        run: |
+          missing=""
+          for en in content/docs/*.md; do
+            base="${en%.md}"
+            nl="${base}.nl.md"
+            # Skip files that are already .nl.md
+            [[ "$en" == *.nl.md ]] && continue
+            if [ ! -f "$nl" ]; then
+              missing="$missing\n  $en → $nl missing"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo -e "::error::Missing Dutch translation(s):$missing"
+            exit 1
+          fi
+          echo "All docs have EN + NL versions."
+
+  # ── 6. Hugo builds without errors ───────────────────────────────────────────
+  hugo-build:
+    name: Hugo build
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.152.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Install Hugo
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb \
+            https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+      - name: Build
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_ENVIRONMENT: production
+          TZ: Europe/Amsterdam
+        run: hugo --gc --minify --baseURL "http://localhost/"
+      - name: Upload built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugo-public
+          path: public/
+          retention-days: 1
+
+  # ── 7. Broken internal links ─────────────────────────────────────────────────
+  link-check:
+    name: Broken link check
+    runs-on: ubuntu-latest
+    needs: hugo-build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: hugo-public
+          path: public/
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --offline
+            --include-fragments
+            public/**/*.html
+          fail: true
