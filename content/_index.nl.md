@@ -57,7 +57,7 @@ Fedora 44 zal naar verwachting met kernel 6.19 worden geleverd, met native asus-
 | **iGPU** | AMD Radeon 890M |
 | **dGPU** | NVIDIA GeForce RTX 4060 Laptop (Max-Q) |
 | **OS** | Fedora 43 |
-| **Kernel** | 6.18.9-200.fc43.x86_64 |
+| **Kernel** | 6.18.10-200.fc43.x86_64 |
 | **Display Server** | Wayland (GNOME 49) |
 | **Secure Boot** | Ingeschakeld |
 

@@ -7,16 +7,89 @@ Complete setup guide for the ROG Zephyrus G16 on Fedora Linux. Follow the steps 
 
 {{% steps %}}
 
-### Install Brave browser (Flathub)
+### Install Brave browser (RPM or Flatpak)
 
-I installed Brave via Flathub. The official `.sh` script version from Brave's website crashed regularly and sometimes refused to open. The Flatpak version is stable.
+There are two ways to install Brave on Fedora:
+
+- **RPM (native):** Offers better performance and system integration. Recommended to try this version first.
+- **Flatpak:** May improve compatibility, especially on some hardware or desktop environments, but can be less integrated and slightly slower.
+
+**RPM Installation**
+
+I install Brave via the official RPM repository. The Flatpak version was previously used but replaced with the native RPM for better system integration.
+
+{{< callout type="warning" >}}
+On Fedora with GNOME + Wayland, Brave 1.82+ has two known crash bugs that require workarounds via the desktop entry. Both are applied below.
+{{< /callout >}}
 
 **Installation:**
-- Open GNOME Software Center
-- Search for "Brave"
-- Click Install
+```bash
+sudo dnf install dnf-plugins-core
+sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+sudo dnf install brave-browser
+```
 
-![Brave Browser in the Flathub store](/images/brave-flathub.avif)
+**Apply both Wayland workarounds:**
+
+Copy the system desktop entry to your user directory so it won't be overwritten by updates:
+```bash
+sudo cp /usr/share/applications/brave-browser.desktop ~/.local/share/applications/
+```
+
+Patch all three `Exec=` lines with both flags:
+```bash
+sed -i \
+  's|Exec=/usr/bin/brave-browser-stable %U|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11 %U|' \
+  ~/.local/share/applications/brave-browser.desktop
+
+sed -i \
+  's|Exec=/usr/bin/brave-browser-stable$|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11|' \
+  ~/.local/share/applications/brave-browser.desktop
+
+sed -i \
+  's|Exec=/usr/bin/brave-browser-stable --incognito$|Exec=/usr/bin/brave-browser-stable --incognito --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11|' \
+  ~/.local/share/applications/brave-browser.desktop
+```
+
+Verify the result — you should see exactly three `Exec=` lines:
+```bash
+grep "^Exec" ~/.local/share/applications/brave-browser.desktop
+```
+
+**What these flags do:**
+
+`--disable-features=WaylandWpColorManagerV1` — Brave 1.82+ introduced a Wayland color management protocol extension that conflicts with the AMD amdgpu driver on Fedora + GNOME Wayland. Without this flag, Brave triggers GPU ring timeouts that crash the entire GNOME Shell session.
+
+`--ozone-platform=x11` — Forces Brave to run via XWayland instead of native Wayland. This fixes a hard crash that occurs when opening a Bitwarden attachment download: Brave tries to export a popup surface via the `zxdg_exporter_v2` Wayland protocol with an invalid surface role, causing an immediate `Trace/breakpoint trap (core dumped)`. XWayland doesn't use this protocol, so the crash doesn't occur. You lose some native Wayland benefits (fractional scaling, better touch support) but gain a stable browser.
+
+{{< callout type="info" >}}
+Always launch Brave from the GNOME dock or app launcher — not from the terminal. When launched from a terminal inside a Wayland session, the terminal's environment variables override `--ozone-platform=x11` and Brave falls back to native Wayland, re-introducing the crash.
+{{< /callout >}}
+
+
+**Example screenshots:**
+
+Brave installation steps and hardware acceleration config:
+
+![Brave install instructions](/images/brave-install.avif)
+
+Brave://gpu config and hardware acceleration settings:
+
+![Brave hardware acceleration config](/images/brave-gpu-config.avif)
+
+**Flatpak Installation**
+
+If you experience issues with the RPM version, you can try the Flatpak version:
+
+```bash
+flatpak install flathub com.brave.Browser
+```
+
+Flatpak may improve compatibility, especially on some hardware or desktop environments, but can be less integrated and slightly slower than the RPM version.
+
+**Example screenshot:**
+
+![Brave Flatpak in Flathub](/images/brave-flathub.avif)
 
 ### Set hostname
 
