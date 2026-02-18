@@ -19,7 +19,7 @@ Er zijn twee manieren om Brave te installeren op Fedora:
 Ik installeer Brave via de officiële RPM-repository. De Flatpak-versie werd eerder gebruikt maar vervangen door de native RPM voor betere systeemintegratie.
 
 {{< callout type="warning" >}}
-Op Fedora met GNOME + Wayland heeft Brave 1.82+ twee bekende crashbugs die workarounds vereisen via de desktop entry. Beide worden hieronder toegepast.
+Op Fedora met GNOME + Wayland heeft Brave 1.82+ drie bekende crashbugs die workarounds vereisen. De eerste twee worden via de desktop entry toegepast; de derde vereist een instelling in `brave://flags`.
 {{< /callout >}}
 
 **Installatie:**
@@ -29,7 +29,9 @@ sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-releas
 sudo dnf install brave-browser
 ```
 
-**Beide Wayland workarounds toepassen:**
+![Brave install instructies](/images/brave-install.avif)
+
+**Workarounds 1 & 2: desktop entry flags toepassen:**
 
 Kopieer de systeem desktop entry naar je gebruikersmap zodat hij niet wordt overschreven bij updates:
 ```bash
@@ -66,13 +68,26 @@ grep "^Exec" ~/.local/share/applications/brave-browser.desktop
 Start Brave altijd vanuit het GNOME-dock of de app launcher — niet vanuit de terminal. Bij starten vanuit een terminal binnen een Wayland-sessie overschrijven de omgevingsvariabelen van de terminal de `--ozone-platform=x11` flag en valt Brave terug op native Wayland, wat de crash opnieuw introduceert.
 {{< /callout >}}
 
-**Voorbeeld screenshots:**
+**Derde workaround: hardware video decode uitschakelen via `brave://flags`**
 
-Brave installatie en hardware acceleration config:
+{{< callout type="warning" >}}
+Hardware video decode veroorzaakt nog steeds crashes, ook met de twee flags hierboven. Zolang de AMD VCN decoder actief is, crasht GNOME Shell met een SIGABRT (`g_assertion_message_expr`) — reproduceerbaar bij Picture-in-Picture video en bij intensief videobeheer. Zie [gnome-shell issue #9056](https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/9056) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **nog niet stabiel** op de AMD Radeon 890M met GNOME Wayland.
+{{< /callout >}}
 
-![Brave install instructies](/images/brave-install.avif)
+Ga naar `brave://flags` en schakel de volgende vlag uit:
 
-Brave://gpu config en hardware acceleration instellingen:
+- **Hardware-accelerated video decode** → `Disabled`
+
+![Brave flags — hardware video decode uitgeschakeld](/images/brave-flags.avif)
+
+Dit zorgt ervoor dat video decode via software plaatsvindt. Je verliest hardware-versnelling voor video, maar de sessie blijft stabiel. In `brave://gpu` staat daarna:
+
+- `Video Decode: Software only. Hardware acceleration disabled`
+- `Video Encode: Software only. Hardware acceleration disabled`
+
+**Voorbeeld screenshot:**
+
+Brave://gpu config — video decode staat op software (stabiel):
 
 ![Brave hardware acceleration config](/images/brave-gpu-config.avif)
 
