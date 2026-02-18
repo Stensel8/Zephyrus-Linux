@@ -13,15 +13,15 @@ De stappen hieronder zijn in grote lijnen de volgorde waarop ik dingen heb opgez
 
 ### Brave browser — RPM met Wayland-workarounds
 
-Brave is mijn standaardbrowser. Ik begon met de Flatpak-versie maar ben overgestapt naar de native RPM voor betere systeemintegratie. Er is alleen een addertje: Brave 1.82+ heeft drie crashbugs op GNOME Wayland die je moet oplossen voordat het écht stabiel is. Ik snap niet helemaal waarom die crashes plaatsvinden — het gaat om GPU-drivers en Wayland-protocollen die blijkbaar niet goed samenwerken — maar de onderstaande fixes werken voor mij.
+Brave is mijn standaardbrowser. Ik begon met de Flatpak-versie maar ben overgestapt naar de native RPM — mensen op Reddit zeggen dat de RPM-versie nativer aanvoelt en betere prestaties en efficiëntie biedt. Er is alleen een addertje: Brave 1.82+ heeft twee crashbugs op GNOME Wayland die je moet oplossen voordat het écht stabiel is. Ik snap niet helemaal waarom die crashes plaatsvinden — het gaat om GPU-drivers en Wayland-protocollen die blijkbaar niet goed samenwerken — maar de onderstaande fixes werken voor mij.
 
-- **RPM (native):** Betere prestaties en systeemintegratie. Dit gebruik ik.
+- **RPM (native):** Nativer gevoel, betere prestaties en efficiëntie. Dit gebruik ik.
 - **Flatpak:** Kan in sommige situaties beter werken, maar voelt wat meer geïsoleerd en iets trager.
 
 **RPM Installatie**
 
 {{< callout type="warning" >}}
-Op Fedora met GNOME + Wayland heeft Brave 1.82+ drie bekende crashbugs waarvoor workarounds nodig zijn. De eerste twee worden via de desktop entry toegepast; de derde vereist een instelling in `brave://flags`.
+Op Fedora met GNOME + Wayland heeft Brave 1.82+ twee bekende crashbugs waarvoor workarounds nodig zijn. De eerste wordt via de desktop entry toegepast; de tweede vereist een instelling in `brave://flags`.
 {{< /callout >}}
 
 ```bash
@@ -32,25 +32,25 @@ sudo dnf install brave-browser
 
 ![Brave installatie-instructies](/images/brave-install.avif)
 
-**Workarounds 1 & 2: de desktop entry patchen**
+**Workaround 1: de desktop entry patchen**
 
 Kopieer de systeem-desktop entry naar je gebruikersmap zodat hij niet wordt overschreven bij updates:
 ```bash
 sudo cp /usr/share/applications/brave-browser.desktop ~/.local/share/applications/
 ```
 
-Patch alle drie de `Exec=` regels met beide flags:
+Patch alle drie de `Exec=` regels met de flag:
 ```bash
 sed -i \
-  's|Exec=/usr/bin/brave-browser-stable %U|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11 %U|' \
+  's|Exec=/usr/bin/brave-browser-stable %U|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1 %U|' \
   ~/.local/share/applications/brave-browser.desktop
 
 sed -i \
-  's|Exec=/usr/bin/brave-browser-stable$|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11|' \
+  's|Exec=/usr/bin/brave-browser-stable$|Exec=/usr/bin/brave-browser-stable --disable-features=WaylandWpColorManagerV1|' \
   ~/.local/share/applications/brave-browser.desktop
 
 sed -i \
-  's|Exec=/usr/bin/brave-browser-stable --incognito$|Exec=/usr/bin/brave-browser-stable --incognito --disable-features=WaylandWpColorManagerV1 --ozone-platform=x11|' \
+  's|Exec=/usr/bin/brave-browser-stable --incognito$|Exec=/usr/bin/brave-browser-stable --incognito --disable-features=WaylandWpColorManagerV1|' \
   ~/.local/share/applications/brave-browser.desktop
 ```
 
@@ -59,20 +59,16 @@ Controleer of het gelukt is — je zou exact drie `Exec=` regels moeten zien:
 grep "^Exec" ~/.local/share/applications/brave-browser.desktop
 ```
 
-**Wat deze flags doen (voor zover ik het begrijp):**
+**Wat deze flag doet (voor zover ik het begrijp):**
 
 `--disable-features=WaylandWpColorManagerV1` — Brave 1.82+ introduceerde een Wayland color management extensie die blijkbaar conflicteert met de AMD amdgpu-driver op Fedora + GNOME Wayland. Zonder deze flag veroorzaakt Brave GPU ring timeouts die de volledige GNOME Shell-sessie laten crashen. Ik heb geen idee waarom een browser-kleurbeheerfunctie het hele bureaublad kan neerhalen, maar hier zijn we dan.
 
-`--ozone-platform=x11` — Dit forceert Brave om via XWayland te draaien in plaats van native Wayland. Het verhelpt een harde crash die optreedt als je een Bitwarden-bijlage probeert te downloaden. Blijkbaar doet Brave dan iets met een Wayland-protocol op een manier die niet geldig is, en dan crasht hij direct. Via XWayland omzeil je dat probleem. Je verliest een paar native Wayland-voordelen zoals fractional scaling, maar de browser blijft open — dat voelt als een redelijke afweging.
+**Een noot over `--ozone-platform=x11`:** Ik heb deze flag geprobeerd als workaround voor een crash bij het openen of downloaden van Bitwarden-bijlagen — Brave doet dan iets met een Wayland-protocol op een manier die niet geldig is en crasht direct. Via XWayland omzeil je dat. Maar het bleek een erger probleem te veroorzaken: gnome-shell crashte met `SIGABRT` (`g_assertion_message_expr` in `meta_window_unmanage`), getriggerd tijdens Picture-in-Picture video terwijl Brave via XWayland draaide — dezelfde onderliggende mutter-crash als gedocumenteerd in [gnome-mutter issue #4625](https://gitlab.gnome.org/GNOME/mutter/-/issues/4625) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Die crash slaat de hele bureaublad-sessie neer en vereist een harde herstart. De flag is weg. Brave draait nu op native Wayland. De Bitwarden-bijlage-crash bestaat nog steeds, maar een Brave-crash is te verkiezen boven het verliezen van de hele sessie.
 
-{{< callout type="info" >}}
-Start Brave altijd vanuit het GNOME-dock of de app launcher — niet vanuit de terminal. Als je hem vanuit een terminal in een Wayland-sessie start, overschrijven de omgevingsvariabelen van de terminal de `--ozone-platform=x11` flag en valt Brave terug op native Wayland, met alle crashes van dien.
-{{< /callout >}}
-
-**Derde workaround: hardware video decode uitschakelen in `brave://flags`**
+**Tweede workaround: hardware video decode uitschakelen in `brave://flags`**
 
 {{< callout type="warning" >}}
-Hardware video decode veroorzaakt nog steeds crashes, ook met de twee flags hierboven. Zolang de AMD VCN decoder actief is, crasht GNOME Shell met een SIGABRT (`g_assertion_message_expr`) — reproduceerbaar bij Picture-in-Picture video en bij intensief videobeheer. Zie [gnome-mutter issue #4625](https://gitlab.gnome.org/GNOME/mutter/-/issues/4625) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **nog niet stabiel** op de AMD Radeon 890M met GNOME Wayland.
+Hardware video decode veroorzaakt nog steeds crashes, ook met de flag hierboven. Zolang de AMD VCN decoder actief is, crasht GNOME Shell met een SIGABRT (`g_assertion_message_expr`) — reproduceerbaar bij Picture-in-Picture video en bij intensief videobeheer. Zie [gnome-mutter issue #4625](https://gitlab.gnome.org/GNOME/mutter/-/issues/4625) en [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **nog niet stabiel** op de AMD Radeon 890M met GNOME Wayland.
 {{< /callout >}}
 
 Ga naar `brave://flags` en schakel uit:
