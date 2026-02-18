@@ -19,7 +19,7 @@ There are two ways to install Brave on Fedora:
 I install Brave via the official RPM repository. The Flatpak version was previously used but replaced with the native RPM for better system integration.
 
 {{< callout type="warning" >}}
-On Fedora with GNOME + Wayland, Brave 1.82+ has two known crash bugs that require workarounds via the desktop entry. Both are applied below.
+On Fedora with GNOME + Wayland, Brave 1.82+ has three known crash bugs that require workarounds. The first two are applied via the desktop entry; the third requires a setting in `brave://flags`.
 {{< /callout >}}
 
 **Installation:**
@@ -29,7 +29,9 @@ sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-releas
 sudo dnf install brave-browser
 ```
 
-**Apply both Wayland workarounds:**
+![Brave install instructions](/images/brave-install.avif)
+
+**Workarounds 1 & 2: apply desktop entry flags:**
 
 Copy the system desktop entry to your user directory so it won't be overwritten by updates:
 ```bash
@@ -66,14 +68,26 @@ grep "^Exec" ~/.local/share/applications/brave-browser.desktop
 Always launch Brave from the GNOME dock or app launcher — not from the terminal. When launched from a terminal inside a Wayland session, the terminal's environment variables override `--ozone-platform=x11` and Brave falls back to native Wayland, re-introducing the crash.
 {{< /callout >}}
 
+**Third workaround: disable hardware video decode via `brave://flags`**
 
-**Example screenshots:**
+{{< callout type="warning" >}}
+Hardware video decode still causes crashes even with the two flags above. As long as the AMD VCN decoder is active, GNOME Shell crashes with SIGABRT (`g_assertion_message_expr`) — reproducible during Picture-in-Picture video and intensive video activity. See [gnome-shell issue #9056](https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/9056) and [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **not yet stable** on the AMD Radeon 890M with GNOME Wayland.
+{{< /callout >}}
 
-Brave installation steps and hardware acceleration config:
+Go to `brave://flags` and disable the following flag:
 
-![Brave install instructions](/images/brave-install.avif)
+- **Hardware-accelerated video decode** → `Disabled`
 
-Brave://gpu config and hardware acceleration settings:
+![Brave flags — hardware video decode disabled](/images/brave-flags.avif)
+
+This makes video decode run via software. You lose hardware acceleration for video, but the session stays stable. After this, `brave://gpu` will show:
+
+- `Video Decode: Software only. Hardware acceleration disabled`
+- `Video Encode: Software only. Hardware acceleration disabled`
+
+**Example screenshot:**
+
+Brave://gpu config — video decode set to software (stable):
 
 ![Brave hardware acceleration config](/images/brave-gpu-config.avif)
 
