@@ -1,0 +1,10 @@
+# Lychee link checker configuration
+# Used by the PR checks workflow (offline mode — internal links only)
+
+# Skip anchors that Hugo generates dynamically
+include_fragments = true
+
+# Don't fail on these — they're valid Hugo internal paths
+exclude = [
+  "^http://localhost",
+]

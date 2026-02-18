@@ -1,0 +1,13 @@
+default: true
+
+# Line length — docs have long tables and code examples
+MD013: false
+
+# Inline HTML — Hugo shortcodes ({{< callout >}}, {{% steps %}}) trigger this
+MD033: false
+
+# First line must be H1 — files start with YAML front matter
+MD041: false
+
+# Bare URLs — allowed inside code blocks and examples
+MD034: false
