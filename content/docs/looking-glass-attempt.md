@@ -3,9 +3,11 @@ title: "Looking Glass B7 — GPU Passthrough Attempt"
 weight: 21
 ---
 
-> **Prerequisite:** This guide assumes you already have a working Windows 11 VM set up with virt-manager. If not, follow the [VM Setup Guide]({{< relref "/docs/vm-setup" >}}) first.
+I wanted to try GPU passthrough with Looking Glass — running Windows in a VM but with the real NVIDIA GPU assigned to it, getting near-native performance. Spent a good few hours on it. It doesn't work on this laptop, and the reason is a hardware limitation that Looking Glass can't work around. I'm documenting the full attempt here so others can save themselves the time.
 
-> **TL;DR:** Looking Glass does **not** work on the ASUS ROG Zephyrus G16 GA605WV. The fundamental limitation is that the RTX 4060 has no display outputs — all physical ports (HDMI, USB-C) are routed through the AMD iGPU. Windows therefore cannot find a "valid output device" for frame capture. This document describes all steps performed and why it failed, as a reference for others.
+> **Prerequisite:** This assumes you already have a working Windows 11 VM set up with virt-manager. If not, follow the [VM Setup Guide]({{< relref "/docs/vm-setup" >}}) first.
+
+> **TL;DR:** Looking Glass does **not** work on the ASUS ROG Zephyrus G16 GA605WV. The RTX 4060 has no physical display outputs — all ports (HDMI, USB-C) are routed through the AMD iGPU. Windows can't find a "valid output device" for frame capture, so the host application fails immediately. This document describes everything that was tried and why it failed.
 
 
 ## What is Looking Glass?

@@ -3,7 +3,9 @@ title: "YubiKey 5C NFC"
 weight: 20
 ---
 
-> **Status:** LUKS unlock with FIDO2 is too unreliable on Fedora 43 (systemd 258). This guide documents what was attempted, what the root cause is, and what to do instead. Revisit when Fedora 44 ships with systemd 259+.
+I wanted to use my YubiKey to unlock the LUKS-encrypted drive at boot — plug it in, touch it, and the desktop loads. Turns out that's not really possible right now on Fedora 43. I spent a fair amount of time on it before giving up for now. This page documents what I tried, why it failed, and what actually works in the meantime.
+
+> **Status:** LUKS unlock with FIDO2 is too unreliable on Fedora 43 (systemd 258). This page documents what was attempted, what the root cause is, and what to do instead. Revisit when Fedora 44 ships with systemd 259+.
 
 
 ## What Works Today

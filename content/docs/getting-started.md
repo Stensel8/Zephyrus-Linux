@@ -3,26 +3,27 @@ title: "Getting Started"
 weight: 2
 ---
 
-Complete setup guide for the ROG Zephyrus G16 on Fedora Linux. Follow the steps in order to go from a fresh Fedora 43 installation to a fully configured system.
+This is my personal setup log for the ROG Zephyrus G16 running Fedora Linux. I'm not a software engineer or developer — I'm just someone who switched to Linux and ran into a lot of things that didn't work out of the box. I figured I'd write it all down so others don't have to go through the same trial and error I did.
+
+If something here helps you, great. If you run into something I haven't covered, feel free to reach out — I'm happy to think along. I don't always have the answer, but I'll do my best.
+
+The steps below are roughly in the order I set things up after a fresh Fedora 43 install.
 
 {{% steps %}}
 
-### Install Brave browser (RPM or Flatpak)
+### Brave browser — RPM with Wayland workarounds
 
-There are two ways to install Brave on Fedora:
+I use Brave as my main browser. I started with the Flatpak version but switched to the native RPM for better system integration. There's a catch though: Brave 1.82+ has three crash bugs on GNOME Wayland that need workarounds before it's actually stable. I don't fully understand why these crashes happen — they seem to involve GPU drivers and Wayland protocols that are apparently not playing well together — but the fixes below work for me.
 
-- **RPM (native):** Offers better performance and system integration. Recommended to try this version first.
-- **Flatpak:** May improve compatibility, especially on some hardware or desktop environments, but can be less integrated and slightly slower.
+- **RPM (native):** Better performance and system integration. This is what I use.
+- **Flatpak:** Might work better in some situations, but it feels a bit more isolated and slightly slower.
 
 **RPM Installation**
-
-I install Brave via the official RPM repository. The Flatpak version was previously used but replaced with the native RPM for better system integration.
 
 {{< callout type="warning" >}}
 On Fedora with GNOME + Wayland, Brave 1.82+ has three known crash bugs that require workarounds. The first two are applied via the desktop entry; the third requires a setting in `brave://flags`.
 {{< /callout >}}
 
-**Installation:**
 ```bash
 sudo dnf install dnf-plugins-core
 sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
@@ -31,9 +32,9 @@ sudo dnf install brave-browser
 
 ![Brave install instructions](/images/brave-install.avif)
 
-**Workarounds 1 & 2: apply desktop entry flags:**
+**Workarounds 1 & 2: patch the desktop entry**
 
-Copy the system desktop entry to your user directory so it won't be overwritten by updates:
+Copy the system desktop entry to your user directory so it doesn't get overwritten by updates:
 ```bash
 sudo cp /usr/share/applications/brave-browser.desktop ~/.local/share/applications/
 ```
@@ -53,39 +54,37 @@ sed -i \
   ~/.local/share/applications/brave-browser.desktop
 ```
 
-Verify the result — you should see exactly three `Exec=` lines:
+Verify it worked — you should see exactly three `Exec=` lines:
 ```bash
 grep "^Exec" ~/.local/share/applications/brave-browser.desktop
 ```
 
-**What these flags do:**
+**What these flags actually do (as far as I understand it):**
 
-`--disable-features=WaylandWpColorManagerV1` — Brave 1.82+ introduced a Wayland color management protocol extension that conflicts with the AMD amdgpu driver on Fedora + GNOME Wayland. Without this flag, Brave triggers GPU ring timeouts that crash the entire GNOME Shell session.
+`--disable-features=WaylandWpColorManagerV1` — Brave 1.82+ introduced some Wayland color management extension that apparently conflicts with the AMD amdgpu driver on Fedora + GNOME Wayland. Without this flag, Brave triggers GPU ring timeouts that crash the entire GNOME Shell session. I have no idea why a browser color management feature would take down the whole desktop, but here we are.
 
-`--ozone-platform=x11` — Forces Brave to run via XWayland instead of native Wayland. This fixes a hard crash that occurs when opening a Bitwarden attachment download: Brave tries to export a popup surface via the `zxdg_exporter_v2` Wayland protocol with an invalid surface role, causing an immediate `Trace/breakpoint trap (core dumped)`. XWayland doesn't use this protocol, so the crash doesn't occur. You lose some native Wayland benefits (fractional scaling, better touch support) but gain a stable browser.
+`--ozone-platform=x11` — This forces Brave to run via XWayland instead of native Wayland. It fixes a hard crash that happens when you try to open a Bitwarden attachment download. Apparently Brave tries to do something with a Wayland protocol in a way that's not valid, and it immediately crashes. Running via XWayland sidesteps the whole thing. You lose some native Wayland features like fractional scaling, but the browser actually stays open, which feels like a reasonable trade.
 
 {{< callout type="info" >}}
-Always launch Brave from the GNOME dock or app launcher — not from the terminal. When launched from a terminal inside a Wayland session, the terminal's environment variables override `--ozone-platform=x11` and Brave falls back to native Wayland, re-introducing the crash.
+Always launch Brave from the GNOME dock or app launcher — not from the terminal. When you launch it from a terminal inside a Wayland session, the terminal's environment overrides the `--ozone-platform=x11` flag and Brave falls back to native Wayland, bringing all the crashes back.
 {{< /callout >}}
 
-**Third workaround: disable hardware video decode via `brave://flags`**
+**Third workaround: disable hardware video decode in `brave://flags`**
 
 {{< callout type="warning" >}}
 Hardware video decode still causes crashes even with the two flags above. As long as the AMD VCN decoder is active, GNOME Shell crashes with SIGABRT (`g_assertion_message_expr`) — reproducible during Picture-in-Picture video and intensive video activity. See [gnome-mutter issue #4625](https://gitlab.gnome.org/GNOME/mutter/-/issues/4625) and [Fedora bugzilla #2440608](https://bugzilla.redhat.com/show_bug.cgi?id=2440608). Hardware video decode is **not yet stable** on the AMD Radeon 890M with GNOME Wayland.
 {{< /callout >}}
 
-Go to `brave://flags` and disable the following flag:
+Go to `brave://flags` and disable:
 
 - **Hardware-accelerated video decode** → `Disabled`
 
 ![Brave flags — hardware video decode disabled](/images/brave-flags.avif)
 
-This makes video decode run via software. You lose hardware acceleration for video, but the session stays stable. After this, `brave://gpu` will show:
+Video now decodes in software. You lose hardware acceleration for video, but the session stays stable. After this, `brave://gpu` will show:
 
 - `Video Decode: Software only. Hardware acceleration disabled`
 - `Video Encode: Software only. Hardware acceleration disabled`
-
-**Example screenshot:**
 
 Brave://gpu config — video decode set to software (stable):
 
@@ -93,52 +92,45 @@ Brave://gpu config — video decode set to software (stable):
 
 **Flatpak Installation**
 
-If you experience issues with the RPM version, you can try the Flatpak version:
+If the RPM version gives you trouble, the Flatpak is worth trying:
 
 ```bash
 flatpak install flathub com.brave.Browser
 ```
 
-Flatpak may improve compatibility, especially on some hardware or desktop environments, but can be less integrated and slightly slower than the RPM version.
-
-**Example screenshot:**
-
 ![Brave Flatpak in Flathub](/images/brave-flathub.avif)
 
-### Set hostname
+### Setting the hostname
 
-Set the hostname in the system settings to the desired name.
+Nothing special here — just set the hostname via System Settings so the machine has a proper name on the network.
 
 ![Set hostname](/images/system-info.avif)
 
-### Configure GNOME window buttons
+### GNOME window buttons — adding minimize & maximize back
 
-I configured the window buttons in GNOME 49 to show minimize, maximize, and close buttons. By default, GNOME only shows the close button.
+By default, GNOME 49 only shows the close button. I personally want minimize and maximize visible too — it's one of those small things that bugged me coming from Windows. One command fixes it:
 
-![Example of how the new GNOME windows look](/images/window-controls.avif)
-
-**Configuration:**
 ```bash
 gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 ```
 
-This ensures that all three window buttons (minimize, maximize/zoom, and close) are visible in the title bar of applications, similar to other desktop environments.
+![Example of how the new GNOME windows look](/images/window-controls.avif)
 
 ### Bitwarden desktop (Flathub)
 
-Install the Bitwarden desktop app via Flathub.
+I use Bitwarden for password management. The desktop app is available via Flathub and works well.
 
 ![Bitwarden desktop app in Flathub](/images/bitwarden-flathub.avif)
 
 ### Signal Messenger (Flathub)
 
-Signal Messenger installed via Flathub. My preferred messaging app. Officially, Signal is only for Debian/Ubuntu, but the Flatpak version works great on Fedora. Signal is built on Electron, so it offers good performance.
+Signal is my main messaging app. Officially it's only supported on Debian/Ubuntu, but the Flatpak version works perfectly fine on Fedora. It's Electron-based, so performance is decent.
 
 ![Signal Messenger app in Flathub](/images/signal-flathub.avif)
 
-### Install Git
+### Git & GitHub CLI
 
-Git is needed to work with repositories and make commits. On Fedora, Git comes pre-installed as part of the system. If for some reason it's not installed, you can install it manually with:
+Git comes pre-installed on Fedora. If for some reason it's not there, or if you also want the GitHub CLI (`gh`):
 
 ```bash
 sudo dnf install git gh
@@ -146,15 +138,13 @@ sudo dnf install git gh
 
 ### Proton Mail (Flathub)
 
-Proton Mail installed via Flathub. This is a wrapper. Some apps are wrappers and not official native apps, but for web-based mail apps I find that acceptable.
+I use Proton Mail as my email provider. The desktop app is a wrapper around the web app rather than a native client. For web-based mail that's fine by me — it works, and it lives in the app launcher like any other app.
 
 ![Proton Mail app in Flathub](/images/protonmail-flathub.avif)
 
-### Install Visual Studio Code
+### Visual Studio Code
 
-Install Visual Studio Code according to the [official instructions](https://code.visualstudio.com/docs/setup/linux).
-
-On Fedora, use the RPM repo and Microsoft GPG key:
+I install VS Code via the official RPM repo and Microsoft GPG key, as described in the [official instructions](https://code.visualstudio.com/docs/setup/linux):
 
 ```bash
 # Import Microsoft GPG key and add repo
@@ -173,11 +163,12 @@ sudo dnf install code
 On kernel 6.18.x, VS Code hardware acceleration can trigger an amdgpu page fault. Disable hardware acceleration. See the [NVIDIA Driver Installation Guide]({{< relref "/docs/nvidia-driver-installation" >}}).
 {{< /callout >}}
 
-### Kleopatra & git commit signing
+### Kleopatra & GPG commit signing
 
-After installing VS Code and Git, install `kleopatra` and create your GPG keys via the GUI. Then configure Git to sign commits and tags.
+I sign my Git commits and tags with a GPG key. It's one of those things I set up once and then never think about again. Kleopatra makes generating and managing keys straightforward via a GUI instead of having to figure out the GPG command line.
 
-**One-time setup:**
+After installing VS Code and Git, install Kleopatra and create your keys there. Then configure Git to use them:
+
 ```bash
 git config --global user.name "YOUR_NAME"
 git config --global user.email "YOUR_EMAIL"
@@ -187,60 +178,56 @@ git config --global tag.gpgsign true
 git config --global gpg.program gpg
 ```
 
-**Find your GPG key ID:**
+To find your key ID:
 ```bash
 gpg --list-secret-keys --keyid-format=long
 ```
-Use the key ID from the `sec` line (e.g., `rsa4096/YOUR_GPG_KEY_ID`).
+Use the ID from the `sec` line (e.g., `rsa4096/YOUR_GPG_KEY_ID`).
 
 ### Tidal Hi-Fi (Electron)
 
-There is no official Tidal client for Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) by Rick van Lieshout (Mastermindzh) is a community Electron client that wraps the Tidal web player with Hi-Fi and Max quality support. Install it via Flathub.
+There's no official Tidal client for Linux. [Tidal Hi-Fi](https://github.com/Mastermindzh/tidal-hifi) by Rick van Lieshout is a community-made Electron wrapper around the Tidal web player, with Hi-Fi and Max quality support. It's not official, but it works well and is available via Flathub.
 
 ![Tidal Hi-Fi in the Flathub store](/images/tidal-hifi-flathub.avif)
 
-### Install NVIDIA GPU drivers
+### NVIDIA GPU drivers
 
-The RTX 4060 requires proprietary NVIDIA drivers for good performance. Nouveau (open-source) performs poorly on modern GPUs.
+The G16 has an RTX 4060 alongside the AMD iGPU. The open-source Nouveau driver doesn't perform well on modern NVIDIA hardware, so proprietary drivers are needed for anything graphics-intensive.
 
 {{< callout type="info" >}}
 Full installation guide: [NVIDIA Driver Installation Guide]({{< relref "/docs/nvidia-driver-installation" >}})
 {{< /callout >}}
 
-**Summary:**
-- Install NVIDIA driver 580.119.02 via RPM Fusion
+**What I ended up with:**
+- NVIDIA driver 580.119.02 via RPM Fusion
 - MOK enrollment for Secure Boot
-- Kernel parameter for AMD GPU crash fix (external monitors)
+- A kernel parameter workaround for an AMD GPU crash with external monitors
 
-After installation, the GPU works correctly with Wayland and CUDA 13.0 support.
+After this, the GPU works correctly on Wayland with CUDA 13.0 support.
 
-### Install Bottles (Flathub)
+### Bottles — running Windows software
 
-[Bottles](https://usebottles.com/) lets you run Windows software on Linux via Wine. Install it via Flathub — the RPM packages from Fedora's repos are deprecated and ship older versions. Make sure you're on version 61 or newer.
+[Bottles](https://usebottles.com/) lets you run Windows software via Wine. Install it from Flathub — the RPM packages in Fedora's repos are deprecated and ship much older versions. Make sure you get version 61 or newer.
 
-**Installation:**
 - Open GNOME Software Center
 - Search for "Bottles"
 - Select the **Flathub** source (not Fedora Linux / RPM)
 - Click Install
 
-For Microsoft 365, use a Windows VM instead.
+For anything that doesn't work under Wine — like Microsoft 365 — I use a Windows VM instead.
 
 ![Bottles in the Flathub store](/images/bottles-flathub.avif)
 
-### Install Archi (ArchiMate modeling tool)
+### Archi (ArchiMate modeling tool)
 
-[Archi](https://www.archimatetool.com/) is a free, open-source tool for creating ArchiMate models. Download it from the [official download page](https://www.archimatetool.com/download/).
+I use [Archi](https://www.archimatetool.com/) for ArchiMate modeling. It's free and open-source, but the Linux package is just a portable archive — no installer, no `.deb`, no `.rpm`. To make it show up properly in GNOME with an icon, you have to place the files yourself and create a desktop entry manually.
 
 ![Archi download page — Linux version with Wayland note](/images/archi-download.avif)
 
-The Linux package is a portable archive — there is no installer, `.deb`, or `.rpm`. To have Archi appear as a proper application with an icon in GNOME, you need to move the files yourself and create a desktop entry.
-
 {{< callout type="info" >}}
-Archi's download page warns about possible UI issues on Wayland. In my experience, Archi works fine on Wayland with GNOME 49 — no issues so far.
+Archi's download page warns about possible UI issues on Wayland. In my experience it runs fine on GNOME 49 Wayland — no issues so far.
 {{< /callout >}}
 
-**Installation:**
 ```bash
 # Download and extract in one flow
 cd /tmp
@@ -257,12 +244,11 @@ cd ~
 sudo ln -s /opt/Archi/Archi /usr/local/bin/archi
 ```
 
-**Create a desktop entry so Archi shows up in GNOME:**
+Create a desktop entry so Archi shows up in GNOME:
 ```bash
 sudo nano /usr/share/applications/archi.desktop
 ```
 
-**Desktop entry content:**
 ```ini
 [Desktop Entry]
 Version=1.0
@@ -276,31 +262,31 @@ Categories=Development;IDE;
 StartupWMClass=Archi
 ```
 
-After saving the desktop entry, Archi appears in the GNOME application launcher:
+After saving, Archi appears in the GNOME app launcher:
 
 ![Archi in the GNOME application launcher](/images/archi-launcher.avif)
 
 ![Archi running on Wayland with GNOME 49](/images/archi-running.avif)
 
-### Set up Windows 11 VM with virt-manager (KVM/QEMU)
+### Windows 11 VM with virt-manager (KVM/QEMU)
 
-For apps that don't run under Wine/Bottles (like Microsoft 365), set up a Windows 11 VM.
+Some things just don't run on Linux — Microsoft 365 being the obvious one. For those cases I have a Windows 11 VM running via KVM/QEMU.
 
 {{< callout type="info" >}}
 Full setup guide: [Windows 11 VM Setup Guide]({{< relref "/docs/vm-setup" >}})
 {{< /callout >}}
 
-**Summary:**
-- Windows 11 Enterprise with Q35 chipset, UEFI Secure Boot, and emulated TPM 2.0
+**My setup:**
+- Windows 11 Enterprise, Q35 chipset, UEFI Secure Boot, emulated TPM 2.0
 - virt-manager with KVM/QEMU, host-passthrough CPU, 8 GB RAM, 8 cores
 - VirtIO disk (writeback cache, threaded I/O, TRIM/discard), VirtIO network
 - SPICE display with GL acceleration via AMD iGPU
-- Hyper-V enlightenments for optimized Windows performance
-- VirtIO Guest Tools and SPICE Guest Tools required inside the VM
+- Hyper-V enlightenments for better Windows performance
+- VirtIO Guest Tools and SPICE Guest Tools inside the VM
 
-### Install Steam for gaming
+### Steam
 
-Steam requires the RPM Fusion nonfree repository. Follow the [official Fedora gaming documentation](https://docs.fedoraproject.org/en-US/gaming/proton/) for the most up-to-date instructions.
+I game on this machine too, so Steam is a must. It needs the RPM Fusion nonfree repo. The [official Fedora gaming documentation](https://docs.fedoraproject.org/en-US/gaming/proton/) is worth a read for the latest instructions.
 
 **Enable RPM Fusion repositories (free + nonfree):**
 ```bash
@@ -321,20 +307,19 @@ sudo dnf install steam -y
 
 ![Steam in GNOME Software — installed via rpmfusion-nonfree-steam](/images/steam-gnome-software.avif)
 
-Reboot after installation. Steam includes Proton by default, which allows you to run many Windows games on Linux. You can select specific Proton versions per game via Steam Settings > Compatibility.
+Reboot after installing. Steam includes Proton out of the box, which lets you run a lot of Windows games on Linux. You can pick specific Proton versions per game via Steam Settings > Compatibility.
 
 {{< callout type="info" >}}
-If Steam won't launch, try running from the terminal with:
+If Steam won't launch, try running it from the terminal with:
 ```bash
 __GL_CONSTANT_FRAME_RATE_HINT=3 steam
 ```
 {{< /callout >}}
 
-### Install Solaar for Logitech devices
+### Solaar for Logitech devices
 
-[Solaar](https://github.com/pwr-Solaar/Solaar) manages Logitech keyboards, mice, and trackpads that connect via Unifying, Lightspeed, Nano receiver, USB cable, or Bluetooth. Install it via Flathub — the Fedora RPM package is outdated and ships an older version. Make sure you're on version 1.1.19 or newer.
+[Solaar](https://github.com/pwr-Solaar/Solaar) manages Logitech keyboards, mice, and other peripherals connected via Unifying, Lightspeed, Nano receiver, USB, or Bluetooth. Install it from Flathub — the Fedora RPM version is outdated. You want version 1.1.19 or newer.
 
-**Installation:**
 - Open GNOME Software Center
 - Search for "Solaar"
 - Select the **Flathub** source (not Fedora Linux / RPM)
@@ -342,19 +327,13 @@ __GL_CONSTANT_FRAME_RATE_HINT=3 steam
 
 ![Solaar in GNOME Software — select the Flathub version](/images/solaar-flathub.avif)
 
-**Features:**
-- Monitor battery levels of Logitech devices
-- Configure DPI, polling rate, and buttons
-- Manage multiple devices on one Unifying receiver
-- Support for both Unifying and Bluetooth devices
+It runs in the system tray and shows battery notifications for your devices. You can also configure DPI, polling rate, and buttons from there.
 
 ![Solaar about screen — version 1.1.19](/images/solaar-about.avif)
 
-Solaar runs as a system tray application and shows notifications when a device's battery is running low.
+### GNOME keyboard shortcuts — making it feel more like Windows
 
-### Set up GNOME keyboard shortcuts (Windows-style)
-
-To make the transition from Windows smoother, set up keyboard shortcuts that mimic Windows.
+Coming from Windows, some things feel off without the right shortcuts. These are the ones I set up to make the transition smoother.
 
 **Built-in shortcuts (via Settings > Keyboard > Keyboard Shortcuts):**
 
@@ -370,13 +349,13 @@ To make the transition from Windows smoother, set up keyboard shortcuts that mim
 |---|--------|---------|----------|
 | 4 | Open file manager | `nautilus` | `Super+E` |
 
-The custom shortcut for the file manager needs to be created manually because GNOME doesn't have a default shortcut for this.
+GNOME doesn't have a built-in shortcut for the file manager, so this one needs to be created manually.
 
-### Adjust touchpad scroll speed (optional)
+### Touchpad scroll speed — no native GNOME setting (yet)
 
-As of GNOME 49 and Fedora 43, there is **no native setting** for touchpad scroll speed. GNOME's Settings panel simply doesn't offer it — unlike KDE Plasma, which has had this for years. There are [merge requests pending in mutter](https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1840) and [GNOME Control Center](https://gitlab.gnome.org/GNOME/gnome-control-center/-/merge_requests/991) to add this, but they've been open for years and it's unclear if they'll ship in GNOME 50 (expected with Fedora 44). See the [GNOME Discourse discussion](https://discourse.gnome.org/t/adding-scroll-speed-setting-in-gnome/25893) for context.
+This one frustrated me. As of GNOME 49 and Fedora 43, there is simply **no native setting** for touchpad scroll speed anywhere in the Settings panel. KDE Plasma has had this for years. There are merge requests open in [mutter](https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1840) and [GNOME Control Center](https://gitlab.gnome.org/GNOME/gnome-control-center/-/merge_requests/991) to add it, but they've been sitting there for years and it's unclear when or if they'll ship. See the [GNOME Discourse thread](https://discourse.gnome.org/t/adding-scroll-speed-setting-in-gnome/25893) if you're curious about the discussion.
 
-In the meantime, [libinput-config](https://github.com/lz42/libinput-config) by lz42 is a third-party workaround that intercepts libinput events and applies a scroll multiplier.
+In the meantime, [libinput-config](https://github.com/lz42/libinput-config) by lz42 is a third-party workaround that intercepts libinput events and applies a scroll multiplier. It's not elegant, but it works.
 
 **Install (one-time):**
 
@@ -416,7 +395,7 @@ discrete-scroll-factor=1.0
 EOF
 ```
 
-Log out and back in (or reboot) and adjust `scroll-factor` as needed.
+Log out and back in (or reboot), then adjust `scroll-factor` to your liking.
 
 **Rollback:**
 
@@ -424,28 +403,28 @@ Log out and back in (or reboot) and adjust `scroll-factor` as needed.
 sudo rm /etc/libinput.conf
 ```
 
-### Connect to eduroam (university Wi-Fi)
+### eduroam (university Wi-Fi)
 
-eduroam on Linux can be tricky — the official installers and community tools often fail. A custom PEAP/MSCHAPv2 setup via nmcli works reliably.
+Getting eduroam to work on Linux was genuinely painful. The official installers didn't work, community tools failed, and it took me a while to land on a setup that actually connects reliably. A manual PEAP/MSCHAPv2 configuration via nmcli ended up being the solution.
 
 {{< callout type="info" >}}
 Full setup guide: [eduroam Network Installation]({{< relref "/docs/eduroam-network-installation" >}})
 {{< /callout >}}
 
-**Summary:**
+**What worked for me:**
 - PEAP / MSCHAPv2 with CA validation via the system trust store
 - `domain-suffix-match` instead of the deprecated `altsubject-matches`
-- Automated Python script or manual nmcli command
+- An automated Python script or manual nmcli command
 
 ### GDM autologin after LUKS
 
-Skip the GDM login screen after LUKS unlock. After entering your disk password at boot, the desktop loads immediately.
+After unlocking the disk with my LUKS password at boot, I didn't want to type a second password to log in. This skips the GDM login screen so the desktop loads immediately after the disk unlock.
 
 {{< callout type="info" >}}
 Full setup guide: [GDM Autologin Guide]({{< relref "/docs/autologin" >}})
 {{< /callout >}}
 
-**Summary:**
+**Setup:**
 - Edit `/etc/gdm/custom.conf`
 - Set `AutomaticLoginEnable=True` and `AutomaticLogin=sten` under `[daemon]`
 - Reboot

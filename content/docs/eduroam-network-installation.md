@@ -3,7 +3,7 @@ title: "eduroam Network Installation"
 weight: 23
 ---
 
-The official eduroam installers don't work reliably on modern Linux. On Fedora 43 with NetworkManager 1.50+, the connection hangs during the TLS handshake. I ran into this myself and rewrote the setup script so it works on current systems — I'm sharing it here in case it's useful to others.
+Getting eduroam to work on Linux is more painful than it should be. Every "official" method I tried failed on Fedora 43 — the connection would just hang during the TLS handshake and never connect. I eventually figured out a manual setup that works reliably and wrote a script around it. Sharing it here so you hopefully don't have to go through the same process.
 
 ## What doesn't work
 

@@ -11,7 +11,7 @@ toc: false
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Alles wat je moet weten over het draaien van Fedora 43 op je Zephyrus
+  Wat ik leerde van Fedora 43 op mijn Zephyrus — en wat ik had willen weten voordat ik begon
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -25,7 +25,7 @@ toc: false
 <div class="hx-mt-6"></div>
 
 {{< callout type="info" >}}
-**Persoonlijke Documentatie.** Dit is een onafhankelijk project waarin ik stap voor stap probeer om steeds meer voor elkaar te krijgen met Linux op deze laptop. Alles wat hier staat is op eigen risico. Ik ben niet verantwoordelijk voor wat je met je systeem doet. Vereist kernel 6.18+.
+**Persoonlijke documentatie.** Ik ben geen developer of Linux-expert — gewoon iemand die overgestapt is naar Linux op deze laptop en dingen uitzoekende onderweg. Ik deel wat werkte zodat anderen niet helemaal opnieuw hoeven te beginnen. Alles is op eigen risico. Kom je ergens niet uit, laat het gerust weten — ik denk graag mee. Vereist kernel 6.18+.
 {{< /callout >}}
 
 ## Nieuws
