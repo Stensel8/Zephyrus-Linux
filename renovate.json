@@ -91,7 +91,7 @@
         "/^\\.github/workflows/.*\\.ya?ml$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s+[A-Za-z_]+: \"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s+[A-Za-z_]+: \"(?<currentValue>[^\"]+)\""
       ],
       "extractVersionTemplate": "^v?(?<version>.*)$"
     }
