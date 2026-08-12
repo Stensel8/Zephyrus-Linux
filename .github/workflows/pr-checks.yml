@@ -212,9 +212,20 @@ jobs:
           sudo install -m 0755 lychee-x86_64-unknown-linux-gnu/lychee /usr/local/bin/lychee
           lychee --version
 
+      # --index-files: without it lychee treats a link to /docs/applications/ as
+      # a link to a directory and stops there, so it can never look inside for
+      # the #fragment. Every anchor into another page then reports "Cannot find
+      # fragment" even though the heading is right there. Hugo serves every page
+      # as <page>/index.html, so this flag is what makes --include-fragments
+      # usable at all here.
+      #
+      # The glob is quoted deliberately. Unquoted, bash expands it first, and
+      # without globstar ** collapses to a single level -- which is why this job
+      # was checking 95 links instead of 3379.
       - name: Check internal links
         run: |
-          lychee --offline --include-fragments --root-dir ./public "public/**/*.html"
+          lychee --offline --include-fragments --index-files index.html \
+            --root-dir ./public "public/**/*.html"
 
   # ── 8. Auto-tick PR checklist ────────────────────────────────────────────────
   update-checklist:
