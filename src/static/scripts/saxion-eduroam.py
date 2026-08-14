@@ -244,10 +244,26 @@ class Installer:
             cmd_secure = cmd + ["802-1x.ca-cert", ca_path]
             success = self.run_nmcli(cmd_secure)
 
-        # Fallback if CA fails or is not found (still secure via domain suffix validation)
+        # Fallback: create the profile without an explicit CA bundle.
+        #
+        # This is a real downgrade, not an equivalent path. With no ca-cert,
+        # wpa_supplicant does not verify the server certificate against any
+        # trust anchor, and domain-suffix-match then proves nothing: it checks
+        # the name inside a certificate nobody vouched for, so anyone can
+        # present a self-signed one carrying that name. On eduroam that means a
+        # rogue access point can collect the MSCHAPv2 exchange.
+        #
+        # It stays in because a profile that cannot be created is not useful
+        # either, but it says so now instead of calling itself secure.
         if not success:
-            print("Note: Using system default trust store (implicit validation).")
-            # Run nmcli without explicit ca-cert path (uses system trust store)
+            print(
+                "WARNING: no usable CA bundle, so the eduroam profile is being created\n"
+                "         without server certificate validation. The connection will work,\n"
+                "         but it cannot detect a rogue access point impersonating\n"
+                f"         {SERVER_DOMAIN}. Install your distribution's ca-certificates\n"
+                "         package and re-run this script to get a verified profile.",
+                file=sys.stderr,
+            )
             success = self.run_nmcli(cmd)
 
         # run_nmcli returns False on a certificate error instead of exiting, so
@@ -267,7 +283,8 @@ class Installer:
         # Show explanation before attempting connection so the password prompt makes sense
         self.show_message(
             "eduroam profile created successfully.\n\n"
-            "Your password will now be requested by your desktop keyring (e.g. GNOME Keyring).\n"
+            "Your password will now be requested by your desktop keyring "
+            "(GNOME Keyring on GNOME, KWallet on KDE).\n"
             "This is normal and ensures your password is stored securely encrypted, never in plaintext.\n\n"
             "If you do not see a password prompt, open your network settings and connect to eduroam manually."
         )
