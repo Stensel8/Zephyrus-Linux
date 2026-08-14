@@ -45,7 +45,11 @@ class Installer:
     def __init__(self, silent: bool = False, username: str = ""):
         self.silent = silent
         self.username = username
-        self.gui_tool = self._detect_gui()
+        # --silent means no GUI, and that has to hold for prompts too. Deciding
+        # it once here keeps show_message and prompt_input from disagreeing:
+        # previously only show_message honoured the flag, so a --silent run on a
+        # desktop still opened a zenity box asking for the username.
+        self.gui_tool = None if silent else self._detect_gui()
 
     def _detect_gui(self) -> str | None:
         """Detects available GUI tools (zenity, kdialog, yad)."""
@@ -76,9 +80,12 @@ class Installer:
             text,
             flags=re.IGNORECASE
         )
-        # Mask passwords (generic pattern)
+        # Mask passwords. The separator is required: with it optional this also
+        # matched "password" followed by a space and swallowed the next word, so
+        # ordinary prose came out as "Your password=[REDACTED] now be requested
+        # by your desktop keyring".
         text = re.sub(
-            r'\bpassword[=: ]*[^\s]+',
+            r'\bpassword\s*[=:]\s*\S+',
             'password=[REDACTED]',
             text,
             flags=re.IGNORECASE
@@ -241,7 +248,21 @@ class Installer:
         if not success:
             print("Note: Using system default trust store (implicit validation).")
             # Run nmcli without explicit ca-cert path (uses system trust store)
-            self.run_nmcli(cmd)
+            success = self.run_nmcli(cmd)
+
+        # run_nmcli returns False on a certificate error instead of exiting, so
+        # that the fallback above gets its turn. If the fallback fails too there
+        # is nothing left to try, and the result has to be reported: discarding
+        # this used to leave the script announcing "profile created
+        # successfully" and exiting 0 when no profile had been created at all.
+        if not success:
+            self.show_message(
+                "NetworkManager rejected the certificate configuration, both with the "
+                "system CA bundle and without it, so no eduroam profile was created.\n"
+                "See the terminal output above for what nmcli reported.",
+                True,
+            )
+            sys.exit(1)
 
         # Show explanation before attempting connection so the password prompt makes sense
         self.show_message(
