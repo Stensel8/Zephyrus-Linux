@@ -96,23 +96,19 @@ jobs:
           pipx install "check-jsonschema==${CHECK_JSONSCHEMA_VERSION}"
           check-jsonschema --builtin-schema vendor.dependabot "$config"
 
-  # The workflow files are config too. The other repositories in the
-  # organisation run actionlint from their quality workflow; this one had no
-  # equivalent, so it lives here.
-  workflow-lint:
-    name: Check workflow files
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Check out source code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      # Pinned release plus checksum, rather than piping a script from a
-      # branch straight into bash.
+      # De workflowbestanden zijn ook config. De andere repositories draaien
+      # actionlint vanuit hun quality-workflow; deze had geen equivalent, dus
+      # het hoort hier.
+      #
+      # Als stap en niet als eigen job: GitHub rekent per job en rondt naar
+      # boven af op een hele minuut. actionlint is in vijf seconden klaar en
+      # heeft dezelfde checkout nodig als de stappen hierboven, dus een eigen
+      # job kostte een volle minuut extra voor niets.
+      #
+      # Vanaf hier draait elke stap op !cancelled(), zodat één rode controle de
+      # andere niet verbergt. De job faalt alsnog zodra er iets fout is.
       - name: Install actionlint
+        if: ${{ !cancelled() }}
         env:
           # renovate: datasource=github-releases depName=rhysd/actionlint
           ACTIONLINT_VERSION: "1.7.12"
@@ -126,4 +122,5 @@ jobs:
           sudo install -m 0755 actionlint /usr/local/bin/actionlint
 
       - name: Run actionlint
+        if: ${{ !cancelled() }}
         run: actionlint -color

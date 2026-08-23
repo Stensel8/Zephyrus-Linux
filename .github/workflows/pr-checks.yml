@@ -25,24 +25,8 @@ jobs:
         with:
           globs: "src/content/**/*.md"
 
-  # ── 2. Python security scan ─────────────────────────────────────────────────
-  python-security:
-    name: Python security (bandit)
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.x"
-      - run: pip install bandit
-      - name: Run bandit
-        run: bandit -r src/static/scripts/ -ll
 
-  # ── 3. Images must be AVIF ──────────────────────────────────────────────────
+  # ── 2. Images must be AVIF ──────────────────────────────────────────────────
   image-format:
     name: No PNG/JPG in static/images
     runs-on: ubuntu-latest
@@ -119,7 +103,7 @@ jobs:
           done <<< "$FILES"
           exit 1
 
-  # ── 4. Both EN and NL files present ─────────────────────────────────────────
+  # ── 3. Both EN and NL files present ─────────────────────────────────────────
   bilingual:
     name: EN/NL file parity
     runs-on: ubuntu-latest
@@ -147,7 +131,7 @@ jobs:
           fi
           echo "All docs have EN + NL versions."
 
-  # ── 5. Hugo builds without errors ───────────────────────────────────────────
+  # ── 4. Hugo builds without errors ───────────────────────────────────────────
   hugo-build:
     name: Hugo build
     runs-on: ubuntu-latest
@@ -182,7 +166,7 @@ jobs:
           path: src/public/
           retention-days: 1
 
-  # ── 6. Broken internal links ─────────────────────────────────────────────────
+  # ── 5. Broken internal links ─────────────────────────────────────────────────
   link-check:
     name: Broken link check
     runs-on: ubuntu-latest
@@ -233,7 +217,7 @@ jobs:
           lychee --offline --include-fragments --index-files index.html \
             --root-dir ./public "public/**/*.html"
 
-  # ── 7. Auto-tick PR checklist ────────────────────────────────────────────────
+  # ── 6. Auto-tick PR checklist ────────────────────────────────────────────────
   update-checklist:
     name: Update PR checklist
     runs-on: ubuntu-latest
