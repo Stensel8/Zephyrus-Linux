@@ -241,11 +241,14 @@ jobs:
     permissions:
       pull-requests: write
     if: always()
-    needs: [pr-title, bilingual, image-format, hugo-build, link-check]
+    # pr-title staat niet in deze needs: die controle is een eigen workflow
+    # (pr-title.yml), gelijk aan de andere repositories, en een job kan niet
+    # wachten op een job in een andere workflow. Het vinkje hieronder wordt
+    # daarom uit de titel zelf afgeleid in plaats van uit een jobresultaat.
+    needs: [bilingual, image-format, hugo-build, link-check]
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          RESULT_PR_TITLE:    ${{ needs.pr-title.result }}
           RESULT_BILINGUAL:   ${{ needs.bilingual.result }}
           RESULT_IMAGE_FORMAT: ${{ needs.image-format.result }}
           RESULT_HUGO_BUILD:  ${{ needs.hugo-build.result }}
@@ -268,7 +271,12 @@ jobs:
               );
             };
 
-            setCheck('PR title follows',  process.env.RESULT_PR_TITLE     === 'success');
+            // Dezelfde typelijst als pr-title.yml en CONTRIBUTING.md. Scope en
+            // een `!` voor een breaking change zijn toegestaan: feat(nav)!: ...
+            const TITLE_RE =
+              /^(feat|fix|content|docs|chore|refactor|style|revert)(\([^)]+\))?!?: .+/;
+
+            setCheck('PR title follows',  TITLE_RE.test(pr.title));
             setCheck('Both EN and NL',    process.env.RESULT_BILINGUAL     === 'success');
             setCheck('Media is in AVIF',  process.env.RESULT_IMAGE_FORMAT  === 'success');
             setCheck('No broken image',   process.env.RESULT_LINK_CHECK    === 'success');
