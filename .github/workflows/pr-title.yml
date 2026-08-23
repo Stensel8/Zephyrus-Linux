@@ -15,6 +15,12 @@ on:
     # titel heeft verbeterd, want een titelwijziging is geen nieuwe push.
     types: [opened, edited, synchronize, reopened]
 
+# Snel achter elkaar de omschrijving aanpassen startte evenveel runs. Alleen
+# de laatste zegt nog iets, dus de rest mag weg.
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
