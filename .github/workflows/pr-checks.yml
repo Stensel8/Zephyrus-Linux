@@ -223,11 +223,12 @@ jobs:
       # verified checksum, retried download.
       - name: Install lychee
         env:
-          # extractVersion: lychee tags its releases "lychee-v0.24.2", not
-          # "v0.24.2", so the default pattern cannot read the version out.
+          # extractVersion: lychee tagt zijn releases als "lychee-v0.24.2" en
+          # niet als "v0.24.2", dus het standaardpatroon leest de versie er niet
+          # uit.
           # renovate: datasource=github-releases depName=lycheeverse/lychee extractVersion=^lychee-v(?<version>.+)$
           LYCHEE_VERSION: "0.24.2"
-          # From the release's own lychee-x86_64-unknown-linux-gnu.tar.gz.sha256
+          # Uit de lychee-x86_64-unknown-linux-gnu.tar.gz.sha256 van de release zelf
           LYCHEE_SHA256: "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a"
         run: |
           curl -sSL --fail-with-body -o lychee.tar.gz \
