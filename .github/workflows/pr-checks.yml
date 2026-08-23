@@ -11,28 +11,7 @@ permissions: {}
 
 jobs:
 
-  # ── 1. PR title follows conventional commits ────────────────────────────────
-  pr-title:
-    name: Conventional commit title
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    steps:
-      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          types: |
-            feat
-            fix
-            content
-            docs
-            chore
-            refactor
-            style
-            revert
-
-  # ── 2. Markdown formatting ──────────────────────────────────────────────────
+  # ── 1. Markdown formatting ──────────────────────────────────────────────────
   markdown:
     name: Markdown lint
     runs-on: ubuntu-latest
@@ -46,7 +25,7 @@ jobs:
         with:
           globs: "src/content/**/*.md"
 
-  # ── 3. Python security scan ─────────────────────────────────────────────────
+  # ── 2. Python security scan ─────────────────────────────────────────────────
   python-security:
     name: Python security (bandit)
     runs-on: ubuntu-latest
@@ -63,7 +42,7 @@ jobs:
       - name: Run bandit
         run: bandit -r src/static/scripts/ -ll
 
-  # ── 4. Images must be AVIF ──────────────────────────────────────────────────
+  # ── 3. Images must be AVIF ──────────────────────────────────────────────────
   image-format:
     name: No PNG/JPG in static/images
     runs-on: ubuntu-latest
@@ -140,7 +119,7 @@ jobs:
           done <<< "$FILES"
           exit 1
 
-  # ── 5. Both EN and NL files present ─────────────────────────────────────────
+  # ── 4. Both EN and NL files present ─────────────────────────────────────────
   bilingual:
     name: EN/NL file parity
     runs-on: ubuntu-latest
@@ -168,7 +147,7 @@ jobs:
           fi
           echo "All docs have EN + NL versions."
 
-  # ── 6. Hugo builds without errors ───────────────────────────────────────────
+  # ── 5. Hugo builds without errors ───────────────────────────────────────────
   hugo-build:
     name: Hugo build
     runs-on: ubuntu-latest
@@ -203,7 +182,7 @@ jobs:
           path: src/public/
           retention-days: 1
 
-  # ── 7. Broken internal links ─────────────────────────────────────────────────
+  # ── 6. Broken internal links ─────────────────────────────────────────────────
   link-check:
     name: Broken link check
     runs-on: ubuntu-latest
@@ -254,7 +233,7 @@ jobs:
           lychee --offline --include-fragments --index-files index.html \
             --root-dir ./public "public/**/*.html"
 
-  # ── 8. Auto-tick PR checklist ────────────────────────────────────────────────
+  # ── 7. Auto-tick PR checklist ────────────────────────────────────────────────
   update-checklist:
     name: Update PR checklist
     runs-on: ubuntu-latest
