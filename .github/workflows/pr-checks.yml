@@ -143,7 +143,35 @@ jobs:
           done <<< "$FILES"
           exit 1
 
-      # ── 4. Hugo bouwt zonder fouten ─────────────────────────────────────────
+      # ── 4. Python: stijl en beveiliging ─────────────────────────────────────
+      #
+      # Stond in python-checks.yml als eigen job, die op elke pull request
+      # draaide zonder padfilter -- een volle gefactureerde minuut, ook op een
+      # pull request die alleen content aanraakte. Als stap hier kost hij geen
+      # extra job. python-checks.yml houdt zijn wekelijkse run en zijn run op
+      # main: daar zit de waarde van een herhaalde bandit-scan, want die vindt
+      # met nieuwe regels iets in code die niet veranderd is.
+      - name: Set up Python
+        if: ${{ !cancelled() }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: Install flake8 and bandit
+        if: ${{ !cancelled() }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 bandit
+
+      - name: Lint with flake8
+        if: ${{ !cancelled() }}
+        run: flake8 src/static/scripts/ --max-line-length=120
+
+      - name: Security scan with bandit
+        if: ${{ !cancelled() }}
+        run: bandit -r src/static/scripts/ -ll
+
+      # ── 5. Hugo bouwt zonder fouten ─────────────────────────────────────────
       - name: Setup Go
         if: ${{ !cancelled() }}
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -166,7 +194,7 @@ jobs:
           TZ: Europe/Amsterdam
         run: cd src && hugo --gc --minify --baseURL "http://localhost/"
 
-      # ── 5. Kapotte interne links ────────────────────────────────────────────
+      # ── 6. Kapotte interne links ────────────────────────────────────────────
       #
       # Met de hand geïnstalleerd in plaats van via lycheeverse/lychee-action.
       # Die actie haalt zijn binary op met een kale `curl -sfLO`: geen retry, en
@@ -213,7 +241,7 @@ jobs:
           lychee --offline --include-fragments --index-files index.html \
             --root-dir "${GITHUB_WORKSPACE}/src/public" "src/public/**/*.html"
 
-      # ── 6. Checklist in de omschrijving bijwerken ───────────────────────────
+      # ── 7. Checklist in de omschrijving bijwerken ───────────────────────────
       #
       # Leest de uitkomst van de stappen hierboven in plaats van van losse jobs.
       # Dat was hiervoor `needs: [...]` met vier jobresultaten; in een job is het

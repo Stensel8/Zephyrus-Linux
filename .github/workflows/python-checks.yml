@@ -1,15 +1,18 @@
 name: Python Checks
 
+# Geen pull_request meer: flake8 en bandit draaien daar als stap in
+# pr-checks.yml, waar ze geen eigen gefactureerde job kosten. Hier bleven de
+# wekelijkse run en de run op main staan, en daar zit de waarde van een
+# herhaalde scan: bandit vindt met nieuwe regels iets in code die zelf niet
+# veranderd is, en dat merk je nooit als hij alleen op gewijzigde code draait.
 on:
   push:
-    branches: [ main, development ]
-  pull_request:
     branches: [ main, development ]
   schedule:
     - cron: '0 5 * * 0'
   workflow_dispatch:
 
-# Without this the workflow inherits whatever the repository default is.
+# Zonder dit erft de workflow wat de repository-default ook is.
 permissions: {}
 
 jobs:
