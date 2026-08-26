@@ -171,6 +171,21 @@ jobs:
         if: ${{ !cancelled() }}
         run: bandit -r src/static/scripts/ -ll
 
+      # De SHA256 die een pagina publiceert hoort bij het script dat we ook
+      # daadwerkelijk uitleveren. De eduroam-gids laat lezers hun download
+      # tegen die hash controleren, maar niets herberekende hem toen het
+      # script veranderde -- daardoor faalde `sha256sum -c` bij iedereen die
+      # de gids volgde (#104). update-checksums.yml dekt dit niet: die draait
+      # alleen op Renovates pull requests en alleen voor de vastgezette
+      # CI-tools.
+      #
+      # Faalt in plaats van terug te committen. Pushen naar een branch waar
+      # een mens op dat moment aan werkt is precies wat update-checksums.yml
+      # ook vermijdt; de foutmelding noemt het --apply-commando.
+      - name: Check published script checksums
+        if: ${{ !cancelled() }}
+        run: .github/scripts/check-doc-checksums.sh
+
       # ── 5. Hugo bouwt zonder fouten ─────────────────────────────────────────
       - name: Setup Go
         if: ${{ !cancelled() }}
