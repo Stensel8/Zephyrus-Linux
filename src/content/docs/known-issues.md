@@ -1,7 +1,7 @@
 ---
 title: "Known Issues"
 weight: 9
-prev: docs/virtualization/vmware-workstation
+prev: docs/gaming/steamos
 ---
 
 Central reference for hardware and software issues on the ASUS ROG Zephyrus G16 GA605WV. Active issues are listed first. Resolved issues are kept as reference at the bottom.

@@ -1,7 +1,7 @@
 ---
 title: "Bekende Problemen"
 weight: 9
-prev: docs/virtualization/vmware-workstation
+prev: docs/gaming/steamos
 ---
 
 Centrale referentie voor hardware- en softwareproblemen op de ASUS ROG Zephyrus G16 GA605WV. Actieve problemen staan bovenaan. Opgeloste problemen staan onderaan als naslagwerk.
