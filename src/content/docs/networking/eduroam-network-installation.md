@@ -50,8 +50,8 @@ public CAs your distribution ships could vouch for a server calling itself
 The RSA pair is what the server serves today, and both members of it are pinned for a
 reason. The server currently chains through the *cross-signed* 2021 root up to the 2015
 root, but HARICA publishes that cross certificate as valid only until **2029-08-31**.
-After that date the chain has to terminate at the self-signed 2021 root — already pinned
-here, and already what OpenSSL terminates on today.
+After that date the chain has to terminate at the self-signed 2021 root, which is already
+pinned here and already what OpenSSL terminates on today.
 
 The ECC pair covers a move off RSA. HARICA's repository already lists
 `HARICA GEANT TLS ECC 1` (2025) among its intermediates, so that path exists. All four
@@ -68,7 +68,7 @@ Fingerprints last checked against HARICA's repository on **2026-08-31**.
 #### Verify the pinned roots yourself
 
 Don't take this page's word for it. HARICA publishes the fingerprints of its own roots
-at [repo.harica.gr](https://repo.harica.gr/rep_dyn.php) — pick the root from the
+at [repo.harica.gr](https://repo.harica.gr/rep_dyn.php). Pick the root from the
 dropdown and compare its SHA-1:
 
 | Entry in HARICA's repository | SHA-1 fingerprint |
@@ -89,18 +89,18 @@ done
 ```
 
 Every fingerprint printed must appear in the table above. If one does not, do not use the
-script — open an issue instead.
+script. Open an issue instead.
 
 This is the same check we run: nothing is pinned because a handshake offered it, only
 because the CA operator publishes it.
 
 GÉANT moved its Trusted Certificate Service to HARICA, and the official CAT profile
-still pins the pre-migration USERTrust chain — which is why the official installer
+still pins the pre-migration USERTrust chain, which is why the official installer
 fails. If Saxion changes CA operator again this script will break too, but it now
 prints the chain the server actually served instead of hanging silently.
 
 **Requirements:**
-- Python 3.11+ (standard library only — no `pip install`, no `dbus-python`)
+- Python 3.11+ (standard library only, no `pip install`, no `dbus-python`)
 - NetworkManager 1.8+ (`nmcli`)
 - Optional: `zenity` (GNOME) or `kdialog` (KDE) for graphical prompts; falls back to the terminal
 - Optional: access to the system journal, used to explain certificate failures
@@ -128,7 +128,7 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e  saxion-eduroam.py" | sha256sum -c
+echo "17cd13c629ce480ece1a7896aff7d4061347ea0082b32dfa6b23dac6b34882ad  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
@@ -137,7 +137,7 @@ python3 saxion-eduroam.py
 #### When the certificate stops matching
 
 The trusted chain is pinned inside the script, so it breaks the day Saxion
-changes certificate authority — which is exactly what happened in
+changes certificate authority. That is exactly what happened in
 [#109](https://github.com/THectic-NL/Zephyrus-Linux/issues/109). If the script
 reports `unknown CA` or fails to authenticate, `--ignore-certificate` connects
 without validating and prints the chain the server actually served:
@@ -151,11 +151,11 @@ reconnect without the flag.
 
 **Do not leave this on.** Without validation, any access point calling itself
 `eduroam` is trusted. It can terminate the TLS tunnel itself and capture the
-MSCHAPv2 exchange, which is crackable offline — that is your Saxion password.
+MSCHAPv2 exchange, which is crackable offline. That is your Saxion password.
 `domain-suffix-match` does not help here: it checks the name on a certificate
 nobody verified. Use the flag to diagnose, then reconnect properly.
 
-**SHA256:** `e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e`
+**SHA256:** `17cd13c629ce480ece1a7896aff7d4061347ea0082b32dfa6b23dac6b34882ad`
 
 The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (kdialog on KDE, zenity on GNOME) or a terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your keyring (GNOME Keyring or KWallet) at connection time and stored encrypted, never in plaintext.
 
@@ -165,7 +165,7 @@ Useful flags:
 |------|---------|
 | `-u`, `--username` | Supply the username instead of being prompted |
 | `--silent` | No dialogs; prompt and report on the terminal only |
-| `--ignore-certificate` | Skip validation and print the chain the server served — debugging only, see the warning above |
+| `--ignore-certificate` | Skip validation and print the chain the server served. Debugging only, see the warning above |
 
 {{< callout type="info" >}}
 This script is **Saxion-specific** and validates against Saxion's RADIUS server (`ise.infra.saxion.net`). For other institutions, use the official CAT script from [cat.eduroam.org](https://cat.eduroam.org/) as a starting point.

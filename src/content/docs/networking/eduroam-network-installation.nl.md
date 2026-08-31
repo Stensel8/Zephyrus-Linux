@@ -50,8 +50,8 @@ publieke CA's die je distributie meelevert instaan voor een server die zich
 Het RSA-paar is wat de server vandaag stuurt, en beide helften daarvan liggen niet voor
 niets vast. De server ketent nu via de *cross-signed* 2021-root door naar de 2015-root,
 maar HARICA publiceert dat cross-certificaat als geldig tot **2029-08-31**. Daarna moet
-de keten eindigen bij de self-signed 2021-root — die hier al vastligt, en waar OpenSSL
-vandaag al op uitkomt.
+de keten eindigen bij de self-signed 2021-root. Die ligt hier al vast, en OpenSSL komt er
+vandaag al op uit.
 
 Het ECC-paar dekt een overstap weg van RSA. HARICA's repository noemt
 `HARICA GEANT TLS ECC 1` (2025) al bij de intermediates, dus dat pad bestaat. Alle vier
@@ -68,7 +68,7 @@ Fingerprints laatst gecontroleerd tegen HARICA's repository op **2026-08-31**.
 #### Controleer de vastgelegde roots zelf
 
 Geloof deze pagina niet op haar woord. HARICA publiceert de fingerprints van hun eigen
-roots op [repo.harica.gr](https://repo.harica.gr/rep_dyn.php) — kies de root in de
+roots op [repo.harica.gr](https://repo.harica.gr/rep_dyn.php). Kies de root in de
 dropdown en vergelijk de SHA-1:
 
 | Entry in HARICA's repository | SHA-1 fingerprint |
@@ -95,12 +95,12 @@ Dit is dezelfde controle die wij doen: niets wordt vastgelegd omdat een handshak
 aanbood, alleen omdat de CA-operator het publiceert.
 
 GÉANT heeft zijn Trusted Certificate Service naar HARICA verhuisd, en het officiële
-CAT-profiel legt nog steeds de oude USERTrust-keten vast — daarom faalt de officiële
+CAT-profiel legt nog steeds de oude USERTrust-keten vast, en daarom faalt de officiële
 installer. Wisselt Saxion opnieuw van CA-operator, dan breekt dit script ook, maar het
 toont dan de keten die de server werkelijk stuurde in plaats van stil vast te lopen.
 
 **Vereisten:**
-- Python 3.11+ (alleen standaardbibliotheek — geen `pip install`, geen `dbus-python`)
+- Python 3.11+ (alleen standaardbibliotheek, geen `pip install`, geen `dbus-python`)
 - NetworkManager 1.8+ (`nmcli`)
 - Optioneel: `zenity` (GNOME) of `kdialog` (KDE) voor grafische dialogen; anders de terminal
 - Optioneel: toegang tot de systeemjournal, om certificaatfouten te kunnen verklaren
@@ -128,7 +128,7 @@ Een Python-script automatiseert de volledige `nmcli`-verbindingsconfiguratie voo
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Controleer de checksum
-echo "e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e  saxion-eduroam.py" | sha256sum -c
+echo "17cd13c629ce480ece1a7896aff7d4061347ea0082b32dfa6b23dac6b34882ad  saxion-eduroam.py" | sha256sum -c
 
 # 3. Uitvoeren
 python3 saxion-eduroam.py
@@ -137,7 +137,7 @@ python3 saxion-eduroam.py
 #### Als het certificaat niet meer klopt
 
 De vertrouwde keten ligt vast in het script, dus die breekt zodra Saxion van
-certificaatautoriteit wisselt — precies wat er in
+certificaatautoriteit wisselt. Precies wat er in
 [#109](https://github.com/THectic-NL/Zephyrus-Linux/issues/109) gebeurde. Meldt
 het script `unknown CA` of lukt authenticatie niet, dan verbindt
 `--ignore-certificate` zonder te valideren en toont het welke keten de server
@@ -152,12 +152,12 @@ daarna opnieuw zonder de vlag.
 
 **Laat dit niet aanstaan.** Zonder validatie wordt elk access point dat zich
 `eduroam` noemt vertrouwd. Dat kan de TLS-tunnel zelf afsluiten en de
-MSCHAPv2-uitwisseling opvangen, die offline te kraken is — dat is je
+MSCHAPv2-uitwisseling opvangen, die offline te kraken is. Dat is je
 Saxion-wachtwoord. `domain-suffix-match` helpt hier niet: die controleert de naam
 op een certificaat dat niemand geverifieerd heeft. Gebruik de vlag om te
 diagnosticeren en verbind daarna netjes.
 
-**SHA256:** `e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e`
+**SHA256:** `17cd13c629ce480ece1a7896aff7d4061347ea0082b32dfa6b23dac6b34882ad`
 
 Het script verwijdert een eventueel bestaand eduroam-profiel, vraagt je **gebruikersnaam** via een GUI-dialoog (kdialog op KDE, zenity op GNOME) of een terminal-fallback, en activeert de verbinding. Je wachtwoord wordt nooit door het script gevraagd; dat wordt bij het verbinden opgevraagd door je keyring (GNOME Keyring of KWallet) en versleuteld opgeslagen, nooit in platte tekst.
 
@@ -167,7 +167,7 @@ Handige vlaggen:
 |------|------|
 | `-u`, `--username` | Geef de gebruikersnaam mee in plaats van hem te laten vragen |
 | `--silent` | Geen dialogen; vragen en melden alleen op de terminal |
-| `--ignore-certificate` | Sla validatie over en toon de keten die de server stuurde — alleen om te debuggen, zie de waarschuwing hierboven |
+| `--ignore-certificate` | Sla validatie over en toon de keten die de server stuurde. Alleen om te debuggen, zie de waarschuwing hierboven |
 
 {{< callout type="info" >}}
 Dit script is **Saxion-specifiek** en valideert tegen de Saxion RADIUS-server (`ise.infra.saxion.net`). Voor andere instellingen: gebruik het officiële CAT-script van [cat.eduroam.org](https://cat.eduroam.org/) als startpunt.

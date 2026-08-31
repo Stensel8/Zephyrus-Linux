@@ -601,7 +601,7 @@ class Installer:
             print(
                 "[INFO] eduroam profile saved, but the network could not be reached right now.\n"
                 "       You are probably not in range of an eduroam access point.\n"
-                "       The profile is stored — connect to eduroam from your network settings when nearby."
+                "       The profile is stored. Connect to eduroam from your network settings when nearby."
             )
         elif (
             "Secrets were required" in output
