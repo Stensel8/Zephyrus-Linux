@@ -26,61 +26,37 @@ REALM = "saxion.nl"
 SERVER_DOMAIN = "ise.infra.saxion.net"
 ANONYMOUS_ID = f"anonymous@{REALM}"
 
-# How long to wait for activation before giving up and telling the user where to
-# look. nmcli's own default is 90s of silence, which is long enough that people
-# assume the script has hung.
+# nmcli's default is 90s of silence, which looks like a hang. Cut it short.
 CONNECT_TIMEOUT = 45
 
-# Where the pinned CA is written. NetworkManager reads 802-1x.ca-cert every time
-# it connects, so it has to survive the script exiting; a temporary file will not
-# do. Under the user's config directory, so the script still needs no root.
+# NetworkManager re-reads this on every connect, so it cannot be a temp file.
+# In the user's config dir, so no root needed.
 CA_DIR = os.path.join(
     os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config"),
     "saxion-eduroam",
 )
 CA_FILE = os.path.join(CA_DIR, "saxion-eduroam-ca.pem")
 
-# The certificate chain ise.infra.saxion.net actually presents. Captured from a
-# live PEAP handshake on 2026-08-31 (wpa_supplicant CTRL-EVENT-EAP-PEER-CERT):
-#
-#   depth=3  Hellenic Academic and Research Institutions RootCA 2015   (self-signed)
-#   depth=2  HARICA TLS RSA Root CA 2021   (cross-signed by the 2015 root)
-#   depth=1  GEANT TLS RSA 1
-#   depth=0  ise.infra.saxion.net
-#
-# GEANT moved its Trusted Certificate Service to HARICA, so the USERTrust /
-# "GEANT OV RSA CA 4" chain this file used to pin is from before that migration
-# and no longer appears in the handshake at all. Pinning it made every
-# connection fail with "unknown CA" at depth 3 (issue #109).
-#
-# Two anchors are pinned:
-#
-#   1. Hellenic Academic and Research Institutions RootCA 2015 (expires 2040-06-30)
-#      SHA-256 A0:40:92:9A:02:CE:53:B4:AC:F4:F2:FF:C6:98:1C:E4:
-#              49:6F:75:5E:6D:45:FE:0B:2A:69:2B:CD:52:52:3F:36
-#      Byte-for-byte the depth=3 certificate above, so the chain as currently
-#      served terminates here.
-#   2. HARICA TLS RSA Root CA 2021 (expires 2045-02-13)
-#      SHA-256 D9:5D:0E:8E:DA:79:52:5B:F9:BE:B1:1B:14:D2:10:0D:
-#              32:94:98:5F:0C:62:D9:FA:BD:9C:D9:99:EC:CB:7B:1D
-#      The self-signed form of depth=2. Present so verification keeps working
-#      once GEANT drops the cross-signature and serves the shorter chain.
-#
-# The GEANT TLS RSA 1 intermediate is deliberately not pinned: the server sends
-# it in the handshake, and intermediates rotate far more often than roots, so
-# pinning one only adds a way for this to break again.
-#
-# When Saxion changes RADIUS certificate authority this file stops working. To
-# refresh it, read the real chain off a live handshake:
+# The roots ise.infra.saxion.net chains to. GEANT moved its cert service to
+# HARICA; this file used to pin the old USERTrust/"GEANT OV RSA CA 4" chain,
+# which the server stopped sending, so every connect died on "unknown CA"
+# (#109). Don't guess these -- read them off a real handshake:
 #
 #   nmcli connection modify eduroam 802-1x.ca-cert ""
 #   nmcli connection up eduroam
 #   journalctl -u wpa_supplicant -b | grep CTRL-EVENT-EAP-PEER-CERT
 #
-# then put the new anchors below. That is the cost of pinning, and it is the
-# point: without it any of the ~150 CAs in the system trust store could vouch
-# for a server calling itself ise.infra.saxion.net, and PEAP/MSCHAPv2 hands
-# that server a hash of the user's Saxion password.
+#   HARICA RootCA 2015              A0:40:92:9A:02:CE:53:B4... expires 2040
+#   HARICA TLS RSA Root CA 2021     D9:5D:0E:8E:DA:79:52:5B... expires 2045
+#
+# The first is what the server currently chains to; the second keeps this
+# working once GEANT drops the cross-signature. The GEANT TLS RSA 1
+# intermediate is not pinned -- the server sends it, and intermediates rotate
+# often enough to break us again.
+#
+# Yes, pinning breaks when Saxion switches CA. That is the trade: otherwise any
+# of ~150 public CAs can impersonate the RADIUS server, and PEAP/MSCHAPv2 hands
+# it a hash of the user's password.
 SAXION_CA_PEM = """\
 -----BEGIN CERTIFICATE-----
 MIIGCzCCA/OgAwIBAgIBADANBgkqhkiG9w0BAQsFADCBpjELMAkGA1UEBhMCR1Ix
@@ -171,10 +147,8 @@ class Installer:
     def __init__(self, silent: bool = False, username: str = ""):
         self.silent = silent
         self.username = username
-        # --silent means no GUI, and that has to hold for prompts too. Deciding
-        # it once here keeps show_message and prompt_input from disagreeing:
-        # previously only show_message honoured the flag, so a --silent run on a
-        # desktop still opened a zenity box asking for the username.
+        # --silent means no GUI, prompts included. Decided once so show_message
+        # and prompt_input cannot disagree.
         self.gui_tool = None if silent else self._detect_gui()
 
     def _detect_gui(self) -> str | None:
@@ -206,10 +180,8 @@ class Installer:
             text,
             flags=re.IGNORECASE
         )
-        # Mask passwords. The separator is required: with it optional this also
-        # matched "password" followed by a space and swallowed the next word, so
-        # ordinary prose came out as "Your password=[REDACTED] now be requested
-        # by your desktop keyring".
+        # Separator is required. Without it this ate the word after "password"
+        # and mangled ordinary prose.
         text = re.sub(
             r'\bpassword\s*[=:]\s*\S+',
             'password=[REDACTED]',
@@ -297,25 +269,13 @@ class Installer:
             self.username = val.strip()
 
     def install_ca_bundle(self) -> str:
-        """
-        Write the pinned Saxion chain to a stable path and return it.
-
-        This replaces pointing 802-1x.ca-cert at the system trust store. That
-        made any of the roughly 150 public CAs a valid signer for something
-        calling itself ise.infra.saxion.net; now only the chain Saxion actually
-        publishes is accepted. It is what eduroam CAT does, and the reason CAT
-        exists.
-        """
+        """Write the pinned chain to a stable path and return it."""
         try:
             os.makedirs(CA_DIR, mode=0o755, exist_ok=True)
             with open(CA_FILE, "w", encoding="ascii") as handle:
                 handle.write(SAXION_CA_PEM)
-            # 0600. These are public root certificates rather than a key, so
-            # the mode is not protecting a secret, but it does not need to be
-            # readable by anyone else either: NetworkManager reads this path as
-            # root when it connects, which is unaffected by the mode. Verified
-            # on Fedora-based Bazzite with SELinux enforcing, where the file is
-            # labelled config_home_t and wpa_supplicant still reads it.
+            # NetworkManager reads this as root, so the mode does not matter to
+            # it. Keep it tight anyway.
             os.chmod(CA_FILE, 0o600)
         except OSError as error:
             self.show_message(
@@ -327,18 +287,13 @@ class Installer:
     def run_nmcli(self, cmd: list[str]) -> bool:
         res = subprocess.run(cmd, capture_output=True, text=True)
         if res.returncode != 0:
-            # Log full nmcli error to stderr (terminal only — never into GUI subprocess args).
-            # This happens before the certificate check below, because the caller
-            # tells the user to consult "the terminal output above" on that path
-            # too. It used to return early and print nothing, so the one failure
-            # the script explicitly asks people to report was the one failure it
-            # left no evidence of.
+            # Log before the cert check below: the caller tells people to look at
+            # "the terminal output above", and that path used to print nothing.
+            # Never into GUI subprocess args.
             sanitized_error = self._sanitize_for_log(res.stderr.strip())
             print(f"NetworkManager error:\n{sanitized_error}", file=sys.stderr)
 
-            # A rejected certificate gets its own message from the caller, which
-            # names the pinned file and how to refresh it. Anything else is fatal
-            # here.
+            # Cert failures get a better message from the caller.
             if "Failed to recognize certificate" in res.stderr:
                 return False
 
@@ -384,21 +339,14 @@ class Installer:
             "802-1x.domain-suffix-match", SERVER_DOMAIN,
             "802-1x.phase2-domain-suffix-match", SERVER_DOMAIN,
             "802-1x.password-flags", "1",
-            # Saxion does not register devices by MAC, but it does block one
-            # temporarily when it looks like it is scanning or flooding. A
-            # randomised address would let that block be shrugged off by
-            # reconnecting, so the real one is used deliberately.
+            # Real MAC on purpose: Saxion blocks a MAC that looks like it is
+            # scanning, and randomising would let that block be shrugged off.
             "wifi.cloned-mac-address", "permanent",
-            # The pinned chain, not the system trust store.
             "802-1x.ca-cert", ca_path,
         ]
 
-        # No unvalidated fallback. There used to be one, for when no CA bundle
-        # could be found on the system; with the chain shipped inside this
-        # script that situation no longer exists. If nmcli will not accept this
-        # configuration, connecting anyway would mean handing a Saxion password
-        # to whatever access point answered, which is not a trade worth making
-        # on the user's behalf.
+        # No unvalidated fallback. Connecting anyway would hand a Saxion
+        # password to whatever access point answered.
         if not self.run_nmcli(cmd):
             self.show_message(
                 "NetworkManager rejected the certificate configuration, so no eduroam "
@@ -420,15 +368,9 @@ class Installer:
             "If you do not see a password prompt, open your network settings and connect to eduroam manually."
         )
 
-        # Attempt to activate the connection (best-effort; profile is already saved).
-        #
-        # Two things matter here. First the explicit timeout: nmcli waits 90
-        # seconds by default, and because the output is captured the script
-        # printed nothing at all for that whole time, which reads as a freeze
-        # rather than as a slow connect. Second the line above it: with the
-        # output captured there is otherwise no sign the script is still alive.
-        # --wait bounds nmcli itself; the subprocess timeout is the backstop for
-        # when nmcli ignores it.
+        # Best-effort; the profile is already saved. Output is captured, so
+        # without the print below the script looks dead while nmcli waits.
+        # --wait bounds nmcli, the subprocess timeout catches it ignoring that.
         print(f"[INFO] Connecting to {SSID} (up to {CONNECT_TIMEOUT}s)...", flush=True)
         try:
             res = subprocess.run(
