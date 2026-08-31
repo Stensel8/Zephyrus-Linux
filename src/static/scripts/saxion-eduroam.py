@@ -287,6 +287,48 @@ class Installer:
         if not self.silent:
             self.show_message(warning, True)
 
+    def diagnose_cert_failure(self) -> bool:
+        """
+        Say whether the last activation died on certificate validation, and if so
+        show what the server served.
+
+        Without this a stale pin looks like a hang: NetworkManager keeps retrying
+        and nothing on screen says the CA is the problem. That is exactly how #109
+        went unexplained for as long as it did.
+        """
+        errors = self._journal_lines("CERT-ERROR", "certificate verify failed",
+                                     "unknown CA", "Certificate verification failed")
+        if not errors:
+            return False
+
+        print("\n" + "=" * 70)
+        print("The server's certificate did not match the CA pinned in this script.")
+        print("=" * 70)
+        for line in errors[-4:]:
+            print(f"  {line}")
+        self.report_server_chain()
+        print(
+            "\nSaxion has most likely changed RADIUS certificate authority. Report the\n"
+            "chain above so this script can be updated. To connect meanwhile:\n"
+            f"    python3 {os.path.basename(sys.argv[0])} --ignore-certificate\n"
+            "which skips validation -- read the warning it prints before using it."
+        )
+        return True
+
+    def _journal_lines(self, *needles: str) -> list[str]:
+        """Recent wpa_supplicant lines matching any of the needles."""
+        try:
+            res = subprocess.run(
+                ["journalctl", "-u", "wpa_supplicant", "-b", "--no-pager",
+                 "--since", "-5m"],
+                capture_output=True, text=True, timeout=15,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return []
+        return [ln.split("wpa_supplicant", 1)[-1].strip()
+                for ln in res.stdout.splitlines()
+                if any(n in ln for n in needles)]
+
     def report_server_chain(self):
         """Print the chain the server actually presented, to fix the pin with."""
         try:
@@ -389,6 +431,11 @@ class Installer:
             # Real MAC on purpose: Saxion blocks a MAC that looks like it is
             # scanning, and randomising would let that block be shrugged off.
             "wifi.cloned-mac-address", "permanent",
+            # This profile belongs to the person who ran the script, not to every
+            # account on the machine. Taken from the CAT installer.
+            "connection.permissions", f"user:{getpass.getuser()}",
+            # Bound how long NetworkManager sits on a stalled EAP exchange.
+            "802-1x.auth-timeout", "20",
             # Off for now. Left on, NetworkManager starts connecting the moment
             # the profile is added -- before the user has typed anything -- and
             # that attempt sits in EAP-STARTED until it times out ~30s later,
@@ -451,10 +498,14 @@ class Installer:
             print(
                 f"[WARN] eduroam profile saved, but activation did not finish within "
                 f"{CONNECT_TIMEOUT}s.\n"
-                "       This usually means the EAP handshake is failing and NetworkManager\n"
-                "       is retrying. Check what it reported with:\n"
-                "         journalctl -u NetworkManager -u wpa_supplicant -b --since '5 min ago'"
+                "       This usually means the EAP handshake is failing and\n"
+                "       NetworkManager is retrying."
             )
+            if not self.diagnose_cert_failure():
+                print(
+                    "       Check what it reported with:\n"
+                    "         journalctl -u NetworkManager -u wpa_supplicant -b --since '5 min ago'"
+                )
             return
 
         output = res.stderr.strip() or res.stdout.strip()
@@ -489,9 +540,10 @@ class Installer:
         else:
             print(
                 "[WARN] eduroam profile saved, but automatic activation failed.\n"
-                "       You can connect manually via your network settings.\n"
                 f"       nmcli: {output}"
             )
+            if not self.diagnose_cert_failure():
+                print("       You can connect manually via your network settings.")
 
 
 def main():
