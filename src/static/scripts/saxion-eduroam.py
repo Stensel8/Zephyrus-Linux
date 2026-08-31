@@ -26,6 +26,10 @@ REALM = "saxion.nl"
 SERVER_DOMAIN = "ise.infra.saxion.net"
 ANONYMOUS_ID = f"anonymous@{REALM}"
 
+# Support policy, not a technical floor: the code itself runs on older Pythons.
+# Everything current ships 3.11 or newer.
+MIN_PYTHON = (3, 11)
+
 # nmcli's default is 90s of silence, which looks like a hang. Cut it short.
 CONNECT_TIMEOUT = 45
 
@@ -46,17 +50,31 @@ CA_FILE = os.path.join(CA_DIR, "saxion-eduroam-ca.pem")
 #   nmcli connection up eduroam
 #   journalctl -u wpa_supplicant -b | grep CTRL-EVENT-EAP-PEER-CERT
 #
-#   HARICA RootCA 2015              A0:40:92:9A:02:CE:53:B4... expires 2040
-#   HARICA TLS RSA Root CA 2021     D9:5D:0E:8E:DA:79:52:5B... expires 2045
+# Identify a root by its SHA-256, never by name: "HARICA TLS RSA Root CA 2021"
+# exists both self-signed and cross-signed by the 2015 root. Same CN, different
+# certificate, different bytes.
 #
-# The first is what the server currently chains to; the second keeps this
-# working once GEANT drops the cross-signature. The GEANT TLS RSA 1
-# intermediate is not pinned -- the server sends it, and intermediates rotate
-# often enough to break us again.
+#   RSA, in use today
+#     A0:40:92:9A:02:CE:53:B4...  HARICA RootCA 2015            expires 2040
+#     D9:5D:0E:8E:DA:79:52:5B...  HARICA TLS RSA Root CA 2021   expires 2045
+#   ECC, for when Saxion moves off RSA
+#     44:B5:45:AA:8A:25:E6:5A...  HARICA ECC RootCA 2015        expires 2040
+#     3F:99:CC:47:4A:CF:CE:4D...  HARICA TLS ECC Root CA 2021   expires 2045
 #
-# Yes, pinning breaks when Saxion switches CA. That is the trade: otherwise any
-# of ~150 public CAs can impersonate the RADIUS server, and PEAP/MSCHAPv2 hands
-# it a hash of the user's password.
+# The RSA pair is what the server serves now: the 2015 root is byte-for-byte
+# the depth=3 certificate, and the self-signed 2021 root is what OpenSSL
+# actually terminates on. The ECC pair costs nothing and keeps this working
+# when they switch, which they eventually will. All four are HARICA roots from
+# the Mozilla root programme, so this stays one CA operator -- not the ~150 a
+# system trust store would accept.
+#
+# The GEANT TLS RSA 1 intermediate is not pinned: the server sends it, and
+# intermediates rotate often enough to break us again.
+#
+# Yes, pinning breaks when Saxion switches CA operator. That is the trade: without
+# it any public CA can vouch for a server calling itself ise.infra.saxion.net,
+# and PEAP/MSCHAPv2 hands it a hash of the user's password. When it breaks the
+# script now says so and prints the chain it saw.
 SAXION_CA_PEM = """\
 -----BEGIN CERTIFICATE-----
 MIIGCzCCA/OgAwIBAgIBADANBgkqhkiG9w0BAQsFADCBpjELMAkGA1UEBhMCR1Ix
@@ -126,6 +144,38 @@ aPib8qXPMThcFarmlwDB31qlpzmq6YR/PFGoOtmUW4y/Twhx5duoXNTSpv4Ao8YW
 xw/ogM4cKGR0GQjTQuPOAF1/sdwTsOEFy9EgqoZ0njnnkf3/W9b3raYvAwtt41dU
 63ZTGI0RmLo=
 -----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIICwzCCAkqgAwIBAgIBADAKBggqhkjOPQQDAjCBqjELMAkGA1UEBhMCR1IxDzAN
+BgNVBAcTBkF0aGVuczFEMEIGA1UEChM7SGVsbGVuaWMgQWNhZGVtaWMgYW5kIFJl
+c2VhcmNoIEluc3RpdHV0aW9ucyBDZXJ0LiBBdXRob3JpdHkxRDBCBgNVBAMTO0hl
+bGxlbmljIEFjYWRlbWljIGFuZCBSZXNlYXJjaCBJbnN0aXR1dGlvbnMgRUNDIFJv
+b3RDQSAyMDE1MB4XDTE1MDcwNzEwMzcxMloXDTQwMDYzMDEwMzcxMlowgaoxCzAJ
+BgNVBAYTAkdSMQ8wDQYDVQQHEwZBdGhlbnMxRDBCBgNVBAoTO0hlbGxlbmljIEFj
+YWRlbWljIGFuZCBSZXNlYXJjaCBJbnN0aXR1dGlvbnMgQ2VydC4gQXV0aG9yaXR5
+MUQwQgYDVQQDEztIZWxsZW5pYyBBY2FkZW1pYyBhbmQgUmVzZWFyY2ggSW5zdGl0
+dXRpb25zIEVDQyBSb290Q0EgMjAxNTB2MBAGByqGSM49AgEGBSuBBAAiA2IABJKg
+QehLgoRc4vgxEZmGZE4JJS+dQS8KrjVPdJWyUWRrjWvmP3CV8AVER6ZyOFB2lQJa
+jq4onvktTpnvLEhvTCUp6NFxW98dwXU3tNf6e3pCnGoKVlp8aQuqgAkkbH7BRqNC
+MEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFLQi
+C4KZJAEOnLvkDv2/+5cgk5kqMAoGCCqGSM49BAMCA2cAMGQCMGfOFmI4oqxiRaep
+lSTAGiecMjvAwNW6qef4BENThe5SId6d9SWDPp5YSy/XZxMOIQIwBeF1Ad5o7Sof
+TUwJCA3sS61kFyjndc5FZXIhF8siQQ6ME5g4mlRtm8rifOoCWCKR
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIICVDCCAdugAwIBAgIQZ3SdjXfYO2rbIvT/WeK/zjAKBggqhkjOPQQDAzBsMQsw
+CQYDVQQGEwJHUjE3MDUGA1UECgwuSGVsbGVuaWMgQWNhZGVtaWMgYW5kIFJlc2Vh
+cmNoIEluc3RpdHV0aW9ucyBDQTEkMCIGA1UEAwwbSEFSSUNBIFRMUyBFQ0MgUm9v
+dCBDQSAyMDIxMB4XDTIxMDIxOTExMDExMFoXDTQ1MDIxMzExMDEwOVowbDELMAkG
+A1UEBhMCR1IxNzA1BgNVBAoMLkhlbGxlbmljIEFjYWRlbWljIGFuZCBSZXNlYXJj
+aCBJbnN0aXR1dGlvbnMgQ0ExJDAiBgNVBAMMG0hBUklDQSBUTFMgRUNDIFJvb3Qg
+Q0EgMjAyMTB2MBAGByqGSM49AgEGBSuBBAAiA2IABDgI/rGgltJ6rK9JOtDA4MM7
+KKrxcm1lAEeIhPyaJmuqS7psBAqIXhfyVYf8MLA04jRYVxqEU+kw2anylnTDUR9Y
+STHMmE5gEYd103KUkE+bECUqqHgtvpBBWJAVcqeht6NCMEAwDwYDVR0TAQH/BAUw
+AwEB/zAdBgNVHQ4EFgQUyRtTgRL+BNUW0aq8mm+3oJUZbsowDgYDVR0PAQH/BAQD
+AgGGMAoGCCqGSM49BAMDA2cAMGQCMBHervjcToiwqfAircJRQO9gcS3ujwLEXQNw
+SaSS6sUUiHCm0w2wqsosQJz76YJumgIwK0eaB8bRwoF8yguWGEEbo/QwCZ61IygN
+nxS2PFOiTAZpffpskcYqSUXm7LcT4Tps
+-----END CERTIFICATE-----
 """
 
 # Strict allowlist for valid Saxion usernames (prevents argument injection into nmcli).
@@ -154,11 +204,25 @@ class Installer:
         self.gui_tool = None if silent else self._detect_gui()
 
     def _detect_gui(self) -> str | None:
-        """Detects available GUI tools (zenity, kdialog, yad)."""
+        """
+        Pick a dialog tool that matches the desktop.
+
+        Order matters: zenity is GTK and kdialog is Qt, and plenty of KDE
+        installs have zenity pulled in as somebody's dependency. Picking it
+        first there gives a GTK dialog on a Qt desktop -- wrong fonts, wrong
+        theme, wrong everything.
+        """
         if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
             return None
 
-        for tool in ["zenity", "kdialog", "yad"]:
+        desktop = (os.environ.get("XDG_CURRENT_DESKTOP", "")
+                   + os.environ.get("XDG_SESSION_DESKTOP", "")).upper()
+        if "KDE" in desktop or "PLASMA" in desktop or os.environ.get("KDE_FULL_SESSION"):
+            order = ["kdialog", "zenity", "yad"]
+        else:
+            order = ["zenity", "kdialog", "yad"]
+
+        for tool in order:
             if shutil.which(tool):
                 return tool
         return None
@@ -547,6 +611,12 @@ class Installer:
 
 
 def main():
+    if sys.version_info < MIN_PYTHON:
+        need = ".".join(str(n) for n in MIN_PYTHON)
+        have = ".".join(str(n) for n in sys.version_info[:3])
+        print(f"This script needs Python {need} or newer; this is {have}.",
+              file=sys.stderr)
+        sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Saxion eduroam Installer")
     parser.add_argument("-u", "--username", help="Saxion username")

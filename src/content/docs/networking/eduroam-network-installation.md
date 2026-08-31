@@ -10,7 +10,9 @@ Getting eduroam to work on Linux is more painful than it should be. Every "offic
 ## What doesn't work
 
 {{% details title="cat.eduroam.org installer (official)" closed="true" %}}
-The Python installer from [cat.eduroam.org](https://cat.eduroam.org/) provides a graphical interface and creates a connection profile. On some recent Linux distributions, the connection may hang during the TLS handshake due to changes in NetworkManager.
+The Python installer from [cat.eduroam.org](https://cat.eduroam.org/) provides a graphical interface and creates a connection profile. It reports "Installation successful" without ever attempting a connection, and the connection then hangs indefinitely during the TLS handshake.
+
+The cause is not NetworkManager: the CA embedded in Saxion's CAT profile is the pre-migration USERTrust / GEANT OV RSA CA 4 chain, while the RADIUS server now chains to HARICA roots. Validation cannot succeed. See [#109](https://github.com/THectic-NL/Zephyrus-Linux/issues/109) for the fingerprints and handshake logs.
 
 ![cat.eduroam.org download portal for Saxion](/images/eduroam-cat-portal.avif)
 {{% /details %}}
@@ -36,18 +38,29 @@ script, plus `domain-suffix-match` (the modern replacement for the deprecated
 
 The script used to point at the system trust store, which meant any of the roughly 150
 public CAs your distribution ships could vouch for a server calling itself
-`ise.infra.saxion.net`. It now trusts only the HARICA roots that Saxion's RADIUS server
-actually chains to — Hellenic Academic and Research Institutions RootCA 2015 and HARICA
-TLS RSA Root CA 2021 — which is what the official CAT installers do.
+`ise.infra.saxion.net`. It now trusts four HARICA roots and nothing else:
 
-GÉANT moved its Trusted Certificate Service to HARICA, so an earlier version of this
-script pinned the pre-migration USERTrust chain and every connection failed with
-`unknown CA`. If Saxion changes certificate authority again the same thing will happen;
-the script now says so explicitly instead of hanging.
+| Root | Key | Expires |
+|------|-----|---------|
+| Hellenic Academic and Research Institutions RootCA 2015 | RSA | 2040 |
+| HARICA TLS RSA Root CA 2021 | RSA | 2045 |
+| Hellenic Academic and Research Institutions ECC RootCA 2015 | ECC | 2040 |
+| HARICA TLS ECC Root CA 2021 | ECC | 2045 |
+
+The RSA pair is what the server serves today. The ECC pair is there for when Saxion
+moves off RSA, so that switch does not break the script. All four are HARICA roots, so
+this stays one CA operator.
+
+GÉANT moved its Trusted Certificate Service to HARICA, and the official CAT profile
+still pins the pre-migration USERTrust chain — which is why the official installer
+fails. If Saxion changes CA operator again this script will break too, but it now
+prints the chain the server actually served instead of hanging silently.
 
 **Requirements:**
-- Python 3.10+
+- Python 3.11+ (standard library only — no `pip install`, no `dbus-python`)
 - NetworkManager 1.8+ (`nmcli`)
+- Optional: `zenity` (GNOME) or `kdialog` (KDE) for graphical prompts; falls back to the terminal
+- Optional: access to the system journal, used to explain certificate failures
 
 ### Connection settings
 
@@ -57,7 +70,7 @@ the script now says so explicitly instead of hanging.
 | Authentication | Protected EAP (PEAP) |
 | PEAP version | Automatic |
 | Inner authentication | MSCHAPv2 |
-| CA certificate | Saxion's published chain, written to `~/.config/saxion-eduroam/saxion-eduroam-ca.pem` |
+| CA certificate | The HARICA roots the server chains to, written to `~/.config/saxion-eduroam/saxion-eduroam-ca.pem` |
 | Domain validation | `domain-suffix-match: ise.infra.saxion.net` |
 | Phase2 domain validation | `phase2-domain-suffix-match: ise.infra.saxion.net` |
 | Anonymous identity | `anonymous@saxion.nl` |
@@ -72,7 +85,7 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "6e2c86ee1303a2397c59b27aa1ef65cb9159e81fcfbdd47ce91a0ac1cc2cedb5  saxion-eduroam.py" | sha256sum -c
+echo "0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
@@ -99,9 +112,17 @@ MSCHAPv2 exchange, which is crackable offline — that is your Saxion password.
 `domain-suffix-match` does not help here: it checks the name on a certificate
 nobody verified. Use the flag to diagnose, then reconnect properly.
 
-**SHA256:** `6e2c86ee1303a2397c59b27aa1ef65cb9159e81fcfbdd47ce91a0ac1cc2cedb5`
+**SHA256:** `0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d`
 
-The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (zenity, kdialog, or yad) or terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your GNOME Keyring at connection time and stored securely, never in plaintext.
+The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (kdialog on KDE, zenity on GNOME) or a terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your keyring (GNOME Keyring or KWallet) at connection time and stored encrypted, never in plaintext.
+
+Useful flags:
+
+| Flag | Purpose |
+|------|---------|
+| `-u`, `--username` | Supply the username instead of being prompted |
+| `--silent` | No dialogs; prompt and report on the terminal only |
+| `--ignore-certificate` | Skip validation and print the chain the server served — debugging only, see the warning above |
 
 {{< callout type="info" >}}
 This script is **Saxion-specific** and validates against Saxion's RADIUS server (`ise.infra.saxion.net`). For other institutions, use the official CAT script from [cat.eduroam.org](https://cat.eduroam.org/) as a starting point.
@@ -120,7 +141,9 @@ If everything goes well, you should see something like this:
 ### Manual setup via nmcli
 
 {{< callout type="info" >}}
-This command stores the password directly in the connection profile. The automated script above uses `password-flags 1` instead, which stores the password securely in GNOME Keyring. Both approaches work; the script's method is more secure.
+This command stores the password directly in the connection profile. The automated script above uses `password-flags 1` instead, which hands the password to your keyring. Both work; the script's method is more secure.
+
+It also references `~/.config/saxion-eduroam/saxion-eduroam-ca.pem`, which only exists once the script has been run. Run the script first, or drop the `802-1x.ca-cert` line and accept that the chain is then unvalidated.
 {{< /callout >}}
 
 ```bash
