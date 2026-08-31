@@ -36,9 +36,14 @@ script, plus `domain-suffix-match` (the modern replacement for the deprecated
 
 The script used to point at the system trust store, which meant any of the roughly 150
 public CAs your distribution ships could vouch for a server calling itself
-`ise.infra.saxion.net`. It now trusts only the chain Saxion publishes through eduroam
-CAT — USERTrust RSA Certification Authority and GEANT OV RSA CA 4 — which is what the
-official CAT installers do.
+`ise.infra.saxion.net`. It now trusts only the HARICA roots that Saxion's RADIUS server
+actually chains to — Hellenic Academic and Research Institutions RootCA 2015 and HARICA
+TLS RSA Root CA 2021 — which is what the official CAT installers do.
+
+GÉANT moved its Trusted Certificate Service to HARICA, so an earlier version of this
+script pinned the pre-migration USERTrust chain and every connection failed with
+`unknown CA`. If Saxion changes certificate authority again the same thing will happen;
+the script now says so explicitly instead of hanging.
 
 **Requirements:**
 - Python 3.10+
@@ -67,13 +72,13 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e  saxion-eduroam.py" | sha256sum -c
+echo "cf3d6f2147e22b289d829cebd153b48b217af49fc729f00d964a47a9bf605120  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
 ```
 
-**SHA256:** `0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e`
+**SHA256:** `cf3d6f2147e22b289d829cebd153b48b217af49fc729f00d964a47a9bf605120`
 
 The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (zenity, kdialog, or yad) or terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your GNOME Keyring at connection time and stored securely, never in plaintext.
 

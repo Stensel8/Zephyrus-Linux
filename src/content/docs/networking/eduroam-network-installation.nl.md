@@ -36,9 +36,14 @@ is vastgelegd, plus `domain-suffix-match` (de moderne vervanging voor het veroud
 
 Het script wees eerder naar de systeem-truststore. Daarmee kon elk van de ongeveer 150
 publieke CA's die je distributie meelevert instaan voor een server die zich
-`ise.infra.saxion.net` noemt. Nu wordt alleen de keten vertrouwd die Saxion via eduroam
-CAT publiceert — USERTrust RSA Certification Authority en GEANT OV RSA CA 4 — precies
-wat de officiële CAT-installers doen.
+`ise.infra.saxion.net` noemt. Nu worden alleen de HARICA-roots vertrouwd waar Saxion's
+RADIUS-server daadwerkelijk naartoe ketent — Hellenic Academic and Research Institutions
+RootCA 2015 en HARICA TLS RSA Root CA 2021 — precies wat de officiële CAT-installers doen.
+
+GÉANT heeft zijn Trusted Certificate Service naar HARICA verhuisd. Een eerdere versie van
+dit script legde daardoor nog de oude USERTrust-keten vast en elke verbinding faalde met
+`unknown CA`. Wisselt Saxion opnieuw van certificaatautoriteit, dan gebeurt hetzelfde;
+het script meldt dat nu expliciet in plaats van vast te lopen.
 
 **Vereisten:**
 - Python 3.10+
@@ -67,13 +72,13 @@ Een Python-script automatiseert de volledige `nmcli`-verbindingsconfiguratie voo
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Controleer de checksum
-echo "0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e  saxion-eduroam.py" | sha256sum -c
+echo "cf3d6f2147e22b289d829cebd153b48b217af49fc729f00d964a47a9bf605120  saxion-eduroam.py" | sha256sum -c
 
 # 3. Uitvoeren
 python3 saxion-eduroam.py
 ```
 
-**SHA256:** `0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e`
+**SHA256:** `cf3d6f2147e22b289d829cebd153b48b217af49fc729f00d964a47a9bf605120`
 
 Het script verwijdert een eventueel bestaand eduroam-profiel, vraagt je **gebruikersnaam** via een GUI-dialoog (zenity, kdialog of yad) of terminal-fallback, en activeert de verbinding. Je wachtwoord wordt nooit door het script gevraagd; dat wordt bij het verbinden opgevraagd door je GNOME Keyring en veilig opgeslagen, nooit in platte tekst.
 
