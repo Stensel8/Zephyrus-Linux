@@ -144,9 +144,11 @@ DESCRIPTION = (
 
 class Installer:
 
-    def __init__(self, silent: bool = False, username: str = ""):
+    def __init__(self, silent: bool = False, username: str = "",
+                 ignore_certificate: bool = False):
         self.silent = silent
         self.username = username
+        self.ignore_certificate = ignore_certificate
         # --silent means no GUI, prompts included. Decided once so show_message
         # and prompt_input cannot disagree.
         self.gui_tool = None if silent else self._detect_gui()
@@ -268,6 +270,47 @@ class Installer:
                 continue
             self.username = val.strip()
 
+    def warn_insecure(self):
+        """Say plainly what --ignore-certificate gives up."""
+        warning = (
+            "Certificate validation is OFF.\n\n"
+            "Any access point calling itself 'eduroam' will be trusted. It can "
+            "terminate the TLS tunnel itself and collect the MSCHAPv2 exchange, "
+            "which is crackable offline -- that is your Saxion password.\n\n"
+            "Use this to find out what the server is really serving, then fix the "
+            "pinned chain and reconnect without this flag."
+        )
+        print("\n" + "!" * 70, file=sys.stderr)
+        for line in warning.splitlines():
+            print(line, file=sys.stderr)
+        print("!" * 70 + "\n", file=sys.stderr)
+        if not self.silent:
+            self.show_message(warning, True)
+
+    def report_server_chain(self):
+        """Print the chain the server actually presented, to fix the pin with."""
+        try:
+            res = subprocess.run(
+                ["journalctl", "-u", "wpa_supplicant", "-b", "--no-pager"],
+                capture_output=True, text=True, timeout=15,
+            )
+            certs = [ln.split("wpa_supplicant", 1)[-1].strip()
+                     for ln in res.stdout.splitlines() if "EAP-PEER-CERT" in ln]
+        except (OSError, subprocess.SubprocessError):
+            certs = []
+
+        print("\n--- certificate chain the server presented ---")
+        if certs:
+            for line in certs[-8:]:
+                print(f"  {line}")
+            print("\nPut the root above into SAXION_CA_PEM and drop the flag.")
+        else:
+            print(
+                "  Could not read the journal (needs root or the systemd-journal group).\n"
+                "  Run this to see it:\n"
+                "    journalctl -u wpa_supplicant -b | grep CTRL-EVENT-EAP-PEER-CERT"
+            )
+
     def install_ca_bundle(self) -> str:
         """Write the pinned chain to a stable path and return it."""
         try:
@@ -317,7 +360,11 @@ class Installer:
 
         self.get_credentials()
 
-        ca_path = self.install_ca_bundle()
+        if self.ignore_certificate:
+            self.warn_insecure()
+            ca_path = ""
+        else:
+            ca_path = self.install_ca_bundle()
 
         # 1. Remove any existing eduroam connection
         subprocess.run(
@@ -342,8 +389,9 @@ class Installer:
             # Real MAC on purpose: Saxion blocks a MAC that looks like it is
             # scanning, and randomising would let that block be shrugged off.
             "wifi.cloned-mac-address", "permanent",
-            "802-1x.ca-cert", ca_path,
         ]
+        if ca_path:
+            cmd += ["802-1x.ca-cert", ca_path]
 
         # No unvalidated fallback. Connecting anyway would hand a Saxion
         # password to whatever access point answered.
@@ -393,6 +441,8 @@ class Installer:
 
         if res.returncode == 0:
             print("[INFO] Connected to eduroam successfully.")
+            if self.ignore_certificate:
+                self.report_server_chain()
         elif "network could not be found" in output or "No network with SSID" in output:
             # Not in range; the passwd-file warning is also present but not the root cause.
             print(
@@ -429,6 +479,12 @@ def main():
     parser = argparse.ArgumentParser(description="Saxion eduroam Installer")
     parser.add_argument("-u", "--username", help="Saxion username")
     parser.add_argument("--silent", action="store_true", help="Run without GUI")
+    parser.add_argument(
+        "--ignore-certificate",
+        action="store_true",
+        help="Skip CA validation and print what the server served. Debugging only: "
+             "any access point named 'eduroam' is trusted and can harvest your password.",
+    )
     args = parser.parse_args()
 
     # Validate CLI-provided username before it can reach subprocess args.
@@ -441,7 +497,7 @@ def main():
         )
         initial_username = ""
 
-    installer = Installer(args.silent, initial_username)
+    installer = Installer(args.silent, initial_username, args.ignore_certificate)
     installer.install()
 
 

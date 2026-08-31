@@ -72,13 +72,34 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "16d9705f2a541c032710abbc0c2a05c974761aa27a7abe06e44a6aea5aa28948  saxion-eduroam.py" | sha256sum -c
+echo "447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
 ```
 
-**SHA256:** `16d9705f2a541c032710abbc0c2a05c974761aa27a7abe06e44a6aea5aa28948`
+#### When the certificate stops matching
+
+The trusted chain is pinned inside the script, so it breaks the day Saxion
+changes certificate authority — which is exactly what happened in
+[#109](https://github.com/THectic-NL/Zephyrus-Linux/issues/109). If the script
+reports `unknown CA` or fails to authenticate, `--ignore-certificate` connects
+without validating and prints the chain the server actually served:
+
+```bash
+python3 saxion-eduroam.py --ignore-certificate
+```
+
+Copy the root it reports into `SAXION_CA_PEM`, open an issue with it, and
+reconnect without the flag.
+
+**Do not leave this on.** Without validation, any access point calling itself
+`eduroam` is trusted. It can terminate the TLS tunnel itself and capture the
+MSCHAPv2 exchange, which is crackable offline — that is your Saxion password.
+`domain-suffix-match` does not help here: it checks the name on a certificate
+nobody verified. Use the flag to diagnose, then reconnect properly.
+
+**SHA256:** `447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1`
 
 The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (zenity, kdialog, or yad) or terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your GNOME Keyring at connection time and stored securely, never in plaintext.
 

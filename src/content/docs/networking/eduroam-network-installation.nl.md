@@ -72,13 +72,36 @@ Een Python-script automatiseert de volledige `nmcli`-verbindingsconfiguratie voo
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Controleer de checksum
-echo "16d9705f2a541c032710abbc0c2a05c974761aa27a7abe06e44a6aea5aa28948  saxion-eduroam.py" | sha256sum -c
+echo "447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1  saxion-eduroam.py" | sha256sum -c
 
 # 3. Uitvoeren
 python3 saxion-eduroam.py
 ```
 
-**SHA256:** `16d9705f2a541c032710abbc0c2a05c974761aa27a7abe06e44a6aea5aa28948`
+#### Als het certificaat niet meer klopt
+
+De vertrouwde keten ligt vast in het script, dus die breekt zodra Saxion van
+certificaatautoriteit wisselt — precies wat er in
+[#109](https://github.com/THectic-NL/Zephyrus-Linux/issues/109) gebeurde. Meldt
+het script `unknown CA` of lukt authenticatie niet, dan verbindt
+`--ignore-certificate` zonder te valideren en toont het welke keten de server
+werkelijk stuurde:
+
+```bash
+python3 saxion-eduroam.py --ignore-certificate
+```
+
+Zet de root die eruit komt in `SAXION_CA_PEM`, meld hem in een issue, en verbind
+daarna opnieuw zonder de vlag.
+
+**Laat dit niet aanstaan.** Zonder validatie wordt elk access point dat zich
+`eduroam` noemt vertrouwd. Dat kan de TLS-tunnel zelf afsluiten en de
+MSCHAPv2-uitwisseling opvangen, die offline te kraken is — dat is je
+Saxion-wachtwoord. `domain-suffix-match` helpt hier niet: die controleert de naam
+op een certificaat dat niemand geverifieerd heeft. Gebruik de vlag om te
+diagnosticeren en verbind daarna netjes.
+
+**SHA256:** `447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1`
 
 Het script verwijdert een eventueel bestaand eduroam-profiel, vraagt je **gebruikersnaam** via een GUI-dialoog (zenity, kdialog of yad) of terminal-fallback, en activeert de verbinding. Je wachtwoord wordt nooit door het script gevraagd; dat wordt bij het verbinden opgevraagd door je GNOME Keyring en veilig opgeslagen, nooit in platte tekst.
 
