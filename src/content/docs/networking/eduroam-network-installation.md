@@ -72,7 +72,7 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1  saxion-eduroam.py" | sha256sum -c
+echo "126cf094b66eb40a8ff8e5306489048e641cf758f1fef8ce6d64d48d09b5eb26  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
@@ -99,7 +99,7 @@ MSCHAPv2 exchange, which is crackable offline — that is your Saxion password.
 `domain-suffix-match` does not help here: it checks the name on a certificate
 nobody verified. Use the flag to diagnose, then reconnect properly.
 
-**SHA256:** `447a0979166cc801ba7406cc660b0403156532862ac031835291bb9d721f33e1`
+**SHA256:** `126cf094b66eb40a8ff8e5306489048e641cf758f1fef8ce6d64d48d09b5eb26`
 
 The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (zenity, kdialog, or yad) or terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your GNOME Keyring at connection time and stored securely, never in plaintext.
 

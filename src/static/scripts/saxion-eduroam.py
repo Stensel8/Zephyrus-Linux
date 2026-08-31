@@ -389,6 +389,12 @@ class Installer:
             # Real MAC on purpose: Saxion blocks a MAC that looks like it is
             # scanning, and randomising would let that block be shrugged off.
             "wifi.cloned-mac-address", "permanent",
+            # Off for now. Left on, NetworkManager starts connecting the moment
+            # the profile is added -- before the user has typed anything -- and
+            # that attempt sits in EAP-STARTED until it times out ~30s later,
+            # asking for the password a second time on the way. Turned back on
+            # after we connect ourselves below.
+            "connection.autoconnect", "no",
         ]
         if ca_path:
             cmd += ["802-1x.ca-cert", ca_path]
@@ -420,6 +426,20 @@ class Installer:
         # without the print below the script looks dead while nmcli waits.
         # --wait bounds nmcli, the subprocess timeout catches it ignoring that.
         print(f"[INFO] Connecting to {SSID} (up to {CONNECT_TIMEOUT}s)...", flush=True)
+
+        try:
+            self._activate()
+        finally:
+            # Whatever happened above, leave a profile that reconnects on its own
+            # like any other saved network.
+            subprocess.run(
+                ["nmcli", "connection", "modify", CON_NAME,
+                 "connection.autoconnect", "yes"],
+                capture_output=True,
+            )
+
+    def _activate(self):
+        """Bring the connection up and explain whatever nmcli reports."""
         try:
             res = subprocess.run(
                 ["nmcli", "--wait", str(CONNECT_TIMEOUT), "connection", "up", CON_NAME],
