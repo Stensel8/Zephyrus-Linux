@@ -26,6 +26,11 @@ REALM = "saxion.nl"
 SERVER_DOMAIN = "ise.infra.saxion.net"
 ANONYMOUS_ID = f"anonymous@{REALM}"
 
+# How long to wait for activation before giving up and telling the user where to
+# look. nmcli's own default is 90s of silence, which is long enough that people
+# assume the script has hung.
+CONNECT_TIMEOUT = 45
+
 # Where the pinned CA is written. NetworkManager reads 802-1x.ca-cert every time
 # it connects, so it has to survive the script exiting; a temporary file will not
 # do. Under the user's config directory, so the script still needs no root.
@@ -299,13 +304,20 @@ class Installer:
     def run_nmcli(self, cmd: list[str]) -> bool:
         res = subprocess.run(cmd, capture_output=True, text=True)
         if res.returncode != 0:
-            # Check for a specific error to allow fallback
-            if "Failed to recognize certificate" in res.stderr:
-                return False
-
             # Log full nmcli error to stderr (terminal only — never into GUI subprocess args).
+            # This happens before the certificate check below, because the caller
+            # tells the user to consult "the terminal output above" on that path
+            # too. It used to return early and print nothing, so the one failure
+            # the script explicitly asks people to report was the one failure it
+            # left no evidence of.
             sanitized_error = self._sanitize_for_log(res.stderr.strip())
             print(f"NetworkManager error:\n{sanitized_error}", file=sys.stderr)
+
+            # A rejected certificate gets its own message from the caller, which
+            # names the pinned file and how to refresh it. Anything else is fatal
+            # here.
+            if "Failed to recognize certificate" in res.stderr:
+                return False
 
             # Fatal error: show a static message to the GUI to avoid passing
             # nmcli output (which may echo user input) into a subprocess argument
@@ -386,11 +398,32 @@ class Installer:
         )
 
         # Attempt to activate the connection (best-effort; profile is already saved).
-        res = subprocess.run(
-            ["nmcli", "connection", "up", CON_NAME],
-            capture_output=True,
-            text=True
-        )
+        #
+        # Two things matter here. First the explicit timeout: nmcli waits 90
+        # seconds by default, and because the output is captured the script
+        # printed nothing at all for that whole time, which reads as a freeze
+        # rather than as a slow connect. Second the line above it: with the
+        # output captured there is otherwise no sign the script is still alive.
+        # --wait bounds nmcli itself; the subprocess timeout is the backstop for
+        # when nmcli ignores it.
+        print(f"[INFO] Connecting to {SSID} (up to {CONNECT_TIMEOUT}s)...", flush=True)
+        try:
+            res = subprocess.run(
+                ["nmcli", "--wait", str(CONNECT_TIMEOUT), "connection", "up", CON_NAME],
+                capture_output=True,
+                text=True,
+                timeout=CONNECT_TIMEOUT + 10,
+            )
+        except subprocess.TimeoutExpired:
+            print(
+                f"[WARN] eduroam profile saved, but activation did not finish within "
+                f"{CONNECT_TIMEOUT}s.\n"
+                "       This usually means the EAP handshake is failing and NetworkManager\n"
+                "       is retrying. Check what it reported with:\n"
+                "         journalctl -u NetworkManager -u wpa_supplicant -b --since '5 min ago'"
+            )
+            return
+
         output = res.stderr.strip() or res.stdout.strip()
 
         if res.returncode == 0:
