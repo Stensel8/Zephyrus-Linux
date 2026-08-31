@@ -6,13 +6,13 @@ next: docs/virtualization/podman
 
 WinBoat is an open-source project that runs Windows inside a Podman container on Linux. The goal is to have Windows applications show up as regular windows on your Linux desktop, without needing a full VM. I tested it using Podman.
 
-> **Status: Beta, but improving.** Originally tested on v0.9.0, which was rough. Retested on **v0.9.2** and it is noticeably steadier — not finished, but it is starting to look like something.
+> **Status: Beta, but improving.** Originally tested on v0.9.0, which was rough. Retested on **v0.9.2** and it is noticeably steadier. Not finished, but it is starting to look like something.
 
 {{< callout type="warning" >}}
 If you are still on v0.9.0, update. v0.9.1 and v0.9.2 patch a vulnerability that let an attacker run arbitrary PowerShell inside the VM through the `get-icon` call, along with fixes for UNC path access, control character injection, a Slowloris-style attack, and passwords being written to the compose and FreeRDP logs. The project credits @AndreaBonn and says it shipped a fix within four hours of disclosure.
 {{< /callout >}}
 
-The 0.9.x line is described by the project as the final 0.9 release — maintenance and security only, ahead of 1.0. Worth knowing: v0.9.2 also bumps `dockur/windows` from 5.14 to 6.05, a major jump in the image that actually runs Windows. That may well be why the startup behaviour improved for me, though I have not confirmed a direct link.
+The project calls this the final 0.9 release: maintenance and security only, ahead of 1.0. Worth knowing: v0.9.2 also bumps `dockur/windows` from 5.14 to 6.05, a major jump in the image that actually runs Windows. That may well be why the startup behaviour improved for me, though I have not confirmed a direct link.
 
 ![WinBoat feature overview from the project website](/images/winboat-features.avif)
 
@@ -93,7 +93,7 @@ WinBoat is in early beta. The project itself warns that users should be comforta
 
 Honestly, this is one of the coolest app concepts I've seen in a while. Running Windows apps as regular desktop windows without a full VM is something Bottles and Wine can't do either, especially for Microsoft 365.
 
-v0.9.2 moved this from "interesting but unusable" to "actually worth trying". It is still not something I would put in front of someone who just needs Windows to work today — for that, [VMware Workstation]({{< relref "/docs/virtualization/vmware-workstation" >}}) gives the best experience on this hardware, and the [KVM/QEMU setup]({{< relref "/docs/virtualization/vm-setup" >}}) is a solid open-source alternative.
+v0.9.2 moved this from "interesting but unusable" to "actually worth trying". It is still not something I would put in front of someone who just needs Windows to work today. For that, [VMware Workstation]({{< relref "/docs/virtualization/vmware-workstation" >}}) gives the best experience on this hardware, and the [KVM/QEMU setup]({{< relref "/docs/virtualization/vm-setup" >}}) is a solid open-source alternative.
 
 But the direction is right, and the project handled a security report in four hours. I am genuinely looking forward to the 1.0 stable release. WinBoat is a properly cool project and I hope it gets there.
 

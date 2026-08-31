@@ -6,7 +6,13 @@ next: docs/virtualization/podman
 
 WinBoat is een open-source project dat Windows draait in een Podman-container op Linux. Het idee: Windows-apps gewoon als losse vensters op je Linux-desktop, zonder dat je een volledige VM nodig hebt. Ik heb het getest met Podman.
 
-> **Status: Beta.** WinBoat is vroege beta. Getest op v0.9.0. Bugs zijn te verwachten; het project zegt het zelf ook.
+> **Status: Beta, maar het gaat de goede kant op.** Oorspronkelijk getest op v0.9.0, en dat was ruw. Opnieuw getest op **v0.9.2** en het draait merkbaar rustiger. Nog niet af, maar het begint ergens op te lijken.
+
+{{< callout type="warning" >}}
+Zit je nog op v0.9.0? Updaten. v0.9.1 en v0.9.2 dichten een kwetsbaarheid waarmee een aanvaller via de `get-icon`-aanroep willekeurige PowerShell in de VM kon draaien, plus fixes voor UNC-padtoegang, injectie van stuurtekens, een Slowloris-achtige aanval, en wachtwoorden die in de compose- en FreeRDP-logs terechtkwamen. Het project bedankt @AndreaBonn en zegt binnen vier uur na de melding een fix te hebben uitgebracht.
+{{< /callout >}}
+
+Het project noemt dit de laatste 0.9-release: alleen onderhoud en beveiliging, op weg naar 1.0. Goed om te weten: v0.9.2 tilt `dockur/windows` van 5.14 naar 6.05, een flinke sprong in de image die Windows daadwerkelijk draait. Dat zou kunnen verklaren waarom het opstarten bij mij beter ging, al heb ik dat verband niet hard gemaakt.
 
 ![WinBoat feature-overzicht van de projectwebsite](/images/winboat-features.avif)
 
@@ -87,7 +93,7 @@ WinBoat is vroege beta. Het project zegt zelf dat je wat troubleshootingervaring
 
 Eerlijk gezegd is dit een van de gaafste app-concepten die ik in tijden heb gezien. Windows-apps gewoon als desktopvensters, zonder volledige VM. Dat kan Bottles of Wine ook niet, zeker niet voor Microsoft 365.
 
-v0.9.2 heeft dit verschoven van "interessant maar onbruikbaar" naar "echt het proberen waard". Het is nog steeds niet iets wat ik zou voorzetten aan iemand die vandaag gewoon Windows nodig heeft — daarvoor geeft [VMware Workstation]({{< relref "/docs/virtualization/vmware-workstation" >}}) de beste ervaring op deze hardware, en is de [KVM/QEMU-setup]({{< relref "/docs/virtualization/vm-setup" >}}) een goed open-source alternatief.
+v0.9.2 heeft dit verschoven van "interessant maar onbruikbaar" naar "echt het proberen waard". Het is nog steeds niet iets wat ik zou voorzetten aan iemand die vandaag gewoon Windows nodig heeft. Daarvoor geeft [VMware Workstation]({{< relref "/docs/virtualization/vmware-workstation" >}}) de beste ervaring op deze hardware, en is de [KVM/QEMU-setup]({{< relref "/docs/virtualization/vm-setup" >}}) een goed open-source alternatief.
 
 Maar de richting klopt, en het project handelde een securitymelding binnen vier uur af. Ik kijk oprecht uit naar de 1.0 stable release. WinBoat is een gaaf project en ik hoop dat ze er komen.
 
