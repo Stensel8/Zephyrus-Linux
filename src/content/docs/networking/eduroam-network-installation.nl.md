@@ -51,6 +51,35 @@ Het RSA-paar is wat de server vandaag stuurt. Het ECC-paar staat er alvast in vo
 Saxion van RSA afstapt, zodat die overstap het script niet breekt. Alle vier zijn
 HARICA-roots, dus het blijft bij één CA-operator.
 
+#### Controleer de vastgelegde roots zelf
+
+Geloof deze pagina niet op haar woord. HARICA publiceert de fingerprints van hun eigen
+roots op [repo.harica.gr](https://repo.harica.gr/rep_dyn.php) — kies de root in de
+dropdown en vergelijk de SHA-1:
+
+| Entry in HARICA's repository | SHA-1 fingerprint |
+|---|---|
+| HARICA Root Certification Authority, 2015 | `01:0C:06:95:A6:98:19:14:FF:BF:5F:C6:B0:B6:95:EA:29:E9:12:A6` |
+| HARICA TLS RSA Root CA 2021, 2021 | `02:2D:05:82:FA:88:CE:14:0C:06:79:DE:7F:14:10:E9:45:D7:A5:6D` |
+| HARICA ECC Root Certification Authority, 2015 | `9F:F1:71:8D:92:D5:9A:F3:7D:74:97:B4:BC:6F:84:68:0B:BA:B6:66` |
+| HARICA TLS ECC Root CA 2021, 2021 | `BC:B0:C1:9D:E9:98:92:70:19:38:57:E9:8D:A7:B4:5D:6E:EE:01:48` |
+
+Nakijken wat het script daadwerkelijk op je machine heeft gezet:
+
+```bash
+awk '/BEGIN CERT/,/END CERT/' ~/.config/saxion-eduroam/saxion-eduroam-ca.pem |
+  csplit -zs -f /tmp/root- -b '%d.pem' - '/BEGIN CERT/' '{*}'
+for f in /tmp/root-*.pem; do
+  openssl x509 -in "$f" -noout -subject -fingerprint -sha1
+done
+```
+
+Elke fingerprint die eruit komt moet in de tabel hierboven staan. Zo niet: gebruik het
+script niet, maar open een issue.
+
+Dit is dezelfde controle die wij doen: niets wordt vastgelegd omdat een handshake het
+aanbood, alleen omdat de CA-operator het publiceert.
+
 GÉANT heeft zijn Trusted Certificate Service naar HARICA verhuisd, en het officiële
 CAT-profiel legt nog steeds de oude USERTrust-keten vast — daarom faalt de officiële
 installer. Wisselt Saxion opnieuw van CA-operator, dan breekt dit script ook, maar het
@@ -85,7 +114,7 @@ Een Python-script automatiseert de volledige `nmcli`-verbindingsconfiguratie voo
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Controleer de checksum
-echo "0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d  saxion-eduroam.py" | sha256sum -c
+echo "e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e  saxion-eduroam.py" | sha256sum -c
 
 # 3. Uitvoeren
 python3 saxion-eduroam.py
@@ -114,7 +143,7 @@ Saxion-wachtwoord. `domain-suffix-match` helpt hier niet: die controleert de naa
 op een certificaat dat niemand geverifieerd heeft. Gebruik de vlag om te
 diagnosticeren en verbind daarna netjes.
 
-**SHA256:** `0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d`
+**SHA256:** `e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e`
 
 Het script verwijdert een eventueel bestaand eduroam-profiel, vraagt je **gebruikersnaam** via een GUI-dialoog (kdialog op KDE, zenity op GNOME) of een terminal-fallback, en activeert de verbinding. Je wachtwoord wordt nooit door het script gevraagd; dat wordt bij het verbinden opgevraagd door je keyring (GNOME Keyring of KWallet) en versleuteld opgeslagen, nooit in platte tekst.
 

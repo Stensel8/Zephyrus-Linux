@@ -41,40 +41,58 @@ CA_DIR = os.path.join(
 )
 CA_FILE = os.path.join(CA_DIR, "saxion-eduroam-ca.pem")
 
-# The roots ise.infra.saxion.net chains to. GEANT moved its cert service to
-# HARICA; this file used to pin the old USERTrust/"GEANT OV RSA CA 4" chain,
-# which the server stopped sending, so every connect died on "unknown CA"
-# (#109). Don't guess these -- read them off a real handshake:
+# WHAT THIS SCRIPT TRUSTS, AND WHERE IT COMES FROM
+#
+# Nothing here is invented, and nothing is trusted just because it showed up in
+# a handshake. Three sources, each doing one job:
+#
+#   1. cat.eduroam.org  -- the connection parameters. Server name, realm, EAP
+#      methods. Cross-checked against Saxion's CAT profile; they agree.
+#      NOT the CA: that profile still pins the pre-migration USERTrust chain,
+#      which is why the official installer cannot connect (issue #109).
+#   2. A live handshake  -- which roots are actually in use. Run without a
+#      pinned CA, wpa_supplicant reports the chain the server sends. That is
+#      what the server does, not what a profile claims it does.
+#   3. repo.harica.gr  -- the certificates themselves, from the CA operator
+#      that issued them. Their published SHA-1 fingerprints were checked
+#      against these bytes on 2026-08-31. All four matched.
+#
+# So: CAT says what to connect to, the handshake says which CA is in play, and
+# HARICA supplies the certificate. No single source is taken on faith.
+#
+# Re-checking is the same three steps. To read the live chain:
 #
 #   nmcli connection modify eduroam 802-1x.ca-cert ""
 #   nmcli connection up eduroam
 #   journalctl -u wpa_supplicant -b | grep CTRL-EVENT-EAP-PEER-CERT
 #
-# Identify a root by its SHA-256, never by name: "HARICA TLS RSA Root CA 2021"
-# exists both self-signed and cross-signed by the 2015 root. Same CN, different
-# certificate, different bytes.
+# Identify a root by fingerprint, never by name. "HARICA TLS RSA Root CA 2021"
+# exists self-signed AND cross-signed by the 2015 root: same CN, different
+# certificate, different bytes. Pinning the wrong one silently fails.
 #
-#   RSA, in use today
+#   RSA -- what the server serves today
 #     A0:40:92:9A:02:CE:53:B4...  HARICA RootCA 2015            expires 2040
 #     D9:5D:0E:8E:DA:79:52:5B...  HARICA TLS RSA Root CA 2021   expires 2045
-#   ECC, for when Saxion moves off RSA
+#   ECC -- for when Saxion moves off RSA
 #     44:B5:45:AA:8A:25:E6:5A...  HARICA ECC RootCA 2015        expires 2040
 #     3F:99:CC:47:4A:CF:CE:4D...  HARICA TLS ECC Root CA 2021   expires 2045
 #
-# The RSA pair is what the server serves now: the 2015 root is byte-for-byte
-# the depth=3 certificate, and the self-signed 2021 root is what OpenSSL
-# actually terminates on. The ECC pair costs nothing and keeps this working
-# when they switch, which they eventually will. All four are HARICA roots from
-# the Mozilla root programme, so this stays one CA operator -- not the ~150 a
-# system trust store would accept.
+# Both roots of each pair are pinned on purpose. The server currently chains
+# through the cross-signed 2021 root up to the 2015 root, but HARICA publishes
+# that cross certificate as expiring 2029-08-31. After that the chain has to
+# terminate at the self-signed 2021 root, which is already pinned here, so that
+# transition is a non-event.
 #
 # The GEANT TLS RSA 1 intermediate is not pinned: the server sends it, and
-# intermediates rotate often enough to break us again.
+# intermediates rotate far more often than roots.
 #
-# Yes, pinning breaks when Saxion switches CA operator. That is the trade: without
-# it any public CA can vouch for a server calling itself ise.infra.saxion.net,
-# and PEAP/MSCHAPv2 hands it a hash of the user's password. When it breaks the
-# script now says so and prints the chain it saw.
+# All four are HARICA roots, so this trusts one CA operator. A system trust
+# store would accept roughly 150. That gap is the whole point: without pinning,
+# any of them could vouch for a server calling itself ise.infra.saxion.net, and
+# PEAP/MSCHAPv2 hands that server a hash of the user's password.
+#
+# Pinning does break when Saxion changes CA operator. When it does, the script
+# says so and prints the chain it saw, instead of hanging.
 SAXION_CA_PEM = """\
 -----BEGIN CERTIFICATE-----
 MIIGCzCCA/OgAwIBAgIBADANBgkqhkiG9w0BAQsFADCBpjELMAkGA1UEBhMCR1Ix

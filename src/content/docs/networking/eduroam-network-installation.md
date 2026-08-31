@@ -51,6 +51,35 @@ The RSA pair is what the server serves today. The ECC pair is there for when Sax
 moves off RSA, so that switch does not break the script. All four are HARICA roots, so
 this stays one CA operator.
 
+#### Verify the pinned roots yourself
+
+Don't take this page's word for it. HARICA publishes the fingerprints of its own roots
+at [repo.harica.gr](https://repo.harica.gr/rep_dyn.php) — pick the root from the
+dropdown and compare its SHA-1:
+
+| Entry in HARICA's repository | SHA-1 fingerprint |
+|---|---|
+| HARICA Root Certification Authority, 2015 | `01:0C:06:95:A6:98:19:14:FF:BF:5F:C6:B0:B6:95:EA:29:E9:12:A6` |
+| HARICA TLS RSA Root CA 2021, 2021 | `02:2D:05:82:FA:88:CE:14:0C:06:79:DE:7F:14:10:E9:45:D7:A5:6D` |
+| HARICA ECC Root Certification Authority, 2015 | `9F:F1:71:8D:92:D5:9A:F3:7D:74:97:B4:BC:6F:84:68:0B:BA:B6:66` |
+| HARICA TLS ECC Root CA 2021, 2021 | `BC:B0:C1:9D:E9:98:92:70:19:38:57:E9:8D:A7:B4:5D:6E:EE:01:48` |
+
+To check what the script actually installed on your machine:
+
+```bash
+awk '/BEGIN CERT/,/END CERT/' ~/.config/saxion-eduroam/saxion-eduroam-ca.pem |
+  csplit -zs -f /tmp/root- -b '%d.pem' - '/BEGIN CERT/' '{*}'
+for f in /tmp/root-*.pem; do
+  openssl x509 -in "$f" -noout -subject -fingerprint -sha1
+done
+```
+
+Every fingerprint printed must appear in the table above. If one does not, do not use the
+script — open an issue instead.
+
+This is the same check we run: nothing is pinned because a handshake offered it, only
+because the CA operator publishes it.
+
 GÉANT moved its Trusted Certificate Service to HARICA, and the official CAT profile
 still pins the pre-migration USERTrust chain — which is why the official installer
 fails. If Saxion changes CA operator again this script will break too, but it now
@@ -85,7 +114,7 @@ A Python script automates the full `nmcli` connection setup for Saxion:
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Verify checksum
-echo "0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d  saxion-eduroam.py" | sha256sum -c
+echo "e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e  saxion-eduroam.py" | sha256sum -c
 
 # 3. Run
 python3 saxion-eduroam.py
@@ -112,7 +141,7 @@ MSCHAPv2 exchange, which is crackable offline — that is your Saxion password.
 `domain-suffix-match` does not help here: it checks the name on a certificate
 nobody verified. Use the flag to diagnose, then reconnect properly.
 
-**SHA256:** `0c8a0a94e722d34a02fa73cc0e214cbe957c94b9f90cf25ea9c0d5a4c142e86d`
+**SHA256:** `e647269311baae63334e66a80ff658cfd9d8a0d7618ca32d640d446a5086ec0e`
 
 The script removes any existing eduroam profile, prompts for your **username** via a GUI dialog (kdialog on KDE, zenity on GNOME) or a terminal fallback, and activates the connection. Your password is never asked by the script; it is requested by your keyring (GNOME Keyring or KWallet) at connection time and stored encrypted, never in plaintext.
 
