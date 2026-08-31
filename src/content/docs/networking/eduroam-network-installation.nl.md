@@ -67,13 +67,13 @@ Een Python-script automatiseert de volledige `nmcli`-verbindingsconfiguratie voo
 curl -LO https://zephyrus-linux.stensel.nl/scripts/saxion-eduroam.py
 
 # 2. Controleer de checksum
-echo "fad48d500af6eb90deec5e0e21ccf7cbaaac6678b5d3e8cb4f26d814c525e3d2  saxion-eduroam.py" | sha256sum -c
+echo "0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e  saxion-eduroam.py" | sha256sum -c
 
 # 3. Uitvoeren
 python3 saxion-eduroam.py
 ```
 
-**SHA256:** `fad48d500af6eb90deec5e0e21ccf7cbaaac6678b5d3e8cb4f26d814c525e3d2`
+**SHA256:** `0a587f9d6c7d9d521e5ef7f17331e538aaec6e43a9c59aa81d36e7a2dc75732e`
 
 Het script verwijdert een eventueel bestaand eduroam-profiel, vraagt je **gebruikersnaam** via een GUI-dialoog (zenity, kdialog of yad) of terminal-fallback, en activeert de verbinding. Je wachtwoord wordt nooit door het script gevraagd; dat wordt bij het verbinden opgevraagd door je GNOME Keyring en veilig opgeslagen, nooit in platte tekst.
 
