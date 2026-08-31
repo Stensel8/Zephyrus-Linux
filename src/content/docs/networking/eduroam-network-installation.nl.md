@@ -47,9 +47,23 @@ publieke CA's die je distributie meelevert instaan voor een server die zich
 | Hellenic Academic and Research Institutions ECC RootCA 2015 | ECC | 2040 |
 | HARICA TLS ECC Root CA 2021 | ECC | 2045 |
 
-Het RSA-paar is wat de server vandaag stuurt. Het ECC-paar staat er alvast in voor als
-Saxion van RSA afstapt, zodat die overstap het script niet breekt. Alle vier zijn
-HARICA-roots, dus het blijft bij één CA-operator.
+Het RSA-paar is wat de server vandaag stuurt, en beide helften daarvan liggen niet voor
+niets vast. De server ketent nu via de *cross-signed* 2021-root door naar de 2015-root,
+maar HARICA publiceert dat cross-certificaat als geldig tot **2029-08-31**. Daarna moet
+de keten eindigen bij de self-signed 2021-root — die hier al vastligt, en waar OpenSSL
+vandaag al op uitkomt.
+
+Het ECC-paar dekt een overstap weg van RSA. HARICA's repository noemt
+`HARICA GEANT TLS ECC 1` (2025) al bij de intermediates, dus dat pad bestaat. Alle vier
+zijn HARICA-roots, dus het blijft bij één CA-operator.
+
+| Datum | Wat er gebeurt |
+|---|---|
+| 2029-08-31 | Cross-certificaat verloopt; keten moet eindigen bij de self-signed 2021-root |
+| 2040-06-30 | Beide 2015-roots verlopen |
+| 2045-02-13 | Beide 2021-roots verlopen |
+
+Fingerprints laatst gecontroleerd tegen HARICA's repository op **2026-08-31**.
 
 #### Controleer de vastgelegde roots zelf
 

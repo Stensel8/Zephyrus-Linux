@@ -47,9 +47,23 @@ public CAs your distribution ships could vouch for a server calling itself
 | Hellenic Academic and Research Institutions ECC RootCA 2015 | ECC | 2040 |
 | HARICA TLS ECC Root CA 2021 | ECC | 2045 |
 
-The RSA pair is what the server serves today. The ECC pair is there for when Saxion
-moves off RSA, so that switch does not break the script. All four are HARICA roots, so
-this stays one CA operator.
+The RSA pair is what the server serves today, and both members of it are pinned for a
+reason. The server currently chains through the *cross-signed* 2021 root up to the 2015
+root, but HARICA publishes that cross certificate as valid only until **2029-08-31**.
+After that date the chain has to terminate at the self-signed 2021 root — already pinned
+here, and already what OpenSSL terminates on today.
+
+The ECC pair covers a move off RSA. HARICA's repository already lists
+`HARICA GEANT TLS ECC 1` (2025) among its intermediates, so that path exists. All four
+are HARICA roots, so this stays one CA operator.
+
+| Date | What happens |
+|---|---|
+| 2029-08-31 | Cross certificate expires; chain must terminate at the self-signed 2021 root |
+| 2040-06-30 | Both 2015 roots expire |
+| 2045-02-13 | Both 2021 roots expire |
+
+Fingerprints last checked against HARICA's repository on **2026-08-31**.
 
 #### Verify the pinned roots yourself
 
