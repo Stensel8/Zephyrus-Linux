@@ -310,12 +310,13 @@ class Installer:
             os.makedirs(CA_DIR, mode=0o755, exist_ok=True)
             with open(CA_FILE, "w", encoding="ascii") as handle:
                 handle.write(SAXION_CA_PEM)
-            # 0644, not 0600. These are public root certificates, not a key, and
-            # NetworkManager reads this path as a system service on every
-            # connect. Marking it unreadable claims a secrecy it does not have
-            # and only invites trouble on setups where that read is not done as
-            # this user.
-            os.chmod(CA_FILE, 0o644)
+            # 0600. These are public root certificates rather than a key, so
+            # the mode is not protecting a secret, but it does not need to be
+            # readable by anyone else either: NetworkManager reads this path as
+            # root when it connects, which is unaffected by the mode. Verified
+            # on Fedora-based Bazzite with SELinux enforcing, where the file is
+            # labelled config_home_t and wpa_supplicant still reads it.
+            os.chmod(CA_FILE, 0o600)
         except OSError as error:
             self.show_message(
                 f"Could not write the CA certificate to {CA_FILE}: {error}", True
