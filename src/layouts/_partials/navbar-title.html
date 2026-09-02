@@ -5,34 +5,34 @@
 
        Standardised across the THectic project repos: keep this file byte-for-
        byte identical everywhere, and onboard a new repo by copying it in
-       unchanged. The hover card's styling lives in custom/head-end.html for the
-       same reason.
+       alongside the .brand-* block in assets/css/custom.css.
 
        The monogram is inlined twice, one variant per theme, so the tile stays
        readable on both the light and the near-black navbar. Its plate colour
-       and glyph path match THectic.nl's own brand mark. */ -}}
+       and glyph path match THectic.nl's own brand mark.
+
+       Layout lives in custom.css rather than Tailwind utility classes: Hextra
+       ships a precompiled bundle and never reruns Tailwind against the site's
+       own templates, so a `hx:` class not already used by the theme itself
+       (gap-2.5, hover:opacity-80, ...) silently compiles to nothing. */ -}}
 {{- $displayTitle := .Site.Params.navbar.displayTitle | default true -}}
-<div class="hx:flex hx:items-center hx:gap-2.5 hx:ltr:mr-auto hx:rtl:ml-auto">
-  <span class="thectic-home">
-    <a
-      class="hx:flex hx:items-center hx:shrink-0 hx:hover:opacity-80"
-      href="https://thectic.nl"
-      aria-label="THectic — back to the main site"
-    >
-      <svg class="hx:block hx:dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28" role="img" aria-label="THectic">
+<div class="brand-lockup hx:ltr:mr-auto hx:rtl:ml-auto">
+  <span class="brand-home">
+    <a class="brand-mark" href="https://thectic.nl" aria-label="THectic — back to the main site">
+      <svg class="hx:block hx:dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-label="THectic">
         <rect width="64" height="64" rx="13" fill="#09111d" />
         <path d="M12 18h24v4h-10v23h-4V22H12z M48 18h4v27h-4V34H35v11h-4V30h17z" fill="#ffffff" />
       </svg>
-      <svg class="hx:hidden hx:dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28" role="img" aria-label="THectic">
+      <svg class="hx:hidden hx:dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-label="THectic">
         <rect width="64" height="64" rx="13" fill="#f5f5f5" />
         <path d="M12 18h24v4h-10v23h-4V22H12z M48 18h4v27h-4V34H35v11h-4V30h17z" fill="#09111d" />
       </svg>
     </a>
-    <span class="thectic-home-card" aria-hidden="true">THectic</span>
+    <span class="brand-home-card" aria-hidden="true">THectic</span>
   </span>
   {{- if $displayTitle }}
-  <a class="hx:flex hx:items-center hx:hover:opacity-75" href="{{ .Site.Home.RelPermalink }}">
-    <span class="hx:font-extrabold hx:inline hx:select-none">{{- .Site.Title -}}</span>
+  <a class="brand-title" href="{{ .Site.Home.RelPermalink }}">
+    <span>{{- .Site.Title -}}</span>
   </a>
   {{- end }}
 </div>
