@@ -104,13 +104,10 @@
 }
 
 
-/* Language/theme controls live in the navbar — hide sidebar and footer duplicates */
+/* The footer's duplicate language/theme switches are dropped in
+   _partials/footer.html; this only handles the sidebar's copy on mobile.
+   Language and theme both live in the navbar. */
 .hextra-sidebar-container > [data-toggle-animation="show"] {
-  display: none !important;
-}
-.hextra-footer .hextra-language-switcher,
-.hextra-footer .hextra-theme-toggle,
-.hextra-footer hr {
   display: none !important;
 }
 
